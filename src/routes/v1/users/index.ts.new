@@ -1,0 +1,129 @@
+﻿import { Router, Request, Response, NextFunction } from 'express';
+import { body } from 'express-validator';
+import { authenticate } from '../../../shared/middleware/auth';
+import { asyncHandler } from '../../../shared/middleware/error';
+import { validate } from '../../../shared/middleware/validation';
+import { createSuccessResponse } from '../../../shared/types/response';
+import { prisma } from '../../../shared/database/client';
+
+const router = Router();
+
+// 为特定路由跳过CSRF验证的中间件
+const skipCSRFForRegister = (req: Request, res: Response, next: NextFunction) => {
+  // 标记此请求跳过CSRF验证
+  (req as any).skipCSRF = true;
+  next();
+};
+
+// 用户注册（跳过CSRF验证便于开发测试）
+router.post('/register',
+  skipCSRFForRegister,
+  // 临时移除认证需求，便于开发测试
+  // authenticate,
+  [
+    body('openid')
+      .notEmpty()
+      .withMessage('openid不能为空')
+      .isLength({ min: 1, max: 100 })
+      .withMessage('openid长度必须在1-100字符之间'),
+    body('nickname')
+      .optional()
+      .trim()
+      .isLength({ min: 1, max: 50 })
+      .withMessage('昵称长度必须在1-50字符之间'),
+    body('phone')
+      .optional()
+      .trim(),
+    body('avatarUrl')
+      .optional()
+      .trim()
+  ],
+  validate,
+  asyncHandler(async (req, res) => {
+    console.log('[用户注册] 开始处理注册请求:', req.body);
+    
+    const { openid, nickname, phone, avatarUrl } = req.body;
+    
+    try {
+      console.log('[用户注册] 1. 检查用户是否已存在...');
+      
+      // 设置超时Promise
+      const timeout = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('数据库查询超时')), 5000)
+      );
+      
+      // 检查用户是否已存在（添加超时控制）
+      const existingUser = await Promise.race([
+        prisma.user.findUnique({ where: { openid } }),
+        timeout
+      ]);
+      
+      console.log('[用户注册] 2. 查询完成，existingUser:', existingUser ? 'exists' : 'not found');
+
+      if (existingUser) {
+        console.log('[用户注册] 用户已存在，返回409');
+        return res.status(409).json({
+          success: false,
+          error: {
+            code: 'USER_EXISTS',
+            message: '用户已存在',
+            timestamp: new Date().toISOString()
+          }
+        });
+      }
+
+      console.log('[用户注册] 3. 开始创建用户...');
+      
+      // 创建用户（添加超时控制）
+      const user = await Promise.race([
+        prisma.user.create({
+          data: {
+            openid,
+            nickname,
+            phone,
+            avatarUrl,
+            level: 'NORMAL',
+            status: 'ACTIVE'
+          }
+        }),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('创建用户超时')), 5000)
+        )
+      ]);
+      
+      console.log('[用户注册] 4. 用户创建成功:', user.id);
+
+      res.status(201).json(createSuccessResponse({
+        user: {
+          id: user.id,
+          openid: user.openid,
+          nickname: user.nickname,
+          phone: user.phone,
+          avatarUrl: user.avatarUrl,
+          level: user.level.toLowerCase(),
+          status: user.status.toLowerCase(),
+          createdAt: user.createdAt
+        }
+      }, '用户注册成功', 201));
+      
+      console.log('[用户注册] 5. 响应已发送');
+      
+    } catch (error: any) {
+      console.error('[用户注册] 错误:', error);
+      
+      if (error.message.includes('超时')) {
+        return res.status(504).json({
+          success: false,
+          error: {
+            code: 'DATABASE_TIMEOUT',
+            message: '数据库操作超时，请稍后重试',
+            timestamp: new Date().toISOString()
+          }
+        });
+      }
+      
+      throw error;
+    }
+  })
+);
+

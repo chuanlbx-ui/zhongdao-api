@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # MySQL开发数据库
+  mysql-dev:
+    image: mysql:8.0
+    container_name: zhongdao-mysql-dev
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_123
+      MYSQL_DATABASE: zhongdao_mall_dev
+      MYSQL_USER: dev_user
+      MYSQL_PASSWORD: dev_password_123
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+      - ./docker/mysql/dev.cnf:/etc/mysql/conf.d/dev.cnf
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    networks:
+      - zhongdao-dev
+
+  # Redis开发缓存
+  redis-dev:
+    image: redis:7-alpine
+    container_name: zhongdao-redis-dev
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_dev_data:/data
+      - ./docker/redis/redis-dev.conf:/etc/redis/redis.conf
+    command: redis-server /etc/redis/redis.conf
+    restart: unless-stopped
+    networks:
+      - zhongdao-dev
+
+  # Adminer (数据库管理工具)
+  adminer:
+    image: adminer:latest
+    container_name: zhongdao-adminer
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql-dev
+    restart: unless-stopped
+    networks:
+      - zhongdao-dev
+
+volumes:
+  mysql_dev_data:
+  redis_dev_data:
+
+networks:
+  zhongdao-dev:
+    driver: bridge

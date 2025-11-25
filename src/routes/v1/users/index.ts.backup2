@@ -1,0 +1,232 @@
+import { Router, Request, Response, NextFunction } from 'express';
+import { body } from 'express-validator';
+import { authenticate } from '../../../shared/middleware/auth';
+import { asyncHandler } from '../../../shared/middleware/error';
+import { validate } from '../../../shared/middleware/validation';
+import { createSuccessResponse } from '../../../shared/types/response';
+import { prisma } from '../../../shared/database/client';
+
+const router = Router();
+
+// 为特定路由跳过CSRF验证的中间件
+const skipCSRFForRegister = (req: Request, res: Response, next: NextFunction) => {
+  // 标记此请求跳过CSRF验证
+  (req as any).skipCSRF = true;
+  next();
+};
+
+// 用户注册（跳过CSRF验证便于开发测试）
+router.post('/register',
+  skipCSRFForRegister,
+  // 临时移除认证需求，便于开发测试
+  // authenticate,
+  [
+    body('openid')
+      .notEmpty()
+      .withMessage('openid不能为空')
+      .isLength({ min: 1, max: 100 })
+      .withMessage('openid长度必须在1-100字符之间'),
+    body('nickname')
+      .optional()
+      .trim()
+      .isLength({ min: 1, max: 50 })
+      .withMessage('昵称长度必须在1-50字符之间'),
+    body('phone')
+      .optional()
+      .trim(),
+    body('avatarUrl')
+      .optional()
+      .trim()
+  ],
+  validate,
+  asyncHandler(async (req, res) => {
+    const { openid, nickname, phone, avatarUrl } = req.body;
+
+    // 检查用户是否已存在
+    const existingUser = await prisma.user.findUnique({
+      where: { openid }
+    });
+
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        error: {
+          code: 'USER_EXISTS',
+          message: '用户已存在',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    // 创建用户
+    const user = await prisma.user.create({
+      data: {
+        openid,
+        nickname,
+        phone,
+        avatarUrl,
+        level: 'NORMAL',
+        status: 'ACTIVE'
+      }
+    });
+
+    res.status(201).json(createSuccessResponse({
+      user: {
+        id: user.id,
+        openid: user.openid,
+        nickname: user.nickname,
+        phone: user.phone,
+        avatarUrl: user.avatarUrl,
+        level: user.level.toLowerCase(),
+        status: user.status.toLowerCase(),
+        createdAt: user.createdAt
+      }
+    }, '用户注册成功', 201));
+  })
+);
+
+// 获取当前用户信息
+router.get('/me',
+  authenticate,
+  asyncHandler(async (req, res) => {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user!.id },
+      select: {
+        id: true,
+        openid: true,
+        nickname: true,
+        phone: true,
+        avatarUrl: true,
+        level: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'USER_NOT_FOUND',
+          message: '用户不存在',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    res.json(createSuccessResponse({
+      user: {
+        ...user,
+        level: user.level.toLowerCase(),
+        status: user.status.toLowerCase()
+      }
+    }));
+  })
+);
+
+// 更新用户信息
+router.put('/me',
+  authenticate,
+  [
+    body('nickname')
+      .optional()
+      .isLength({ min: 2, max: 50 })
+      .withMessage('昵称长度必须在2-50字符之间'),
+    body('avatarUrl')
+      .optional()
+      .isURL()
+      .withMessage('头像URL格式不正确')
+  ],
+  validate,
+  asyncHandler(async (req, res) => {
+    const { nickname, avatarUrl } = req.body;
+    const userId = req.user!.id;
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(nickname && { nickname }),
+        ...(avatarUrl && { avatarUrl })
+      },
+      select: {
+        id: true,
+        openid: true,
+        nickname: true,
+        phone: true,
+        avatarUrl: true,
+        level: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+
+    res.json(createSuccessResponse({
+      user: {
+        ...updatedUser,
+        level: updatedUser.level.toLowerCase(),
+        status: updatedUser.status.toLowerCase()
+      }
+    }, '用户信息更新成功'));
+  })
+);
+
+// 获取用户列表（管理员权限）
+router.get('/',
+  authenticate,
+  asyncHandler(async (req, res) => {
+    // 检查管理员权限
+    if (!req.user || req.user.level !== 'director') {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'FORBIDDEN',
+          message: '需要管理员权限',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+    const page = parseInt(req.query.page as string) || 1;
+    const perPage = Math.min(parseInt(req.query.perPage as string) || 20, 100);
+    const skip = (page - 1) * perPage;
+
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        skip,
+        take: perPage,
+        select: {
+          id: true,
+          openid: true,
+          nickname: true,
+          phone: true,
+          avatarUrl: true,
+          level: true,
+          status: true,
+          createdAt: true,
+          updatedAt: true
+        },
+        orderBy: { createdAt: 'desc' }
+      }),
+      prisma.user.count()
+    ]);
+
+    res.json(createSuccessResponse({
+      users: users.map(user => ({
+        ...user,
+        level: user.level.toLowerCase(),
+        status: user.status.toLowerCase()
+      })),
+      pagination: {
+        page,
+        perPage,
+        total,
+        totalPages: Math.ceil(total / perPage),
+        hasNext: page < Math.ceil(total / perPage),
+        hasPrev: page > 1
+      }
+    }));
+  })
+);
+
+export default router;

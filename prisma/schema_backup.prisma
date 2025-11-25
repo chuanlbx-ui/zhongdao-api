@@ -1,0 +1,837 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ===========================================
+// 用户管理模块
+// ===========================================
+
+// 短信验证码表
+model SMSVerification {
+  id        String   @id @default(cuid())
+  phone     String   // 手机号
+  code      String   // 验证码
+  type      SMSType  // 验证码类型
+  attempts  Int      @default(0) // 尝试次数
+  isUsed    Boolean  @default(false) // 是否已使用
+  expiresAt DateTime // 过期时间
+  createdAt DateTime @default(now())
+
+  @@map("sms_verifications")
+}
+
+// 短信验证码类型枚举
+enum SMSType {
+  BIND     // 绑定手机号
+  UNBIND   // 解绑手机号
+  LOGIN    // 登录验证
+  TRANSFER // 转账验证
+}
+
+// ===========================================
+
+// 用户表
+model User {
+  id                String            @id @default(cuid())
+  openid            String            @unique // 微信openid
+  nickname          String?
+  avatarUrl         String?           @map("avatar_url")
+  phone             String?           @unique
+  level             UserLevel         @default(NORMAL)
+  status            UserStatus        @default(ACTIVE)
+  parentId          String?           @map("parent_id")
+  teamPath          String?           @map("team_path") // 团队路径 /grandparent/parent/self/
+  teamLevel         Int               @default(1) @map("team_level") // 团队层级
+
+  // 业绩统计
+  totalSales        Float             @default(0) @map("total_sales") // 总销售额
+  totalBottles      Int               @default(0) @map("total_bottles") // 总瓶数
+  directSales       Float             @default(0) @map("direct_sales") // 直销销售额
+  teamSales         Float             @default(0) @map("team_sales") // 团队销售额
+
+  // 团队统计
+  directCount       Int               @default(0) @map("direct_count") // 直推人数
+  teamCount         Int               @default(0) @map("team_count") // 团队总人数
+
+  // 店铺相关
+  cloudShopLevel    Int?              @map("cloud_shop_level") // 云店等级
+  hasWutongShop     Boolean           @default(false) @map("has_wutong_shop")
+
+  // 通券相关
+  pointsBalance     Float             @default(0) @map("points_balance")
+  pointsFrozen      Float             @default(0) @map("points_frozen") // 冻结通券
+
+  // 时间戳
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+  lastLoginAt       DateTime?         @map("last_login_at")
+
+  // 关系
+  parent            User?             @relation("UserParent", fields: [parentId], references: [id])
+  children          User[]            @relation("UserParent")
+  shops             Shop[]
+  purchaseOrders    PurchaseOrder[]   @relation("UserPurchaseOrders")
+  salesOrders       PurchaseOrder[]   @relation("UserSalesOrders")
+  pointsFrom        PointsTransaction[] @relation("PointsFrom")
+  pointsTo          PointsTransaction[] @relation("PointsTo")
+  inventoryItems    InventoryItem[]
+  inventoryLogs     InventoryLog[]
+  inventoryAlerts  InventoryAlert[]
+  operatedLogs      InventoryLog[]  @relation("InventoryLogOperators")
+  resolvedAlerts    InventoryAlert[] @relation("InventoryAlertResolvers")
+  orders            Order[]
+
+  @@map("users")
+}
+
+// 用户等级枚举
+enum UserLevel {
+  NORMAL           // 普通会员
+  VIP              // VIP会员
+  STAR_1           // 一星店长
+  STAR_2           // 二星店长
+  STAR_3           // 三星店长
+  STAR_4           // 四星店长
+  STAR_5           // 五星店长
+  DIRECTOR         // 董事
+}
+
+// 用户状态枚举
+enum UserStatus {
+  ACTIVE           // 活跃
+  INACTIVE         // 不活跃
+  SUSPENDED        // 暂停
+}
+
+// ===========================================
+// 店铺管理模块
+// ===========================================
+
+// 店铺表
+model Shop {
+  id                String            @id @default(cuid())
+  userId            String            @map("user_id")
+  shopType          ShopType          // 店铺类型
+  shopLevel         Int               @default(1) @map("shop_level")
+  shopName          String?           @map("shop_name")
+  shopDescription   String?           @map("shop_description")
+  contactName       String?           @map("contact_name")
+  contactPhone      String?           @map("contact_phone")
+  address           String?           // 店铺地址
+
+  // 营业数据
+  totalSales        Float             @default(0) @map("total_sales")
+  totalOrders       Int               @default(0) @map("total_orders")
+  totalRevenue      Float             @default(0) @map("total_revenue")
+
+  // 状态
+  status            ShopStatus        @default(PENDING)
+
+  // 时间戳
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  // 关系
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products          Product[]
+  inventoryItems    InventoryItem[]
+  inventoryLogs     InventoryLog[]
+  inventoryAlerts  InventoryAlert[]
+
+  @@map("shops")
+}
+
+// 店铺类型枚举
+enum ShopType {
+  CLOUD            // 云店
+  WUTONG           // 五通店
+}
+
+// 店铺状态枚举
+enum ShopStatus {
+  PENDING          // 待审核
+  APPROVED         // 已批准
+  ACTIVE           // 活跃
+  SUSPENDED        // 暂停
+  CLOSED           // 关闭
+}
+
+// ===========================================
+// 商品管理模块
+// ===========================================
+
+// 商品标签表
+model ProductTag {
+  id                String            @id @default(cuid())
+  name              String            @unique // 标签名称
+  color             String?           // 标签颜色
+  description       String?           // 标签描述
+  sort              Int               @default(0) // 排序
+
+  // 时间戳
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  // 关系
+  products          ProductTagLink[]
+
+  @@map("product_tags")
+}
+
+// 商品标签关联表
+model ProductTagLink {
+  id                String            @id @default(cuid())
+  productId         String            @map("product_id")
+  tagId             String            @map("tag_id")
+
+  // 时间戳
+  createdAt         DateTime          @default(now()) @map("created_at")
+
+  // 关系
+  product           Product           @relation("ProductTags", fields: [productId], references: [id], onDelete: Cascade)
+  tag               ProductTag        @relation("ProductTags", fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, tagId])
+  @@map("product_tag_links")
+}
+
+// 商品分类表
+model ProductCategory {
+  id                String            @id @default(cuid())
+  name              String            // 分类名称
+  parentId          String?           @map("parent_id") // 父分类ID
+  level             Int               @default(1) // 分类层级 (1-3级)
+  sort              Int               @default(0) // 排序
+  icon              String?           // 图标
+  description       String?           // 描述
+  isActive          Boolean           @default(true) @map("is_active") // 是否启用
+
+  // 时间戳
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  // 关系
+  parent            ProductCategory?  @relation("CategoryParent", fields: [parentId], references: [id])
+  children          ProductCategory[] @relation("CategoryParent")
+  products          Product[]
+
+  @@map("product_categories")
+}
+
+// 商品规格表
+model ProductSpec {
+  id                String            @id @default(cuid())
+  productId         String            @map("product_id")
+  name              String            // 规格名称 (如: 500ml/瓶)
+  sku               String            @unique // 规格SKU
+  price             Float             // 规格价格
+  stock             Int               @default(0) // 规格库存
+  minStock          Int               @default(10) // 最低库存预警
+  images            String?           // 规格图片URLs (JSON格式)
+  isActive          Boolean           @default(true) @map("is_active")
+  sort              Int               @default(0) // 排序
+
+  // 时间戳
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  // 关系
+  product           Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  pricings          ProductPricing[]
+  orderItems        OrderItem[]
+  inventoryItems    InventoryItem[]
+  inventoryLogs     InventoryLog[]
+  inventoryAlerts  InventoryAlert[]
+      
+  @@map("product_specs")
+}
+
+// 差异化定价表
+model ProductPricing {
+  id                String            @id @default(cuid())
+  productId         String            @map("product_id")
+  specId            String?           @map("spec_id") // 规格ID，可选
+  userLevel         UserLevel         @map("user_level") // 用户等级
+  price             Float             // 价格
+
+  // 时间戳
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  // 关系
+  product           Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  spec              ProductSpec?      @relation(fields: [specId], references: [id])
+
+  @@unique([productId, specId, userLevel])
+  @@map("product_pricings")
+}
+
+// 商品表
+model Product {
+  id                String            @id @default(cuid())
+  categoryId        String            @map("category_id")
+  name              String            // 商品名称
+  description       String?           // 商品描述
+  code              String            @unique // 商品编码 (1位大写字母+6位数字)
+  sku               String            @unique // 商品SKU
+
+  // 价格体系 - 基础价格
+  basePrice         Float             @map("base_price") // 基础价格
+
+  // 库存管理
+  totalStock        Int               @default(0) @map("total_stock") // 总库存
+  minStock          Int               @default(10) @map("min_stock") // 最低库存预警
+
+  // 商品属性
+  images            String            // 商品图片URLs (JSON格式存储)
+  videoUrl          String?           @map("video_url") // 商品视频
+  details           Json?             // 商品详细信息
+
+  // 状态管理
+  status            ProductStatus     @default(ACTIVE)
+  isFeatured        Boolean           @default(false) @map("is_featured") // 是否推荐
+  sort              Int               @default(0) // 排序
+
+  // 定时上下架
+  scheduleOnAt      DateTime?         @map("schedule_on_at") // 定时上架时间
+  scheduleOffAt     DateTime?         @map("schedule_off_at") // 定时下架时间
+
+  // 时间戳
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  // 关系
+  category          ProductCategory  @relation(fields: [categoryId], references: [id])
+  shop              Shop?             @relation(fields: [shopId], references: [id])
+  shopId            String?           @map("shop_id")
+  tags              ProductTagLink[]
+  specs             ProductSpec[]
+  pricings          ProductPricing[]
+  purchaseOrders    PurchaseOrder[]
+  orderItems        OrderItem[]
+  inventoryItems    InventoryItem[]
+  inventoryLogs     InventoryLog[]
+  inventoryAlerts  InventoryAlert[]
+      
+  @@map("products")
+}
+
+// 商品状态枚举
+enum ProductStatus {
+  ACTIVE            // 上架
+  INACTIVE          // 下架
+  PRESALE           // 预售
+  OUT_OF_STOCK      // 缺货
+}
+
+// ===========================================
+// 采购管理模块
+// ===========================================
+
+// 采购订单表
+model PurchaseOrder {
+  id                String            @id @default(cuid())
+  orderNo           String            @unique @map("order_no") // 订单号
+  buyerId           String            @map("buyer_id") // 买方ID
+  sellerId          String            @map("seller_id") // 卖方ID
+  productId         String            @map("product_id") // 商品ID
+
+  // 采购详情
+  quantity          Int               // 采购数量
+  unitPrice         Float             @map("unit_price") // 单价
+  totalAmount       Float             @map("total_amount") // 总金额
+
+  // 采购链路信息
+  purchasePath      String            @map("purchase_path") // 采购链路 (JSON格式存储)
+  commissionDetails Json?             @map("commission_details") // 佣金分配详情
+
+  // 状态
+  status            PurchaseStatus    @default(PENDING)
+
+  // 时间戳
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+  completedAt       DateTime?         @map("completed_at")
+
+  // 关系
+  buyer             User              @relation("UserPurchaseOrders", fields: [buyerId], references: [id])
+  seller            User              @relation("UserSalesOrders", fields: [sellerId], references: [id])
+  product           Product           @relation(fields: [productId], references: [id])
+
+  @@map("purchase_orders")
+}
+
+// 采购状态枚举
+enum PurchaseStatus {
+  PENDING           // 待处理
+  APPROVED          // 已批准
+  REJECTED          // 已拒绝
+  COMPLETED         // 已完成
+  CANCELLED         // 已取消
+}
+
+// ===========================================
+// 库存管理模块 (暂时注释掉)
+// ===========================================
+
+/*
+// 库存流水记录表
+model InventoryLog {
+  id                String            @id @default(cuid())
+  userId            String            @map("user_id") // 所属用户
+  productId         String            @map("product_id") // 商品ID
+  specId            String?           @map("spec_id") // 规格ID，可选
+  shopId            String?           @map("shop_id") // 所属店铺
+
+  // 操作信息
+  operationType     InventoryOperationType @map("operation_type") // 操作类型
+  quantity          Int               // 变动数量（正数为入库，负数为出库）
+  quantityBefore    Int               @map("quantity_before") // 变动前数量
+  quantityAfter     Int               @map("quantity_after") // 变动后数量
+  warehouseType     WarehouseType    @map("warehouse_type") // 仓库类型
+
+  // 关联信息
+  relatedOrderId    String?           @map("related_order_id") // 关联订单ID
+  relatedPurchaseId String?           @map("related_purchase_id") // 关联采购ID
+  adjustmentReason  String?           @map("adjustment_reason") // 调整原因
+
+  // 操作信息
+  operatorId        String            @map("operator_id") // 操作人ID
+  operatorType      OperatorType      @map("operator_type") // 操作人类型
+  remarks           String?           // 备注
+
+  // 时间戳
+  createdAt         DateTime          @default(now()) @map("created_at")
+
+  // 关系
+  user              User              @relation("InventoryLogUser", fields: [userId], references: [id])
+  product           Product           @relation(fields: [productId], references: [id])
+  spec              ProductSpec?      @relation(fields: [specId], references: [id])
+  shop              Shop?             @relation("InventoryLogShop", fields: [shopId], references: [id])
+  operator          User              @relation("InventoryOperator", fields: [operatorId], references: [id])
+
+  @@map("inventory_logs")
+}
+
+// 库存预警记录表
+model InventoryAlert {
+  id                String            @id @default(cuid())
+  userId            String            @map("user_id") // 所属用户
+  productId         String            @map("product_id") // 商品ID
+  specId            String?           @map("spec_id") // 规格ID，可选
+  shopId            String?           @map("shop_id") // 所属店铺
+
+  // 预警信息
+  alertType         InventoryAlertType @map("alert_type") // 预警类型
+  currentQuantity   Int               @map("current_quantity") // 当前库存
+  threshold         Int               // 预警阈值
+  warehouseType     WarehouseType    @map("warehouse_type") // 仓库类型
+
+  // 预警状态
+  isRead            Boolean           @default(false) @map("is_read") // 是否已读
+  isResolved        Boolean           @default(false) @map("is_resolved") // 是否已解决
+  resolvedAt        DateTime?         @map("resolved_at") // 解决时间
+  resolvedBy        String?           @map("resolved_by") // 解决人ID
+  resolveNote       String?           @map("resolve_note") // 解决备注
+
+  // 通知信息
+  notificationSent  Boolean           @default(false) @map("notification_sent") // 是否已发送通知
+  lastNotifiedAt    DateTime?         @map("last_notified_at") // 最后通知时间
+
+  // 时间戳
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  // 关系
+  user              User              @relation("InventoryAlertUser", fields: [userId], references: [id])
+  product           Product           @relation(fields: [productId], references: [id])
+  spec              ProductSpec?      @relation(fields: [specId], references: [id])
+  shop              Shop?             @relation("InventoryAlertShop", fields: [shopId], references: [id])
+  resolver          User?             @relation("InventoryResolver", fields: [resolvedBy], references: [id])
+
+  @@map("inventory_alerts")
+}
+
+// 库存项目表
+model InventoryItem {
+  id                String            @id @default(cuid())
+  userId            String            @map("user_id") // 所属用户
+  productId         String            @map("product_id") // 商品ID
+  specId            String?           @map("spec_id") // 规格ID，可选
+  shopId            String?           @map("shop_id") // 所属店铺
+
+  // 库存信息
+  warehouseType     WarehouseType    @map("warehouse_type") // 仓库类型
+  quantity          Int               @default(0) // 库存数量
+  frozenQuantity    Int               @default(0) @map("frozen_quantity") // 冻结数量
+  minStock          Int               @default(10) @map("min_stock") // 最低库存预警
+
+  // 库存记录
+  lastInAt          DateTime?         @map("last_in_at") // 最后入库时间
+  lastOutAt         DateTime?         @map("last_out_at") // 最后出库时间
+
+  // 预警信息
+  lastAlertAt       DateTime?         @map("last_alert_at") // 最后预警时间
+  alertCount        Int               @default(0) @map("alert_count") // 预警次数
+
+  // 时间戳
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  // 关系
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product           Product           @relation(fields: [productId], references: [id])
+  spec              ProductSpec?      @relation(fields: [specId], references: [id])
+  shop              Shop?             @relation(fields: [shopId], references: [id])
+
+  @@unique([userId, productId, specId, warehouseType])
+  @@map("inventory_items")
+}
+*/
+
+/*
+// 库存操作类型枚举
+enum InventoryOperationType {
+  MANUAL_IN         // 手动入库
+  MANUAL_OUT        // 手动出库
+  ORDER_OUT         // 订单出库
+  PURCHASE_IN       // 采购入库
+  ADJUSTMENT        // 库存调整
+  TRANSFER_IN       // 调拨入库
+  TRANSFER_OUT      // 调拨出库
+  RETURN_IN         // 退货入库
+  DAMAGE_OUT        // 报损出库
+  INITIAL          // 初始库存
+}
+
+// 库存预警类型枚举
+enum InventoryAlertType {
+  LOW_STOCK         // 库存不足
+  OUT_OF_STOCK      // 缺货
+  EXCESS_STOCK      // 库存过量
+  EXPIRED           // 过期预警
+}
+
+// 操作人类型枚举
+enum OperatorType {
+  SYSTEM            // 系统自动
+  ADMIN             // 管理员
+  USER              // 用户
+  SYSTEM_BATCH      // 系统批量操作
+}
+
+// 仓库类型枚举
+enum WarehouseType {
+  CLOUD             // 云仓
+  LOCAL             // 本地仓
+}
+*/
+
+// ===========================================
+// 通券（积分）管理模块
+// ===========================================
+
+// 通券流转记录表
+model PointsTransaction {
+  id                String            @id @default(cuid())
+  transactionNo     String            @unique @map("transaction_no") // 交易号
+  fromUserId        String?           @map("from_user_id") // 转出用户ID
+  toUserId          String            @map("to_user_id") // 转入用户ID
+
+  // 交易信息
+  amount            Float             // 交易金额
+  type              TransactionType  // 交易类型
+  relatedOrderId    String?           @map("related_order_id") // 关联订单ID
+
+  // 交易详情
+  description       String?           // 交易描述
+  metadata          Json?             // 额外数据
+
+  // 状态
+  status            TransactionStatus @default(PENDING)
+
+  // 余额信息
+  balanceBefore     Float             @map("balance_before") // 交易前余额
+  balanceAfter      Float             @map("balance_after") // 交易后余额
+
+  // 时间戳
+  createdAt         DateTime          @default(now()) @map("created_at")
+  completedAt       DateTime?         @map("completed_at")
+
+  // 关系
+  fromUser          User?             @relation("PointsFrom", fields: [fromUserId], references: [id])
+  toUser            User              @relation("PointsTo", fields: [toUserId], references: [id])
+
+  @@map("points_transactions")
+}
+
+// 交易类型枚举
+enum TransactionType {
+  PURCHASE          // 采购支付
+  TRANSFER          // 用户转账
+  RECHARGE          // 充值
+  WITHDRAW          // 提现
+  REFUND            // 退款
+  COMMISSION        // 佣金
+  REWARD            // 奖励
+  FREEZE            // 冻结
+  UNFREEZE          // 解冻
+}
+
+// 交易状态枚举
+enum TransactionStatus {
+  PENDING           // 待处理
+  PROCESSING        // 处理中
+  COMPLETED         // 已完成
+  FAILED            // 失败
+  CANCELLED         // 已取消
+}
+
+// ===========================================
+// 订单管理模块
+// ===========================================
+
+// 订单表
+model Order {
+  id                String            @id @default(cuid())
+  orderNo           String            @unique @map("order_no") // 订单号
+  userId            String            @map("user_id") // 下单用户
+
+  // 订单金额
+  totalAmount       Float             @map("total_amount") // 订单总金额
+  discountAmount    Float             @default(0) @map("discount_amount") // 折扣金额
+  finalAmount       Float             @map("final_amount") // 实付金额
+
+  // 收货信息
+  receiverName      String            @map("receiver_name") // 收货人
+  receiverPhone     String            @map("receiver_phone") // 收货电话
+  receiverAddress   String            @map("receiver_address") // 收货地址
+
+  // 订单状态
+  status            OrderStatus       @default(PENDING)
+  paymentStatus     PaymentStatus     @default(PENDING)
+
+  // 物流信息
+  logisticsCompany  String?           @map("logistics_company") // 物流公司
+  trackingNumber   String?           @map("tracking_number") // 物流单号
+
+  // 时间戳
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+  paidAt            DateTime?         @map("paid_at")
+  shippedAt         DateTime?         @map("shipped_at")
+  deliveredAt      DateTime?         @map("delivered_at")
+
+  // 关系
+  user              User              @relation(fields: [userId], references: [id])
+  orderItems        OrderItem[]
+
+  @@map("orders")
+}
+
+// 订单项表
+model OrderItem {
+  id                String            @id @default(cuid())
+  orderId           String            @map("order_id")
+  productId         String            @map("product_id")
+  specId            String?           @map("spec_id") // 规格ID
+
+  // 商品信息（冗余存储，防止商品信息变更影响历史订单）
+  productName       String            @map("product_name") // 商品名称
+  productSpec       String?           @map("product_spec") // 规格名称
+  productImage      String?           @map("product_image") // 商品图片
+  productPrice      Float             @map("product_price") // 商品单价
+
+  // 购买信息
+  quantity          Int               // 购买数量
+  totalAmount       Float             @map("total_amount") // 小计金额
+
+  // 关系
+  order             Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product           Product           @relation(fields: [productId], references: [id])
+  spec              ProductSpec?      @relation(fields: [specId], references: [id])
+
+  @@map("order_items")
+}
+
+// 订单状态枚举
+enum OrderStatus {
+  PENDING           // 待付款
+  PAID              // 已付款
+  PROCESSING        // 处理中
+  SHIPPED           // 已发货
+  DELIVERED         // 已送达
+  CANCELLED         // 已取消
+  REFUNDED          // 已退款
+}
+
+// 支付状态枚举
+enum PaymentStatus {
+  PENDING           // 待支付
+  PAID              // 已支付
+  FAILED            // 支付失败
+  REFUNDED          // 已退款
+}
+
+// ===========================================
+// 库存管理模块
+// ===========================================
+
+// 库存操作类型枚举
+enum InventoryOperationType {
+  MANUAL_IN         // 手动入库
+  MANUAL_OUT        // 手动出库
+  ORDER_OUT         // 订单出库
+  PURCHASE_IN       // 采购入库
+  ADJUSTMENT        // 库存调整
+  TRANSFER_IN       // 调拨入库
+  TRANSFER_OUT      // 调拨出库
+  RETURN_IN         // 退货入库
+  DAMAGE_OUT        // 报损出库
+  INITIAL          // 初始库存
+}
+
+// 库存预警类型枚举
+enum InventoryAlertType {
+  LOW_STOCK         // 库存不足
+  OUT_OF_STOCK      // 缺货
+  EXCESS_STOCK      // 库存过量
+  EXPIRED           // 过期预警
+  EXPIRING_SOON     // 即将过期
+  MIN_STOCK_VIOLATION // 低于最低库存
+}
+
+// 操作人类型枚举
+enum OperatorType {
+  SYSTEM            // 系统自动
+  ADMIN             // 管理员
+  USER              // 用户
+  SYSTEM_BATCH      // 系统批量操作
+}
+
+// 仓库类型枚举
+enum WarehouseType {
+  CLOUD             // 云仓
+  LOCAL             // 本地仓
+}
+
+// 库存项目表
+model InventoryItem {
+  id                String            @id @default(cuid())
+  userId            String            @map("user_id") // 所属用户
+  productId         String            @map("product_id") // 商品ID
+  specId            String?           @map("spec_id") // 规格ID，可选
+  shopId            String?           @map("shop_id") // 所属店铺
+
+  // 库存信息
+  warehouseType     WarehouseType    @map("warehouse_type") // 仓库类型
+  quantity          Int               @default(0) // 库存数量
+  frozenQuantity    Int               @default(0) @map("frozen_quantity") // 冻结数量
+  minStock          Int               @default(10) @map("min_stock") // 最低库存预警
+
+  // 库存记录
+  lastInAt          DateTime?         @map("last_in_at") // 最后入库时间
+  lastOutAt         DateTime?         @map("last_out_at") // 最后出库时间
+
+  // 预警信息
+  lastAlertAt       DateTime?         @map("last_alert_at") // 最后预警时间
+  alertCount        Int               @default(0) @map("alert_count") // 预警次数
+
+  // 时间戳
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  // 关系
+  user              User              @relation("InventoryItems", fields: [userId], references: [id], onDelete: Cascade)
+  product           Product           @relation("InventoryItems", fields: [productId], references: [id])
+  spec              ProductSpec?      @relation("InventoryItems", fields: [specId], references: [id])
+  shop              Shop?             @relation("InventoryItems", fields: [shopId], references: [id])
+
+  @@unique([userId, productId, specId, warehouseType])
+  @@map("inventory_items")
+}
+
+// 库存流水记录表
+model InventoryLog {
+  id                String            @id @default(cuid())
+  userId            String            @map("user_id") // 所属用户
+  productId         String            @map("product_id") // 商品ID
+  specId            String?           @map("spec_id") // 规格ID，可选
+  shopId            String?           @map("shop_id") // 所属店铺
+
+  // 操作信息
+  operationType     InventoryOperationType @map("operation_type") // 操作类型
+  quantity          Int               // 变动数量（正数为入库，负数为出库）
+  quantityBefore    Int               @map("quantity_before") // 变动前数量
+  quantityAfter     Int               @map("quantity_after") // 变动后数量
+  warehouseType     WarehouseType    @map("warehouse_type") // 仓库类型
+
+  // 关联信息
+  relatedOrderId    String?           @map("related_order_id") // 关联订单ID
+  relatedPurchaseId String?           @map("related_purchase_id") // 关联采购ID
+  adjustmentReason  String?           @map("adjustment_reason") // 调整原因
+
+  // 操作信息
+  operatorId        String            @map("operator_id") // 操作人ID
+  operatorType      OperatorType      @map("operator_type") // 操作人类型
+  remarks           String?           // 备注
+
+  // 时间戳
+  createdAt         DateTime          @default(now()) @map("created_at")
+
+  // 关系
+  user              User              @relation("InventoryLogs", fields: [userId], references: [id])
+  product           Product           @relation("InventoryLogs", fields: [productId], references: [id])
+  spec              ProductSpec?      @relation("InventoryLogs", fields: [specId], references: [id])
+  shop              Shop?             @relation("InventoryLogs", fields: [shopId], references: [id])
+  operator          User              @relation("InventoryLogOperators", fields: [operatorId], references: [id])
+
+  @@map("inventory_logs")
+}
+
+// 库存预警记录表
+model InventoryAlert {
+  id                String            @id @default(cuid())
+  userId            String            @map("user_id") // 所属用户
+  productId         String            @map("product_id") // 商品ID
+  specId            String?           @map("spec_id") // 规格ID，可选
+  shopId            String?           @map("shop_id") // 所属店铺
+
+  // 预警信息
+  alertType         InventoryAlertType @map("alert_type") // 预警类型
+  currentQuantity   Int               @map("current_quantity") // 当前库存
+  threshold         Int               // 预警阈值
+  warehouseType     WarehouseType    @map("warehouse_type") // 仓库类型
+
+  // 预警状态
+  isRead            Boolean           @default(false) @map("is_read") // 是否已读
+  isResolved        Boolean           @default(false) @map("is_resolved") // 是否已解决
+  resolvedAt        DateTime?         @map("resolved_at") // 解决时间
+  resolvedBy        String?           @map("resolved_by") // 解决人ID
+  resolveNote       String?           @map("resolve_note") // 解决备注
+
+  // 通知信息
+  notificationSent  Boolean           @default(false) @map("notification_sent") // 是否已发送通知
+  lastNotifiedAt    DateTime?         @map("last_notified_at") // 最后通知时间
+
+  // 时间戳
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  // 关系
+  user              User              @relation("InventoryAlerts", fields: [userId], references: [id])
+  product           Product           @relation("InventoryAlerts", fields: [productId], references: [id])
+  spec              ProductSpec?      @relation("InventoryAlerts", fields: [specId], references: [id])
+  shop              Shop?             @relation("InventoryAlerts", fields: [shopId], references: [id])
+  resolver          User?             @relation("InventoryAlertResolvers", fields: [resolvedBy], references: [id])
+
+  @@map("inventory_alerts")
+}

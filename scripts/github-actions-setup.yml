@@ -1,0 +1,311 @@
+# GitHub Actions 工作流配置模板
+# 用于自动化AI协同开发的CI/CD流程
+
+name: AI协同开发工作流
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  issues:
+    types: [opened, closed]
+
+env:
+  NODE_VERSION: '18'
+  WORKFLOW_NOTIFICATION_WEBHOOK: ${{ secrets.WORKFLOW_WEBHOOK }}
+
+jobs:
+  # AI协同检查
+  ai-collaboration-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 设置Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 检测AI协同冲突
+        run: |
+          chmod +x scripts/ai-collaboration.ts
+          npx ts-node scripts/ai-collaboration.ts detect-conflicts
+
+      - name: 验证AI代码规范
+        run: |
+          # 检查是否遵循 general.mdc 规范
+          npm run lint
+          npm run type-check
+
+      - name: 业务逻辑验证
+        run: |
+          # 验证核心业务逻辑是否正确实现
+          npm run test:business-logic
+
+  # 代码质量检查
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: ESLint检查
+        run: npm run lint
+
+      - name: Prettier检查
+        run: npm run format:check
+
+      - name: TypeScript类型检查
+        run: npm run type-check
+
+      - name: 代码复杂度分析
+        run: npm run complexity-check
+
+  # 测试执行
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 启动测试数据库
+        run: |
+          docker-compose -f docker-compose.test.yml up -d
+          sleep 10
+
+      - name: 运行单元测试
+        run: npm run test:unit
+
+      - name: 运行集成测试
+        run: npm run test:integration
+
+      - name: 生成覆盖率报告
+        run: npm run test:coverage
+
+      - name: 上传覆盖率报告
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+
+  # 业务逻辑验证
+  business-logic-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 验证用户等级逻辑
+        run: |
+          # 验证6级用户体系实现
+          npm run test:user-levels
+
+      - name: 验证采购权限逻辑
+        run: |
+          # 验证采购权限规则
+          npm run test:purchase-permissions
+
+      - name: 验证积分流转逻辑
+        run: |
+          # 验证通券流转系统
+          npm run test:points-flow
+
+      - name: 验证双仓库存逻辑
+        run: |
+          # 验证云仓和本地仓管理
+          npm run test:inventory-system
+
+  # 安全检查
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 安全审计
+        run: npm audit --audit-level moderate
+
+      - name: 依赖漏洞扫描
+        run: |
+          npx audit-ci --moderate
+
+      - name: 代码安全扫描
+        run: |
+          npm run security:scan
+
+  # 性能测试
+  performance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 构建应用
+        run: npm run build
+
+      - name: 启动应用
+        run: |
+          npm run start:test &
+          sleep 30
+
+      - name: API性能测试
+        run: |
+          npm run test:performance
+
+      - name: 负载测试
+        run: |
+          npm run test:load
+
+  # 构建和部署
+  build-and-deploy:
+    needs: [code-quality, test, business-logic-validation, security]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 构建应用
+        run: npm run build
+
+      - name: 构建Docker镜像
+        run: |
+          docker build -t zhongdao-mall:${{ github.sha }} .
+          docker tag zhongdao-mall:${{ github.sha }} zhongdao-mall:latest
+
+      - name: 部署到测试环境
+        run: |
+          # 部署脚本
+          echo "部署到测试环境"
+
+      - name: 运行烟雾测试
+        run: |
+          # 烟雾测试
+          npm run test:smoke
+
+  # 通知AI协作者
+  notify-ai-collaborators:
+    needs: [ai-collaboration-check, build-and-deploy]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: 通知构建状态
+        run: |
+          # 通知AI协作者构建状态
+          curl -X POST ${{ env.WORKFLOW_NOTIFICATION_WEBHOOK }} \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "event": "workflow_completed",
+              "status": "${{ job.status }}",
+              "repository": "${{ github.repository }}",
+              "branch": "${{ github.ref }}",
+              "commit": "${{ github.sha }}",
+              "actor": "${{ github.actor }}"
+            }'
+
+  # 自动任务分配
+  auto-task-assignment:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' && github.event.action == 'opened'
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 分析Issue并分配任务
+        run: |
+          # 使用AI分析Issue内容并自动分配任务
+          node scripts/auto-task-assigner.js ${{ github.event.issue.number }}
+
+# 定时任务
+  schedule:
+    # 每日生成协同报告
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+jobs:
+  # 生成每日协同报告
+  daily-collaboration-report:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 生成报告
+        run: |
+          chmod +x scripts/ai-collaboration.ts
+          npx ts-node scripts/ai-collaboration.ts report > daily-report.md
+
+      - name: 发布报告
+        run: |
+          # 将报告发布到Wiki或创建Issue
+          echo "发布每日协同报告"
+
+  # 清理过期数据
+  cleanup:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - name: 清理过期协同数据
+        run: |
+          # 清理过期的AI会话数据
+          node scripts/cleanup-ai-data.ts

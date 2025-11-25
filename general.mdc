@@ -1,0 +1,591 @@
+# 中道商城系统 - AI协作开发规则
+
+**文档目的**：为多个AI协作者提供统一的开发规范、代码标准和业务逻辑约束
+**适用范围**：所有参与中道商城系统开发的AI助手
+**最后更新**：2025年11月18日
+**版本**：1.0
+
+---
+
+## 🎯 项目核心约束
+
+### 业务逻辑约束（不可违背）
+
+#### 1. 用户等级体系
+```typescript
+// 严格遵循6级用户体系，不可修改等级名称或逻辑
+const USER_LEVELS = {
+  NORMAL: { level: 0, name: '普通会员', discount: 1.0 },
+  VIP: { level: 1, name: 'VIP会员', discount: 0.5 },
+  STAR_1: { level: 2, name: '一星店长', discount: 0.4 },
+  STAR_2: { level: 3, name: '二星店长', discount: 0.35 },
+  STAR_3: { level: 4, name: '三星店长', discount: 0.3 },
+  STAR_4: { level: 5, name: '四星店长', discount: 0.26 },
+  STAR_5: { level: 6, name: '五星店长', discount: 0.24 },
+  DIRECTOR: { level: 7, name: '董事', discount: 0.22 }
+} as const;
+
+// 升级规则：双维度判断（销量+团队），缺一不可
+function validateUpgrade(userId: string, targetLevel: number): ValidationResult {
+  // 1. 销量要求：总销售额÷599，向下取整
+  // 2. 团队要求：必须有对应数量的直推下级
+  // 3. 两个条件必须同时满足
+}
+```
+
+#### 2. 采购权限规则
+```typescript
+// 严格的层级限制，不可违背
+const PURCHASE_RULES = {
+  // 只能向更高级别且非平级的上级进货
+  validatePurchasePermission: (buyerLevel: number, sellerLevel: number) => {
+    return sellerLevel > buyerLevel; // 必须严格大于
+  },
+
+  // 采购价格由买方等级决定，不是卖方
+  calculatePurchasePrice: (productPrice: number, buyerLevel: number) => {
+    const discount = USER_LEVELS[`STAR_${buyerLevel - 1}`]?.discount || 1.0;
+    return productPrice * discount;
+  }
+};
+```
+
+#### 3. 双店铺体系
+```typescript
+// 严格区分云店和五通店，不可混合逻辑
+enum ShopType {
+  CLOUD = 'cloud',     // 基于销量累积升级
+  WUTONG = 'wutong'   // 一次性拿货，买10赠1
+}
+
+// 云店销量计算基准：599元经络通
+const CLOUD_SHOP_BASE_PRICE = 599;
+
+// 五通店特殊规则：一次性27,000元（100瓶×270元）
+const WUTONG_SHOP_THRESHOLD = {
+  quantity: 100,
+  unitPrice: 270,
+  totalAmount: 27000
+};
+```
+
+#### 4. 双仓库存体系
+```typescript
+// 云仓和本地仓严格分离，逻辑不可混淆
+enum WarehouseType {
+  CLOUD = 'cloud',     // 团队共享虚拟库存
+  LOCAL = 'local'      // 个人实体库存
+}
+
+// 库存流转规则：只能从云仓→本地仓，不可逆向
+const INVENTORY_FLOW_RULES = {
+  // 云仓：团队共享，下级可采购
+  cloudWarehouse: {
+    shared: true,
+    transferable: true, // 可转账给下级
+    returnable: false   // 不可退货
+  },
+
+  // 本地仓：个人独有，用于零售
+  localWarehouse: {
+    shared: false,
+    transferable: false, // 不可转账
+    returnable: true     // 可退货
+  }
+};
+```
+
+---
+
+## 🛠️ 技术实现约束
+
+### 数据库设计约束
+
+#### 1. 表结构命名规范
+```sql
+-- 表名：小写字母+下划线，复数形式
+users, shops, products, orders, points_transactions, inventory_records
+
+-- 字段名：小写字母+下划线，描述性命名
+user_id, shop_name, created_at, updated_at, is_deleted
+
+-- 必须字段：所有业务表都必须包含
+id BIGINT PRIMARY KEY AUTO_INCREMENT,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+is_deleted BOOLEAN DEFAULT FALSE
+```
+
+#### 2. 核心表结构模板
+```sql
+-- 用户表（核心业务表模板）
+CREATE TABLE users (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  openid VARCHAR(128) UNIQUE NOT NULL COMMENT '微信openid',
+  nickname VARCHAR(100) DEFAULT NULL COMMENT '昵称',
+  phone VARCHAR(20) UNIQUE DEFAULT NULL COMMENT '手机号',
+  level ENUM('normal', 'vip', 'star_1', 'star_2', 'star_3', 'star_4', 'star_5', 'director') NOT NULL DEFAULT 'normal',
+  parent_id BIGINT DEFAULT NULL COMMENT '推荐人ID',
+  total_sales DECIMAL(15,2) DEFAULT 0.00 COMMENT '累计销售额',
+  total_bottles INT DEFAULT 0 COMMENT '累计销售瓶数',
+  status ENUM('active', 'inactive', 'suspended') DEFAULT 'active',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP NULL DEFAULT NULL,
+
+  INDEX idx_openid (openid),
+  INDEX idx_phone (phone),
+  INDEX idx_level (level),
+  INDEX idx_parent_id (parent_id),
+  INDEX idx_created_at (created_at),
+  INDEX idx_deleted_at (deleted_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
+```
+
+### API设计约束
+
+#### 1. RESTful API规范
+```typescript
+// 路径命名：小写字母+下划线，资源复数形式
+GET    /api/users          // 获取用户列表
+GET    /api/users/:id      // 获取单个用户
+POST   /api/users          // 创建用户
+PUT    /api/users/:id      // 更新用户
+DELETE /api/users/:id      // 删除用户
+
+// 响应格式统一
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  code?: number;
+  timestamp: number;
+}
+```
+
+#### 2. 错误处理规范
+```typescript
+// HTTP状态码规范
+const HTTP_STATUS = {
+  OK: 200,
+  CREATED: 201,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  CONFLICT: 409,
+  INTERNAL_SERVER_ERROR: 500
+};
+
+// 业务错误码规范
+const BUSINESS_ERROR_CODES = {
+  USER_NOT_FOUND: 1001,
+  INSUFFICIENT_PERMISSION: 1002,
+  INSUFFICIENT_POINTS: 2001,
+  INVALID_PURCHASE_PERMISSION: 2002,
+  INSUFFICIENT_INVENTORY: 3001
+};
+```
+
+### 代码实现约束
+
+#### 1. TypeScript严格模式
+```typescript
+// tsconfig.json 必须配置
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  }
+}
+
+// 函数必须标注返回类型
+function calculateUpgradeProgress(userId: string): UpgradeProgress {
+  // 实现逻辑
+}
+
+// 接口定义必须完整
+interface User {
+  id: number;
+  openid: string;
+  level: UserLevel;
+  totalSales: number;
+  createdAt: Date;
+}
+```
+
+#### 2. 错误处理规范
+```typescript
+// 统一错误处理中间件
+const errorHandler = (error: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error('API Error:', error);
+
+  if (error instanceof ValidationError) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+      code: 'VALIDATION_ERROR'
+    });
+  }
+
+  res.status(500).json({
+    success: false,
+    message: '服务器内部错误',
+    code: 'INTERNAL_ERROR'
+  });
+};
+```
+
+#### 3. 数据库操作规范
+```typescript
+// 必须使用事务处理关键业务
+async function processPurchase(purchaseData: PurchaseData): Promise<void> {
+  await prisma.$transaction(async (tx) => {
+    // 1. 扣除买家积分
+    await deductPoints(tx, purchaseData.buyerId, purchaseData.amount);
+
+    // 2. 增加卖家积分
+    await addPoints(tx, purchaseData.sellerId, purchaseData.amount);
+
+    // 3. 记录流水
+    await recordTransaction(tx, purchaseData);
+
+    // 4. 更新库存
+    await updateInventory(tx, purchaseData);
+  });
+}
+```
+
+---
+
+## 📝 代码风格约束
+
+### 1. 文件命名规范
+```
+// 后端文件命名
+user.service.ts          // 服务类
+user.controller.ts       // 控制器
+user.types.ts           // 类型定义
+user.utils.ts           // 工具函数
+user.test.ts            // 测试文件
+
+// 前端文件命名
+UserProfile.vue         // 组件文件（PascalCase）
+userApi.ts              // API接口
+userTypes.ts            // 类型定义
+userUtils.ts            // 工具函数
+```
+
+### 2. 变量命名规范
+```typescript
+// 变量：小驼峰
+const userName = 'john';
+const totalSales = 1000;
+
+// 常量：大写下划线
+const MAX_RETRY_COUNT = 3;
+const DEFAULT_PAGE_SIZE = 20;
+
+// 接口和类型：PascalCase
+interface UserProfile {
+  id: number;
+  name: string;
+}
+
+enum UserStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive'
+}
+```
+
+### 3. 函数命名规范
+```typescript
+// 动词+名词，语义明确
+function calculateUserLevel(userId: string): UserLevel { }
+function validatePurchasePermission(buyerId: string, sellerId: string): boolean { }
+function getUserTeamStructure(userId: string): TeamStructure { }
+
+// 异步函数必须以Async结尾
+async function fetchUserData(userId: string): Promise<User> { }
+async function processOrderAsync(orderData: OrderData): Promise<void> { }
+```
+
+### 4. 注释规范
+```typescript
+/**
+ * 计算用户等级升级进度
+ * @param userId 用户ID
+ * @returns 升级进度信息
+ */
+function calculateUpgradeProgress(userId: string): UpgradeProgress {
+  // 计算销量要求（以599元为基准）
+  const bottleCount = Math.floor(totalSales / 599);
+
+  // 验证团队要求
+  const teamRequirements = validateTeamRequirements(userId);
+
+  return { bottleCount, teamRequirements };
+}
+```
+
+---
+
+## 🔄 业务流程约束
+
+### 1. 用户升级流程
+```typescript
+// 严格按以下顺序执行，不可跳过或修改顺序
+const USER_UPGRADE_FLOW = [
+  'validateSalesRequirement',      // 1. 验证销量要求
+  'validateTeamRequirements',      // 2. 验证团队要求
+  'checkUpgradeEligibility',       // 3. 检查升级资格
+  'executeUpgrade',                // 4. 执行升级
+  'updateUserPermissions',         // 5. 更新用户权限
+  'notifyUpgradeSuccess',          // 6. 通知升级成功
+  'recordUpgradeHistory'           // 7. 记录升级历史
+];
+```
+
+### 2. 采购流程
+```typescript
+// 采购流程必须包含所有步骤
+const PURCHASE_FLOW = [
+  'validatePurchasePermission',     // 1. 验证采购权限
+  'checkPointsBalance',            // 2. 检查积分余额
+  'validateInventoryAvailability',  // 3. 验证库存可用性
+  'calculatePurchasePrice',         // 4. 计算采购价格
+  'createPurchaseOrder',            // 5. 创建采购订单
+  'processPointsTransfer',          // 6. 处理积分转账
+  'updateInventory',                // 7. 更新库存
+  'calculateCommission',            // 8. 计算佣金
+  'notifyPurchaseSuccess'           // 9. 通知采购成功
+];
+```
+
+### 3. 积分流转流程
+```typescript
+// 所有积分操作必须使用事务
+const POINTS_TRANSACTION_FLOW = [
+  'validateTransactionPermission',   // 1. 验证交易权限
+  'checkPointsBalance',             // 2. 检查余额
+  'executeTransaction',             // 3. 执行交易
+  'recordTransaction',              // 4. 记录流水
+  'updateAccountBalance',           // 5. 更新账户余额
+  'triggerBusinessLogic',           // 6. 触发业务逻辑
+  'notifyTransactionResult'          // 7. 通知交易结果
+];
+```
+
+---
+
+## 🧪 测试约束
+
+### 1. 测试覆盖率要求
+```typescript
+// 测试覆盖率最低要求
+const COVERAGE_REQUIREMENTS = {
+  statements: 80,    // 语句覆盖率
+  branches: 75,       // 分支覆盖率
+  functions: 85,      // 函数覆盖率
+  lines: 80          // 行覆盖率
+};
+
+// 关键业务逻辑必须100%覆盖
+const CRITICAL_BUSINESS_LOGIC = [
+  'userLevelUpgrade',
+  'purchasePermission',
+  'pointsTransaction',
+  'inventoryManagement',
+  'commissionCalculation'
+];
+```
+
+### 2. 测试文件命名
+```typescript
+// 单元测试：*.test.ts
+user.service.test.ts
+purchase.utils.test.ts
+
+// 集成测试：*.integration.test.ts
+user.purchase.integration.test.ts
+inventory.flow.integration.test.ts
+
+// E2E测试：*.e2e.test.ts
+user.upgrade.e2e.test.ts
+shop.management.e2e.test.ts
+```
+
+### 3. 测试数据规范
+```typescript
+// 测试数据必须使用工厂模式
+const createUserTestData = (overrides?: Partial<User>) => ({
+  id: 1,
+  openid: 'test_openid_123',
+  nickname: '测试用户',
+  level: 'normal',
+  totalSales: 0,
+  ...overrides
+});
+
+// 测试后必须清理数据
+afterEach(async () => {
+  await cleanupTestData();
+});
+```
+
+---
+
+## 📊 性能约束
+
+### 1. API响应时间
+```typescript
+// API响应时间要求（P95）
+const API_PERFORMANCE_REQUIREMENTS = {
+  'GET /api/users/profile': 200,      // 200ms
+  'POST /api/purchases/create': 500,   // 500ms
+  'GET /api/products/list': 300,       // 300ms
+  'POST /api/points/transfer': 800     // 800ms
+};
+```
+
+### 2. 数据库查询优化
+```typescript
+// 必须使用索引优化
+const REQUIRED_INDEXES = [
+  'users(level, created_at)',
+  'orders(user_id, status)',
+  'points_transactions(user_id, created_at)',
+  'inventory(user_id, warehouse_type)'
+];
+
+// 禁止全表扫描
+const FORBIDDEN_QUERIES = [
+  'SELECT * FROM large_table',
+  'SELECT * without WHERE clause',
+  'SELECT * without LIMIT on large datasets'
+];
+```
+
+---
+
+## 🚨 安全约束
+
+### 1. 输入验证
+```typescript
+// 所有用户输入必须验证
+const inputValidation = {
+  // 使用Joi进行参数验证
+  userRegistration: Joi.object({
+    openid: Joi.string().required(),
+    nickname: Joi.string().max(50).required(),
+    phone: Joi.string().pattern(/^1[3-9]\d{9}$/).optional()
+  }),
+
+  // SQL注入防护
+  sqlInjection: 'Always use parameterized queries',
+
+  // XSS防护
+  xssProtection: 'Always sanitize user input'
+};
+```
+
+### 2. 权限控制
+```typescript
+// 严格遵循RBAC权限模型
+const PERMISSION_MATRIX = {
+  'normal': ['read:profile', 'read:products'],
+  'vip': ['read:profile', 'read:products', 'discount:purchase'],
+  'star_1': ['read:profile', 'shop:manage', 'purchase:create'],
+  'star_5': ['read:profile', 'shop:manage', 'points:recharge'],
+  'director': ['*'] // 董事拥有所有权限
+};
+```
+
+---
+
+## 📋 开发检查清单
+
+### 代码提交前检查
+- [ ] TypeScript编译无错误
+- [ ] ESLint检查通过
+- [ ] 单元测试覆盖率达标
+- [ ] 业务逻辑符合功能规划
+- [ ] API文档已更新
+- [ ] 数据库迁移脚本已准备
+
+### 功能开发检查
+- [ ] 实现了完整的业务流程
+- [ ] 错误处理覆盖所有异常情况
+- [ ] 性能指标符合要求
+- [ ] 安全措施已实施
+- [ ] 测试用例覆盖主要场景
+
+### 部署前检查
+- [ ] 所有测试通过
+- [ ] 数据库迁移已验证
+- [ ] 环境变量已配置
+- [ ] 监控告警已设置
+- [ ] 回滚方案已准备
+
+---
+
+## 🔧 开发工具配置
+
+### VS Code扩展要求
+```json
+{
+  "recommendations": [
+    "ms-vscode.vscode-typescript-next",
+    "prisma.prisma",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "ms-vscode.vscode-json"
+  ]
+}
+```
+
+### Git Hooks配置
+```json
+{
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged && npm run test",
+      "pre-push": "npm run test:coverage",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  }
+}
+```
+
+---
+
+## 📞 协作规则
+
+### 1. 代码审查要求
+- 所有代码必须经过AI同事审查
+- 重点关注业务逻辑的正确性
+- 检查是否违反项目约束
+- 确保代码风格一致性
+
+### 2. 冲突解决机制
+- 优先遵循功能规划文档
+- 技术实现问题参考此规则文件
+- 无法解决的冲突提请项目管理者决策
+
+### 3. 文档更新要求
+- 新功能必须更新API文档
+- 业务逻辑变更必须更新功能规划
+- 重大修改需要更新此规则文件
+
+---
+
+**重要提醒**：
+1. 所有AI协作者必须严格遵循此规则文件
+2. 遇到规则未覆盖的情况，优先参考功能规划文档
+3. 规则冲突时以最新版本为准
+4. 违反核心业务约束的代码将被拒绝合并
+
+**规则维护**：此文件会根据项目进展和需求变化持续更新，所有AI协作者都有义务提出改进建议。
