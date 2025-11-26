@@ -51,9 +51,9 @@
     "env:switch-remote": "cp .env.remote-dev .env.local",
     "env:switch-prod": "cp .env.production .env.local",
     "env:list": "echo '可用环境：' && echo '  npm run env:switch-local   - 本地开发环境' && echo '  npm run env:switch-remote  - 远程开发环境（推荐）' && echo '  npm run env:switch-prod    - 生产环境'",
-    "deploy:config-fix": "pwsh -NoProfile -File scripts/deploy-config-fix.ps1",
+    "deploy:config-fix": "powershell -NoProfile -File scripts/deploy-config-fix.ps1",
     "deploy:config-fix:bash": "bash scripts/deploy-and-verify.sh production 162.14.114.224 root /www/wwwroot/zd-api.wenbita.cn",
-    "deploy:config-check": "npm run build && echo '✅ 编译成功' && cat dist/config/index.js | grep -i 'process\\.env' | head -5 && echo '✅ 验证：环境变量未被硬编码'"
+    "deploy:config-check": "npm run build"
   },
   "keywords": [
     "e-commerce",
