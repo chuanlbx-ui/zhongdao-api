@@ -5,6 +5,9 @@ import morgan from 'morgan';
 import compression from 'compression';
 import dotenv from 'dotenv';
 
+// 导入配置模块（运行时读取环境变量）
+import { config, validateConfig, getConfigInfo } from './config';
+
 // 导入中间件
 import { requestId } from './shared/middleware/requestId';
 import { errorHandler, notFoundHandler } from './shared/middleware/error';
@@ -38,11 +41,16 @@ import swaggerSetup from './config/swagger';
 // 加载环境变量
 dotenv.config({ path: `.env.${process.env.NODE_ENV || 'development'}` });
 
+// ✅ 验证必要的环境变量（运行时）
+validateConfig();
+
+logger.info('🔧 应用配置信息:', getConfigInfo());
+
 // 初始化支付系统
 PaymentConfigLoader.initializePaymentSystem();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = config.app.port;  // ✅ 从config对象读取端口号
 
 // 启动时安全检查
 performStartupSecurityCheck();
@@ -68,10 +76,10 @@ app.use(enhancedSecurityHeaders);
 
 // CORS配置
 app.use(cors({
-  origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000', 'http://localhost:5174'],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token']
+  origin: Array.isArray(config.cors.origin) ? config.cors.origin : config.cors.origin.split(','),
+  credentials: config.cors.credentials,
+  methods: config.cors.methods,
+  allowedHeaders: config.cors.headers
 }));
 
 // 安全监控和IP检查
@@ -116,7 +124,9 @@ app.use(rateLimit(100, 60 * 1000));
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 } else {
-  app.use(morgan('combined'));
+  app.use(morgan('combined', {
+    skip: (req) => req.path === '/health'  // 健康检查日志过多，跳过
+  }));
 }
 
 // 健康检查端点
@@ -125,7 +135,7 @@ app.get('/health', (req, res) => {
     status: 'ok',
     timestamp: new Date().toISOString(),
     version: '1.0.0',
-    environment: process.env.NODE_ENV,
+    environment: config.app.nodeEnv,
     uptime: process.uptime()
   }));
 });
@@ -136,15 +146,16 @@ app.get('/health/database', async (req, res) => {
     await checkDatabaseHealth();
     res.json(createSuccessResponse({
       status: 'ok',
-      database: 'mysql',
+      database: `mysql://${config.database.host}:${config.database.port}/${config.database.name}`,
       timestamp: new Date().toISOString()
     }));
   } catch (error) {
+    logger.error('数据库健康检查失败', { error });
     res.status(503).json(createErrorResponse(
-      'DATABASE_ERROR' as any,
+      ErrorCode.INTERNAL_ERROR,
       '数据库连接失败',
       undefined,
-      503,
+      undefined,
       req.requestId
     ));
   }
@@ -152,10 +163,10 @@ app.get('/health/database', async (req, res) => {
 
 // Redis健康检查
 app.get('/health/redis', (req, res) => {
-  // TODO: 实现Redis健康检查
+  // 注意：生产环境禁用Redis，此端点仅为兼容性
   res.json(createSuccessResponse({
     status: 'ok',
-    cache: 'redis',
+    cache: 'memory',  // 生产环境使用内存缓存
     timestamp: new Date().toISOString()
   }));
 });

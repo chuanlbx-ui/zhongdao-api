@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { logger } from '../utils/logger';
+import { config } from '../../config';
 import { createErrorResponse, ErrorCode } from '../types/response';
 import { AuthenticationError, ValidationError } from './error';
 
@@ -31,14 +32,8 @@ declare global {
   }
 }
 
-// JWT密钥 - 强制要求环境变量配置
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable must be set');
-}
-
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
-const REFRESH_TOKEN_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '30d';
+// 注意：JWT_SECRET 在运行时从config对象读取，不在编译时读取
+// 这确保本地编译的dist可以在任何环境运行（本地/服务器）
 
 // Token黑名单管理（生产环境建议使用Redis）
 const tokenBlacklist = new Map<string, number>();
@@ -82,11 +77,17 @@ setInterval(() => {
 
 // 生成JWT Token
 export const generateToken = (payload: Omit<JWTPayload, 'iat' | 'exp' | 'jti'>): string => {
+  const JWT_SECRET = config.jwt.secret;  // ✅ 运行时读取
+  
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET未设置，无法生成Token');
+  }
+
   const now = Math.floor(Date.now() / 1000);
   const tokenPayload: JWTPayload = {
     ...payload,
     iat: now,
-    exp: now + parseTimeToSeconds(JWT_EXPIRES_IN),
+    exp: now + parseTimeToSeconds(config.jwt.expiresIn),
     jti: generateTokenId()
   };
 
@@ -97,6 +98,12 @@ export const generateToken = (payload: Omit<JWTPayload, 'iat' | 'exp' | 'jti'>):
 
 // 解析JWT Token
 export const verifyToken = (token: string): JWTPayload => {
+  const JWT_SECRET = config.jwt.secret;  // ✅ 运行时读取
+  
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET未设置，无法验证Token');
+  }
+
   try {
     // 首先检查Token是否在黑名单中
     if (isTokenBlacklisted(token)) {
@@ -317,11 +324,17 @@ export const requireMinLevel = (minLevel: string) => {
 
 // 生成刷新Token
 export const generateRefreshToken = (payload: Omit<JWTPayload, 'iat' | 'exp' | 'jti'>): string => {
+  const JWT_SECRET = config.jwt.secret;  // ✅ 运行时读取
+  
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET未设置，无法生成刷新Token');
+  }
+
   const now = Math.floor(Date.now() / 1000);
   const tokenPayload: JWTPayload = {
     ...payload,
     iat: now,
-    exp: now + parseTimeToSeconds(REFRESH_TOKEN_EXPIRES_IN),
+    exp: now + parseTimeToSeconds(config.jwt.refreshExpiresIn),
     jti: generateTokenId(),
     scope: ['refresh'] // 刷新Token只具有刷新权限
   };
@@ -354,6 +367,12 @@ export const logout = async (token: string): Promise<void> => {
 
 // Token刷新功能
 export const refreshToken = async (refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> => {
+  const JWT_SECRET = config.jwt.secret;  // ✅ 运行时读取
+  
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET未设置，无法刷新Token');
+  }
+
   try {
     // 验证刷新Token
     const decoded = jwt.verify(refreshToken, JWT_SECRET, {
