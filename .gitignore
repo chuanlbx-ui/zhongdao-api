@@ -143,4 +143,4 @@ data-validation-report-*.json
 # ===========================================
 # 开发脚本
 # ===========================================
-deploy-production.sh
+deploy-production.sh.bak/
