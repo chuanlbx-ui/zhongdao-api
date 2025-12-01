@@ -61,4 +61,4 @@ const main = async () => {
   await executeRemote(config, command);
 };
 
-main();
+main()

@@ -3,7 +3,7 @@ import { body, query, param } from 'express-validator';
 import { authenticate } from '../../../shared/middleware/auth';
 import { asyncHandler } from '../../../shared/middleware/error';
 import { validate } from '../../../shared/middleware/validation';
-import { createSuccessResponse, createErrorResponse } from '../../../shared/types/response';
+import { createSuccessResponse, createErrorResponse, ErrorCode } from '../../../shared/types/response';
 import { logger } from '../../../shared/utils/logger';
 import { orderService } from '../../../shared/services/order';
 import { OrderType, OrderStatus, PaymentMethod } from '../../../shared/types/order';
@@ -72,7 +72,7 @@ router.post('/',
       // 确保用户只能为自己创建订单
       if (buyerId !== req.user?.id) {
         return res.status(403).json(createErrorResponse(
-          'FORBIDDEN',
+          ErrorCode.FORBIDDEN,
           '只能为自己创建订单'
         ));
       }
@@ -98,7 +98,7 @@ router.post('/',
         ));
       } else {
         res.status(400).json(createErrorResponse(
-          'ORDER_CREATION_FAILED',
+          ErrorCode.BUSINESS_LOGIC_ERROR,
           result.message,
           result.error
         ));
@@ -110,7 +110,7 @@ router.post('/',
         userId: req.user?.id
       });
       res.status(500).json(createErrorResponse(
-        'INTERNAL_ERROR',
+        ErrorCode.INTERNAL_ERROR,
         '创建订单失败',
         error instanceof Error ? error.message : '服务器内部错误'
       ));
@@ -184,7 +184,7 @@ router.get('/',
         query: req.query
       });
       res.status(500).json(createErrorResponse(
-        'INTERNAL_ERROR',
+        ErrorCode.INTERNAL_ERROR,
         '获取订单列表失败',
         error instanceof Error ? error.message : '服务器内部错误'
       ));
@@ -217,7 +217,7 @@ router.get('/info',
         error: error instanceof Error ? error.message : '未知错误'
       });
       res.status(500).json(createErrorResponse(
-        'INTERNAL_ERROR',
+        ErrorCode.INTERNAL_ERROR,
         '获取订单模块信息失败'
       ));
     }
@@ -241,7 +241,7 @@ router.get('/:orderId',
 
       if (!order) {
         return res.status(404).json(createErrorResponse(
-          'NOT_FOUND',
+          ErrorCode.NOT_FOUND,
           '订单不存在'
         ));
       }
@@ -249,7 +249,7 @@ router.get('/:orderId',
       // 检查权限：只有订单相关的买方或卖方可以查看
       if (order.buyerId !== req.user?.id && order.sellerId !== req.user?.id) {
         return res.status(403).json(createErrorResponse(
-          'FORBIDDEN',
+          ErrorCode.FORBIDDEN,
           '无权限查看此订单'
         ));
       }
@@ -262,7 +262,7 @@ router.get('/:orderId',
         userId: req.user?.id
       });
       res.status(500).json(createErrorResponse(
-        'INTERNAL_ERROR',
+        ErrorCode.INTERNAL_ERROR,
         '获取订单详情失败',
         error instanceof Error ? error.message : '服务器内部错误'
       ));

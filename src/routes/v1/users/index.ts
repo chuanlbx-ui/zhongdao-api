@@ -388,6 +388,66 @@ router.post('/validate-referral',
   })
 );
 
+// 获取用户等级进度
+router.get('/level/progress',
+  authenticate,
+  asyncHandler(async (req, res) => {
+    const userId = req.user!.id;
+    
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        level: true,
+        directCount: true,
+        teamSales: true,
+        pointsBalance: true
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'USER_NOT_FOUND',
+          message: '用户不存在'
+        }
+      });
+    }
+
+    const currentLevelConfig = await UserLevelService.getLevelConfig(user.level);
+    const upgradeProgress = await UserLevelService.calculateUpgradeProgress(
+      user.level,
+      user.directCount,
+      user.teamSales
+    );
+
+    res.json(createSuccessResponse({
+      currentLevel: {
+        key: user.level,
+        name: currentLevelConfig.name,
+        discount: currentLevelConfig.discount,
+        monthlyReward: currentLevelConfig.monthlyReward,
+        monthlyBonus: currentLevelConfig.monthlyBonus,
+        benefits: currentLevelConfig.benefits
+      },
+      nextLevel: upgradeProgress.nextLevel ? {
+        key: upgradeProgress.nextLevel.key,
+        name: upgradeProgress.nextLevel.name,
+        discount: upgradeProgress.nextLevel.discount,
+        benefits: upgradeProgress.nextLevel.benefits
+      } : null,
+      progress: upgradeProgress.progressPercentage,
+      upgradeProgress: upgradeProgress.requirements,
+      userData: {
+        directCount: user.directCount,
+        teamSales: user.teamSales,
+        pointsBalance: user.pointsBalance
+      }
+    }, '获取用户等级进度成功'));
+  })
+);
+
 // 获取我的推荐信息
 router.get('/referral-info',
   authenticate,

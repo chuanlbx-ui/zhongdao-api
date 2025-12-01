@@ -6,6 +6,7 @@ import { generateToken, verifyToken } from '../../../shared/middleware/auth';
 import { createSuccessResponse } from '../../../shared/types/response';
 import { prisma } from '../../../shared/database/client';
 import { logger } from '../../../shared/utils/logger';
+import userNumberService from '../../../modules/user/user-number.service';
 
 const router = Router();
 
@@ -42,11 +43,15 @@ router.post('/wechat-login',
     });
 
     if (!user) {
+      // 生成用户编号
+      const userNumber = await userNumberService.generateUserNumber();
+      
       user = await prisma.user.create({
         data: {
           openid: mockOpenid,
           nickname,
           avatarUrl,
+          userNumber,
           level: 'NORMAL',
           status: 'ACTIVE'
         }

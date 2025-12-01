@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "node dist/src/index.js",
     "start:dev": "tsx watch src/index.ts",
     "test": "jest",
     "test:unit": "jest --testPathPatterns=unit",
@@ -32,6 +32,7 @@
     "db:clean": "tsx src/scripts/test-data-manager.ts clean",
     "db:stats": "tsx src/scripts/test-data-manager.ts stats",
     "db:validate": "tsx src/scripts/test-data-manager.ts validate",
+    "db:create-test-user-data": "tsx scripts/create-test-user-data.ts",
     "docker:dev": "docker-compose -f docker-compose.dev.yml up -d",
     "docker:prod": "docker-compose -f docker-compose.prod.yml up -d",
     "docker:down": "docker-compose down",
@@ -51,9 +52,16 @@
     "env:switch-remote": "cp .env.remote-dev .env.local",
     "env:switch-prod": "cp .env.production .env.local",
     "env:list": "echo '可用环境：' && echo '  npm run env:switch-local   - 本地开发环境' && echo '  npm run env:switch-remote  - 远程开发环境（推荐）' && echo '  npm run env:switch-prod    - 生产环境'",
-    "deploy:config-fix": "powershell -NoProfile -File scripts/deploy-config-fix.ps1",
+    "deploy:config-fix": "bash scripts/deploy-and-verify.sh production 162.14.114.224 root /www/wwwroot/zd-api.wenbita.cn",
     "deploy:config-fix:bash": "bash scripts/deploy-and-verify.sh production 162.14.114.224 root /www/wwwroot/zd-api.wenbita.cn",
-    "deploy:config-check": "npm run build"
+    "deploy:config-check": "npm run build && echo '编译成功'",
+    "test:admin": "node test-admin-compatibility.js",
+    "test:admin:report": "node test-admin-compatibility.js && start admin-test-report.html",
+    "test:admin:verbose": "node test-admin-compatibility.js --verbose",
+    "test:admin:api": "node -e \"const axios = require('axios'); axios.get('http://localhost:3000/api/v1/admin').then(() => console.log('✓ API 连接正常')).catch(e => console.log('✗ API 连接失败:', e.message))\"",
+    "test:admin:db": "npm run db:validate",
+    "admin:diagnostic": "npm run test:admin:api && npm run test:admin:db",
+    "admin:setup": "npm run db:migrate && npm run db:seed:standard"
   },
   "keywords": [
     "e-commerce",

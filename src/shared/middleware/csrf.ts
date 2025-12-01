@@ -50,6 +50,8 @@ export const csrfProtection = (req: Request, res: Response, next: NextFunction):
     // 对于某些路由直接跳过CSRF验证（开发测试模式）
     const bypassPaths = [
       '/api/v1/users/register',      // 用户注册
+      '/api/v1/auth/password-register', // 密码注册
+      '/api/v1/auth/password-login',    // 密码登录
       '/api/v1/admin/auth/login',    // 管理员登录
       '/api/v1/admin/auth/logout',   // 管理员登出
       '/api/v1/admin/seed',          // 种子数据（开发环境）

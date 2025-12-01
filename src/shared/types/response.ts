@@ -55,7 +55,9 @@ export enum ErrorCode {
   // 通用错误码
   INTERNAL_ERROR = 'INTERNAL_ERROR',
   VALIDATION_ERROR = 'VALIDATION_ERROR',
+  BAD_REQUEST = 'BAD_REQUEST',
   NOT_FOUND = 'NOT_FOUND',
+  CONFIG_NOT_FOUND = 'CONFIG_NOT_FOUND',
   UNAUTHORIZED = 'UNAUTHORIZED',
   FORBIDDEN = 'FORBIDDEN',
   CONFLICT = 'CONFLICT',
@@ -205,6 +207,8 @@ const getDefaultErrorMessage = (code: ErrorCode): string => {
     [ErrorCode.INTERNAL_ERROR]: '服务器内部错误',
     [ErrorCode.VALIDATION_ERROR]: '请求参数验证失败',
     [ErrorCode.NOT_FOUND]: '请求的资源不存在',
+    [ErrorCode.BAD_REQUEST]: '请求参数错误',
+    [ErrorCode.CONFIG_NOT_FOUND]: '配置不存在',
     [ErrorCode.UNAUTHORIZED]: '未授权访问',
     [ErrorCode.FORBIDDEN]: '权限不足',
     [ErrorCode.CONFLICT]: '资源冲突',

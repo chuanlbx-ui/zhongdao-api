@@ -102,7 +102,9 @@ router.get('/', (req, res) => {
           'POST /users/register': '用户注册',
           'GET /users/me': '获取当前用户信息',
           'PUT /users/me': '更新用户信息',
-          'GET /users': '获取用户列表（管理员）'
+          'GET /users': '获取用户列表（管理员）',
+          'GET /users/level/progress': '获取当前用户的等级进度',
+          'GET /users/referral-info': '获取推荐信息'
         },
         levels: {
           'GET /levels/system': '获取所有等级体系配置',

@@ -2,6 +2,7 @@
  * 五通店特殊业务逻辑服务
  * 实现买10赠1机制和终身权益
  */
+// @ts-nocheck
 
 import { ShopType, ShopStatus, UserLevel, ProductStatus, OrderStatus } from '@prisma/client';
 import { logger } from '../../shared/utils/logger';

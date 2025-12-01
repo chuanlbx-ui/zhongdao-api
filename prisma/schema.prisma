@@ -44,6 +44,7 @@ model User {
   nickname                   String?
   avatarUrl                  String?                 @map("avatar_url")
   phone                      String?                 @unique
+  userNumber                 String?                 @unique @map("user_number")
   level                      UserLevel               @default(NORMAL)
   status                     UserStatus              @default(ACTIVE)
   parentId                   String?                 @map("parent_id")
@@ -297,11 +298,14 @@ model InventoryLog {
   spec              ProductSpec?           @relation("SpecInventoryLogs", fields: [specId], references: [id])
   user              User                   @relation("UserInventoryLogs", fields: [userId], references: [id])
 
+  @@index([userId], map: "inventory_logs_user_id_fkey")
   @@index([operatorId], map: "inventory_logs_operator_id_fkey")
   @@index([productId], map: "inventory_logs_product_id_fkey")
   @@index([shopId], map: "inventory_logs_shop_id_fkey")
   @@index([specId], map: "inventory_logs_spec_id_fkey")
-  @@index([userId], map: "inventory_logs_user_id_fkey")
+  @@index([createdAt], map: "inventory_logs_created_at_idx")
+  @@index([userId, warehouseType], map: "inventory_logs_user_warehouse_idx")
+  @@index([createdAt, userId], map: "inventory_logs_date_user_idx")
   @@map("inventory_logs")
 }
 
@@ -426,6 +430,10 @@ model Order {
 
   @@index([buyerId], map: "orders_buyer_id_fkey")
   @@index([sellerId], map: "orders_seller_id_fkey")
+  @@index([status], map: "orders_status_idx")
+  @@index([paymentStatus], map: "orders_payment_status_idx")
+  @@index([createdAt], map: "orders_created_at_idx")
+  @@index([buyerId, status], map: "orders_buyer_status_idx")
   @@map("orders")
 }
 
@@ -717,6 +725,10 @@ model CommissionCalculation {
   user               User             @relation("UserCommissionCalculations", fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId], map: "commission_calculations_user_id_fkey")
+  @@index([period], map: "commission_calculations_period_idx")
+  @@index([status], map: "commission_calculations_status_idx")
+  @@index([userId, period], map: "commission_calculations_user_period_idx")
+  @@index([calculatedAt], map: "commission_calculations_calculated_at_idx")
   @@map("commission_calculations")
 }
 

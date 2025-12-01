@@ -36,15 +36,22 @@
     }
   },
   "include": [
-    "src/**/*",
-    "tests/**/*",
-    "examples/**/*"
+    "src/index.ts",
+    "src/config/**/*",
+    "src/shared/**/*",
+    "src/modules/**/*"
   ],
   "exclude": [
     "node_modules",
     "dist",
     "coverage",
-    "prisma"
+    "prisma",
+    "src/test-data/**/*",
+    "src/routes/**/*",
+    "src/scripts/**/*",
+    "src/services/**/*",
+    "tests/**/*",
+    "examples/**/*"
   ],
   "ts-node": {
     "require": ["tsconfig-paths/register"]

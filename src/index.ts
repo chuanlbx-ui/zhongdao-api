@@ -5,6 +5,9 @@ import morgan from 'morgan';
 import compression from 'compression';
 import dotenv from 'dotenv';
 
+// &#x26A0; 关键！佋必须最先加载环境变量，在任何其他import之前
+import './init-env';
+
 // 导入配置模块（运行时读取环境变量）
 import { config, validateConfig, getConfigInfo } from './config';
 
@@ -38,8 +41,7 @@ import { logger } from './shared/utils/logger';
 // 导入 Swagger 文档
 import swaggerSetup from './config/swagger';
 
-// 加载环境变量
-dotenv.config({ path: `.env.${process.env.NODE_ENV || 'development'}` });
+
 
 // ✅ 验证必要的环境变量（运行时）
 validateConfig();
@@ -76,10 +78,15 @@ app.use(enhancedSecurityHeaders);
 
 // CORS配置
 app.use(cors({
-  origin: Array.isArray(config.cors.origin) ? config.cors.origin : config.cors.origin.split(','),
-  credentials: config.cors.credentials,
-  methods: config.cors.methods,
-  allowedHeaders: config.cors.headers
+  origin: [
+    'http://localhost:3001',
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:8080'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token', 'X-CSRF-Token']
 }));
 
 // 安全监控和IP检查

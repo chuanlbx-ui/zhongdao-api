@@ -1,0 +1,164 @@
+{
+  "timestamp": "2025-11-28T05:10:31.667Z",
+  "apiTests": [
+    {
+      "name": "Admin API 健康检查",
+      "endpoint": "http://localhost:3000/api/v1/admin",
+      "method": "GET",
+      "status": "pass",
+      "statusCode": 200,
+      "message": "Admin API 健康检查 可用",
+      "timestamp": "2025-11-28T05:10:31.709Z"
+    },
+    {
+      "name": "Admin 认证登录",
+      "endpoint": "http://localhost:3000/api/v1/admin/auth/login",
+      "method": "POST",
+      "status": "warning",
+      "statusCode": 400,
+      "message": "Admin 认证登录 返回状态码 400",
+      "timestamp": "2025-11-28T05:10:31.814Z"
+    },
+    {
+      "name": "仪表板统计数据",
+      "endpoint": "http://localhost:3000/api/v1/admin/dashboard/stats",
+      "method": "GET",
+      "status": "warning",
+      "statusCode": 404,
+      "message": "仪表板统计数据 返回状态码 404",
+      "timestamp": "2025-11-28T05:10:31.824Z"
+    },
+    {
+      "name": "用户列表",
+      "endpoint": "http://localhost:3000/api/v1/admin/users?page=1&perPage=10",
+      "method": "GET",
+      "status": "warning",
+      "statusCode": 401,
+      "message": "用户列表 返回状态码 401",
+      "timestamp": "2025-11-28T05:10:31.831Z"
+    },
+    {
+      "name": "商品列表",
+      "endpoint": "http://localhost:3000/api/v1/admin/products?page=1&perPage=10",
+      "method": "GET",
+      "status": "warning",
+      "statusCode": 401,
+      "message": "商品列表 返回状态码 401",
+      "timestamp": "2025-11-28T05:10:31.835Z"
+    },
+    {
+      "name": "订单列表",
+      "endpoint": "http://localhost:3000/api/v1/admin/orders?page=1&perPage=10",
+      "method": "GET",
+      "status": "warning",
+      "statusCode": 401,
+      "message": "订单列表 返回状态码 401",
+      "timestamp": "2025-11-28T05:10:31.839Z"
+    },
+    {
+      "name": "配置管理列表",
+      "endpoint": "http://localhost:3000/api/v1/admin/config/configs",
+      "method": "GET",
+      "status": "warning",
+      "statusCode": 401,
+      "message": "配置管理列表 返回状态码 401",
+      "timestamp": "2025-11-28T05:10:31.846Z"
+    }
+  ],
+  "databaseTests": [
+    {
+      "name": "用户表完整性",
+      "status": "fail",
+      "message": "用户表完整性 失败",
+      "timestamp": "2025-11-28T05:10:31.854Z"
+    },
+    {
+      "name": "商品表完整性",
+      "status": "fail",
+      "message": "商品表完整性 失败",
+      "timestamp": "2025-11-28T05:10:31.860Z"
+    },
+    {
+      "name": "订单表完整性",
+      "status": "fail",
+      "message": "订单表完整性 失败",
+      "timestamp": "2025-11-28T05:10:31.864Z"
+    },
+    {
+      "name": "配置表完整性",
+      "status": "fail",
+      "message": "配置表完整性 失败",
+      "timestamp": "2025-11-28T05:10:31.868Z"
+    }
+  ],
+  "functionalTests": [
+    {
+      "name": "用户列表分页功能",
+      "status": "fail",
+      "message": "用户列表分页功能 不可用",
+      "timestamp": "2025-11-28T05:10:31.871Z"
+    },
+    {
+      "name": "用户搜索功能",
+      "status": "fail",
+      "message": "用户搜索功能 不可用",
+      "timestamp": "2025-11-28T05:10:31.874Z"
+    },
+    {
+      "name": "商品分类过滤",
+      "status": "fail",
+      "message": "商品分类过滤 不可用",
+      "timestamp": "2025-11-28T05:10:31.877Z"
+    },
+    {
+      "name": "订单状态查询",
+      "status": "fail",
+      "message": "订单状态查询 不可用",
+      "timestamp": "2025-11-28T05:10:31.879Z"
+    },
+    {
+      "name": "仪表板实时数据",
+      "status": "fail",
+      "message": "仪表板实时数据 不可用",
+      "timestamp": "2025-11-28T05:10:31.882Z"
+    }
+  ],
+  "componentTests": [
+    {
+      "name": "Dashboard 组件",
+      "status": "warning",
+      "message": "Dashboard 组件 未找到",
+      "timestamp": "2025-11-28T05:10:31.882Z"
+    },
+    {
+      "name": "用户管理组件",
+      "status": "warning",
+      "message": "用户管理组件 未找到",
+      "timestamp": "2025-11-28T05:10:31.883Z"
+    },
+    {
+      "name": "商品管理组件",
+      "status": "warning",
+      "message": "商品管理组件 未找到",
+      "timestamp": "2025-11-28T05:10:31.883Z"
+    },
+    {
+      "name": "订单管理组件",
+      "status": "warning",
+      "message": "订单管理组件 未找到",
+      "timestamp": "2025-11-28T05:10:31.883Z"
+    },
+    {
+      "name": "配置管理组件",
+      "status": "warning",
+      "message": "配置管理组件 未找到",
+      "timestamp": "2025-11-28T05:10:31.884Z"
+    }
+  ],
+  "statistics": {
+    "total": 21,
+    "passed": 1,
+    "failed": 9,
+    "warnings": 11
+  }
+}

@@ -85,6 +85,38 @@ export class PointsService {
     return `PT${timestamp}${random}`.toUpperCase();
   }
 
+  // 根据标识符查找用户ID
+  // 支持：userId、userNumber、phone
+  private async getUserIdByIdentifier(identifier: string): Promise<string> {
+    // 首先尝试直接按ID查找
+    let user = await prisma.user.findUnique({
+      where: { id: identifier },
+      select: { id: true }
+    });
+
+    // 如果找不到，尝试按userNumber查找
+    if (!user) {
+      user = await prisma.user.findUnique({
+        where: { userNumber: identifier },
+        select: { id: true }
+      });
+    }
+
+    // 如果找不到，尝试按phone查找
+    if (!user) {
+      user = await prisma.user.findUnique({
+        where: { phone: identifier },
+        select: { id: true }
+      });
+    }
+
+    if (!user) {
+      throw new Error('用户不存在');
+    }
+
+    return user.id;
+  }
+
   // 获取用户通券余额
   async getBalance(userId: string): Promise<PointsBalance> {
     try {
@@ -171,7 +203,7 @@ export class PointsService {
 
   // 通券转账（增强版，含防重复和权限验证）
   async transfer(data: PointsTransactionData): Promise<PointsTransferResult> {
-    const { fromUserId, toUserId, amount, type, description, relatedOrderId, metadata } = data;
+    let { fromUserId, toUserId, amount, type, description, relatedOrderId, metadata } = data;
 
     if (!fromUserId) {
       throw new Error('转出用户ID不能为空');
@@ -181,6 +213,13 @@ export class PointsService {
     if (amount <= 0) {
       throw new Error('转账金额必须大于0');
     }
+
+    // 解析转出用户ID（确保是有效的用户ID）
+    fromUserId = await this.getUserIdByIdentifier(fromUserId);
+    
+    // 解析转入用户ID（支持userId、userNumber、phone）
+    const resolvedToUserId = await this.getUserIdByIdentifier(toUserId);
+    toUserId = resolvedToUserId;
 
     // 检查是否给自己转账
     if (fromUserId === toUserId) {

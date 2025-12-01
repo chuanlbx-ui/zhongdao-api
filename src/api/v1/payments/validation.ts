@@ -176,15 +176,9 @@ export const statisticsSchema = Joi.object({
 });
 
 // 辅助函数：获取枚举的所有值
-function objectValues(obj: any): string[] {
+function ObjectValues(obj: any): string[] {
   return Object.values(obj);
 }
 
 // 导出所有验证模式
-export {
-  createPaymentSchema,
-  createRefundSchema,
-  queryPaymentSchema,
-  reconciliationSchema,
-  statisticsSchema
-};
+// 注：在上面的export const已经打算毫性地导出了所有模式

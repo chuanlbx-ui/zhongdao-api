@@ -1,0 +1,190 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║         中道商城 - 管理后台兼容性测试工具 - 快速开始指南                  ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+【📋 工具概述】
+
+为管理后台（zhongdao-admin）与 API 和数据库进行全面的兼容性测试，包括：
+  ✓ API 接口可用性检查
+  ✓ 数据库一致性验证
+  ✓ 功能模块可用性测试
+  ✓ 前端组件完整性检查
+
+【🚀 三步快速开始】
+
+█ STEP 1: 启动后端服务
+────────────────────────
+打开终端/PowerShell，运行：
+
+    npm run dev
+
+等待看到 "Server is running on port 3000" 的提示
+
+█ STEP 2: 生成测试数据（可选）
+────────────────────────────
+在另一个终端运行：
+
+    npm run db:seed:standard
+
+这会生成必要的测试数据
+
+█ STEP 3: 启动测试工具
+─────────────────────
+Windows PowerShell:
+    .\run-admin-test.ps1
+
+Windows Command Prompt:
+    run-admin-test.bat
+
+命令行直接运行:
+    node test-admin-compatibility.js
+
+【📊 测试工具菜单】
+
+启动脚本后会显示菜单，选择：
+    1 - 运行完整兼容性测试（推荐）
+    2 - 检查 API 连接
+    3 - 检查数据库连接
+    4 - 生成测试数据
+    5 - 查看测试报告
+    6 - 快速诊断
+    7 - 帮助文档
+    0 - 退出
+
+【📄 生成的报告】
+
+测试完成后会自动生成：
+
+1. admin-test-report.html
+   → 交互式网页报告（推荐查看）
+   → 自动在浏览器打开
+   → 包含详细的测试结果和修复建议
+
+2. admin-test-report-{timestamp}.json
+   → JSON 格式数据
+   → 用于自动化处理和深度分析
+   → 包含完整的测试元数据
+
+3. 控制台输出
+   → 实时测试进度
+   → 每项测试的详细结果
+
+【⚙️ 系统要求】
+
+✓ Node.js >= 18.0.0
+✓ npm >= 9.0.0
+✓ Windows 10+（或其他操作系统）
+✓ 后端服务运行在 http://localhost:3000
+✓ 数据库已初始化
+
+【🔧 常见问题速查】
+
+Q: 启动脚本时报错 "cannot find command"
+A: 确保已安装 Node.js，检查：node --version
+
+Q: 无法连接到 API
+A: 确保后端服务正在运行：npm run dev
+
+Q: 数据库连接失败
+A: 运行迁移命令：npm run db:migrate
+
+Q: 测试数据缺失
+A: 生成测试数据：npm run db:seed:standard
+
+Q: HTML 报告打不开
+A: 直接在浏览器中打开 admin-test-report.html 文件
+
+【📈 测试结果解读】
+
+评分 >= 90%    ⭐⭐⭐⭐⭐ 优秀      可安心部署
+评分 75-89%    ⭐⭐⭐⭐ 良好      建议修复后部署
+评分 60-74%    ⭐⭐⭐ 一般       需要修复
+评分 < 60%     ⭐⭐ 需要改进    不建议部署
+
+【📂 相关文件位置】
+
+项目根目录：D:\wwwroot\zhongdao-mall\
+
+关键文件：
+  ✓ test-admin-compatibility.js     - 主测试脚本
+  ✓ admin-test-report.html          - HTML 报告（测试后生成）
+  ✓ run-admin-test.ps1              - PowerShell 启动脚本
+  ✓ run-admin-test.bat              - Batch 启动脚本
+  ✓ ADMIN_TEST_GUIDE.md             - 完整使用指南
+  ✓ ADMIN_TEST_QUICK_START.txt      - 本文件
+
+【💡 高级用法】
+
+直接指定测试模式（无需菜单）：
+    .\run-admin-test.ps1 -Mode test      # 运行完整测试
+    .\run-admin-test.ps1 -Mode report    # 查看报告
+    .\run-admin-test.ps1 -Mode api       # 仅检查 API
+    .\run-admin-test.ps1 -Mode db        # 仅检查数据库
+
+指定 API 地址：
+    .\run-admin-test.ps1 -ApiUrl http://custom-api:3000/api/v1
+
+【🔄 完整工作流】
+
+1. 检查环境
+   ✓ Node.js 已安装
+   ✓ npm 依赖已安装
+
+2. 启动后端
+   ✓ npm run dev
+
+3. 初始化数据库
+   ✓ npm run db:migrate
+   ✓ npm run db:seed:standard
+
+4. 运行测试
+   ✓ .\run-admin-test.ps1
+
+5. 查看报告
+   ✓ admin-test-report.html 自动打开
+
+6. 根据建议修复
+   ✓ 按照报告中的建议修复问题
+
+7. 重新测试验证
+   ✓ 再次运行测试确认修复
+
+【📞 获取更多帮助】
+
+1. 阅读完整指南
+   打开：ADMIN_TEST_GUIDE.md
+
+2. 查看脚本帮助
+   .\run-admin-test.ps1 -Mode help
+
+3. 查看 API 文档
+   http://localhost:3000/api-docs（后端运行时）
+
+4. 检查日志
+   后端日志：logs/server.log
+   数据库日志：检查数据库服务器配置
+
+【📌 重要提示】
+
+⚠️ 不要在生产环境运行 db:seed 命令
+⚠️ 测试报告可能包含敏感信息，妥善保管
+⚠️ 确保所有环境变量正确配置
+⚠️ 测试前备份重要数据
+
+【✨ 现在就开始吧！】
+
+1. 打开 PowerShell
+2. 导航到项目目录：cd d:\wwwroot\zhongdao-mall
+3. 运行脚本：.\run-admin-test.ps1
+4. 选择"快速诊断"（选项 6）
+5. 查看报告，按建议修复问题
+
+═══════════════════════════════════════════════════════════════════════════════
+
+最后更新: 2025-11-28
+版本: 1.0
+文档语言: 中文
+
+═══════════════════════════════════════════════════════════════════════════════
