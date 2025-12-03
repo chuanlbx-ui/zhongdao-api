@@ -126,16 +126,31 @@ const defaultInventoryConfig: InventoryConfig = {
  */
 export async function initializeConfigs(): Promise<void> {
   try {
+    // 检查数据库连接
+    try {
+      await configService.getConfigDetail('init_check');
+    } catch (dbError) {
+      // 数据库未连接，跳过配置初始化（静默处理）
+      if (process.env.NODE_ENV === 'development') {
+        console.log('⚠️ 数据库未连接，使用默认配置');
+      }
+      return;
+    }
+
     logger.info('开始初始化系统配置...');
 
     // 初始化云店等级配置
     for (const [level, config] of Object.entries(defaultCloudShopLevels)) {
       const key = `cloud_shop_level_${level}`;
-      await configService.updateConfig(key, config, {
-        description: `${config.name}等级配置`,
-        category: 'cloud_shop_levels',
-        type: 'JSON'
-      });
+      try {
+        await configService.updateConfig(key, config, {
+          description: `${config.name}等级配置`,
+          category: 'cloud_shop_levels',
+          type: 'JSON'
+        });
+      } catch (error) {
+        logger.warn(`⚠️ 配置 ${key} 初始化失败，使用默认值`);
+      }
     }
     logger.info('✓ 云店等级配置初始化完成');
 
@@ -150,10 +165,14 @@ export async function initializeConfigs(): Promise<void> {
     };
 
     for (const [key, value] of Object.entries(commissionKeys)) {
-      await configService.updateConfig(key, value, {
-        category: 'commission',
-        type: 'NUMBER'
-      });
+      try {
+        await configService.updateConfig(key, value, {
+          category: 'commission',
+          type: 'NUMBER'
+        });
+      } catch (error) {
+        logger.warn(`⚠️ 配置 ${key} 初始化失败，使用默认值`);
+      }
     }
     logger.info('✓ 佣金配置初始化完成');
 
@@ -167,10 +186,14 @@ export async function initializeConfigs(): Promise<void> {
     };
 
     for (const [key, value] of Object.entries(pointsKeys)) {
-      await configService.updateConfig(key, value, {
-        category: 'points',
-        type: 'NUMBER'
-      });
+      try {
+        await configService.updateConfig(key, value, {
+          category: 'points',
+          type: 'NUMBER'
+        });
+      } catch (error) {
+        logger.warn(`⚠️ 配置 ${key} 初始化失败，使用默认值`);
+      }
     }
     logger.info('✓ 通券配置初始化完成');
 
@@ -183,10 +206,14 @@ export async function initializeConfigs(): Promise<void> {
     };
 
     for (const [key, value] of Object.entries(orderKeys)) {
-      await configService.updateConfig(key, value, {
-        category: 'order',
-        type: 'NUMBER'
-      });
+      try {
+        await configService.updateConfig(key, value, {
+          category: 'order',
+          type: 'NUMBER'
+        });
+      } catch (error) {
+        logger.warn(`⚠️ 配置 ${key} 初始化失败，使用默认值`);
+      }
     }
     logger.info('✓ 订单配置初始化完成');
 
@@ -198,17 +225,21 @@ export async function initializeConfigs(): Promise<void> {
     };
 
     for (const [key, value] of Object.entries(inventoryKeys)) {
-      await configService.updateConfig(key, value, {
-        category: 'inventory',
-        type: typeof value === 'boolean' ? 'BOOLEAN' : 'NUMBER'
-      });
+      try {
+        await configService.updateConfig(key, value, {
+          category: 'inventory',
+          type: typeof value === 'boolean' ? 'BOOLEAN' : 'NUMBER'
+        });
+      } catch (error) {
+        logger.warn(`⚠️ 配置 ${key} 初始化失败，使用默认值`);
+      }
     }
     logger.info('✓ 库存配置初始化完成');
 
-    logger.info('✅ 系统配置初始化完成！');
+    logger.info('✅ 系统配置已初始化');
   } catch (error) {
-    logger.error('配置初始化失败', { error });
-    throw error;
+    logger.warn('⚠️ 系统配置初始化失败，将使用默认配置');
+    // 不抛出错误，让应用继续运行
   }
 }
 

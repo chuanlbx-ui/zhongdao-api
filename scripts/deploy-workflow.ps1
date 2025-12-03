@@ -120,7 +120,7 @@ function Commit-ToGit {
     git add .
 
     # 检查是否有内容需要提交
-    $cachedChanges = git diff --cached
+    $cachedChanges = git diff --cached --name-only
     if (-not $cachedChanges) {
         Write-Log "没有需要提交的更改"
         return
@@ -157,8 +157,8 @@ function Deploy-ToServer {
 
     # 编译代码
     Write-Log "编译TypeScript代码..."
-    $buildResult = npm run build
-    if ($LASTEXITCODE -ne 0) {
+    $buildProcess = Start-Process -FilePath "npm" -ArgumentList "run", "build" -NoNewWindow -PassThru -Wait
+    if ($buildProcess.ExitCode -ne 0) {
         Write-Error "编译失败"
     }
 
@@ -168,35 +168,35 @@ function Deploy-ToServer {
 
     # 准备部署文件
     Write-Log "准备部署文件..."
-    Copy-Item -Recurse -Force .\dist $tempDir\
-    Copy-Item -Force .\package.json $tempDir\
-    Copy-Item -Force .\package-lock.json $tempDir\
-    Copy-Item -Force .\.env.server-sync $tempDir\.env.production
+    Copy-Item -Recurse -Force .\dist $tempDir\ -ErrorAction Stop
+    Copy-Item -Force .\package.json $tempDir\ -ErrorAction Stop
+    Copy-Item -Force .\package-lock.json $tempDir\ -ErrorAction Stop
+    Copy-Item -Force .\.env.server-sync $tempDir\.env.production -ErrorAction Stop
     if (Test-Path .\ecosystem.config.js) {
-        Copy-Item -Force .\ecosystem.config.js $tempDir\
+        Copy-Item -Force .\ecosystem.config.js $tempDir\ -ErrorAction Stop
     }
 
     # 压缩文件
     Write-Log "压缩部署文件..."
     Set-Location $tempDir
-    tar -czf ..\deploy-to-server.tar.gz .
+    $compressResult = tar -czf "..\deploy-to-server.tar.gz" *
     Set-Location ..
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "压缩失败"
+    }
     Write-Success "文件压缩完成"
 
     # 上传到服务器
     Write-Log "上传文件到服务器..."
-    $uploadResult = scp -o StrictHostKeyChecking=no deploy-to-server.tar.gz $($Config.ServerUser)@$($Config.ServerIP):/tmp/
-    if ($LASTEXITCODE -ne 0) {
+    $uploadProcess = Start-Process -FilePath "scp" -ArgumentList "-o", "StrictHostKeyChecking=no", "deploy-to-server.tar.gz", "$($Config.ServerUser)@$($Config.ServerIP):/tmp/" -NoNewWindow -PassThru -Wait
+    if ($uploadProcess.ExitCode -ne 0) {
         Write-Error "上传失败"
     }
     Write-Success "文件上传完成"
 
-    # 在服务器上执行部署
-    Write-Log "在服务器上执行部署..."
-    $sshScript = @"
+    # 创建部署命令脚本
+    $deployCommands = @"
 set -e
-
-# 进入部署目录
 cd $($Config.ServerPath)
 
 # 备份当前版本
@@ -219,7 +219,7 @@ fi
 # 返回部署目录
 cd $($Config.ServerPath)
 
-# 安装依赖（仅生产依赖）
+# 安装依赖
 echo "安装依赖..."
 npm ci --only=production
 
@@ -249,9 +249,13 @@ pm2 list
 # 清理临时文件
 rm -f /tmp/deploy-to-server.tar.gz
 rm -rf /tmp/dist
+echo "部署完成"
 "@
 
-    ssh -o StrictHostKeyChecking=no $($Config.ServerUser)@$($Config.ServerIP) $sshScript
+    # 通过SSH执行部署命令
+    Write-Log "在服务器上执行部署..."
+    $deployCommands | ssh -o StrictHostKeyChecking=no $($Config.ServerUser)@$($Config.ServerIP) "bash -s"
+
     if ($LASTEXITCODE -eq 0) {
         Write-Success "服务器部署完成"
     } else {
@@ -285,7 +289,7 @@ function Verify-Deployment {
         }
     } catch {
         Write-Warning "API服务可能未就绪，请检查服务器日志"
-        Write-Host "查看日志命令: ssh $($Config.ServerUser)@$($Config.ServerIP) 'pm2 logs zd-api'"
+        Write-Host "查看日志命令: ssh $($Config.ServerUser)@$($Config.ServerIP) 'pm2 logs zd-api --lines 50'"
     }
 }
 
@@ -322,13 +326,17 @@ function Show-Status {
     if (Test-Path .env.local) {
         $envContent = Get-Content .env.local | Where-Object { $_ -match "^NODE_ENV=" }
         if ($envContent) {
-            $nodeEnv = $envContent.Split("=")[1]
+            $nodeEnv = ($envContent -split "=")[1]
             Write-Host "  当前环境: $nodeEnv"
         }
-        $dbHost = (Select-String -Path .env.local -Pattern "^DB_HOST=" -ErrorAction SilentlyContinue).Line.Split("=")[1]
-        $dbPort = (Select-String -Path .env.local -Pattern "^DB_PORT=" -ErrorAction SilentlyContinue).Line.Split("=")[1]
-        if ($dbHost -and $dbPort) {
-            Write-Host "  数据库: $dbHost`:$dbPort"
+        try {
+            $dbHost = (Select-String -Path .env.local -Pattern "^DB_HOST=" -ErrorAction SilentlyContinue).Line -split "=" | Select-Object -Last 1
+            $dbPort = (Select-String -Path .env.local -Pattern "^DB_PORT=" -ErrorAction SilentlyContinue).Line -split "=" | Select-Object -Last 1
+            if ($dbHost -and $dbPort) {
+                Write-Host "  数据库: $dbHost`:$dbPort"
+            }
+        } catch {
+            Write-Host "  数据库: 未配置"
         }
     } else {
         Write-Host "  未配置环境文件"
@@ -371,7 +379,7 @@ function Setup-Project {
 
     # 检查是否有提交
     try {
-        git rev-parse --verify HEAD 2>$null
+        git rev-parse --verify HEAD 2>$null | Out-Null
     } catch {
         Write-Log "创建首次提交..."
         git add .

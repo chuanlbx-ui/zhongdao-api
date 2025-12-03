@@ -1,0 +1,98 @@
+{
+  "users": [
+    {
+      "id": "user_001",
+      "phone": "13800138000",
+      "nickname": "测试用户1",
+      "level": "VIP",
+      "status": "active",
+      "inviteCode": "TEST123",
+      "totalOrders": 10,
+      "totalAmount": 5000
+    },
+    {
+      "id": "user_002",
+      "phone": "13900139000",
+      "nickname": "测试用户2",
+      "level": "STAR_1",
+      "status": "active",
+      "inviteCode": "TEST456",
+      "totalOrders": 50,
+      "totalAmount": 25000
+    }
+  ],
+  "products": [
+    {
+      "id": "prod_001",
+      "name": "测试商品1",
+      "description": "这是一个测试商品",
+      "images": [
+        "https://example.com/product1.jpg"
+      ],
+      "categoryId": "cat_001",
+      "price": 299,
+      "originalPrice": 399,
+      "stock": 100,
+      "sales": 50,
+      "status": "active"
+    },
+    {
+      "id": "prod_002",
+      "name": "测试商品2",
+      "description": "这是另一个测试商品",
+      "images": [
+        "https://example.com/product2.jpg"
+      ],
+      "categoryId": "cat_001",
+      "price": 199,
+      "originalPrice": 299,
+      "stock": 200,
+      "sales": 100,
+      "status": "active"
+    }
+  ],
+  "categories": [
+    {
+      "id": "cat_001",
+      "name": "保健品",
+      "level": 1,
+      "parentId": null,
+      "status": "active"
+    },
+    {
+      "id": "cat_002",
+      "name": "护肤品",
+      "level": 1,
+      "parentId": null,
+      "status": "active"
+    }
+  ],
+  "orders": [
+    {
+      "id": "order_001",
+      "userId": "user_001",
+      "orderNo": "ZD20241201001",
+      "items": [
+        {
+          "productId": "prod_001",
+          "quantity": 1,
+          "price": 299
+        }
+      ],
+      "totalAmount": 299,
+      "status": "pending",
+      "paymentMethod": "wechat"
+    }
+  ],
+  "pointsTransactions": [
+    {
+      "id": "txn_001",
+      "userId": "user_001",
+      "type": "RECHARGE",
+      "amount": 100,
+      "balance": 1100,
+      "status": "success"
+    }
+  ],
+  "generated": "2025-12-02T09:19:18.748Z"
+}

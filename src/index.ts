@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 import './init-env';
 
 // 导入配置模块（运行时读取环境变量）
-import { config, validateConfig, getConfigInfo } from './config';
+import { config, validateConfig } from './config';
 
 // 导入中间件
 import { requestId } from './shared/middleware/requestId';
@@ -21,7 +21,6 @@ import { csrfProtection } from './shared/middleware/csrf';
 import { enhancedSecurityHeaders, enhancedInputValidation } from './shared/middleware/enhanced-security';
 import { securityMonitoring } from './shared/services/security-monitoring';
 import { fileUploadSecurity } from './shared/middleware/file-upload-security';
-import { performStartupSecurityCheck } from './shared/services/security-config';
 
 // 导入响应工具
 import { createSuccessResponse, createErrorResponse, ErrorCode } from './shared/types/response';
@@ -46,16 +45,16 @@ import swaggerSetup from './config/swagger';
 // ✅ 验证必要的环境变量（运行时）
 validateConfig();
 
-logger.info('🔧 应用配置信息:', getConfigInfo());
-
 // 初始化支付系统
 PaymentConfigLoader.initializePaymentSystem();
 
 const app = express();
 const PORT = config.app.port;  // ✅ 从config对象读取端口号
 
-// 启动时安全检查
-performStartupSecurityCheck();
+// 启动时安全检查（静默模式，只记录日志）
+if (process.env.NODE_ENV === 'production') {
+  performStartupSecurityCheck();
+}
 
 // 基础安全中间件（按安全优先级排序）
 app.use(helmet({
@@ -225,22 +224,21 @@ app.use(errorHandler);
 
 // 启动服务器
 app.listen(PORT, async () => {
-  console.log(`🚀 中道商城系统启动成功！`);
+  // 简化的启动信息
+  const isDev = process.env.NODE_ENV === 'development';
+
+  console.log(`\n🚀 中道商城系统启动成功！`);
   console.log(`📍 端口: ${PORT}`);
-  console.log(`🌍 环境: ${process.env.NODE_ENV}`);
-  console.log(`🕒 时间: ${new Date().toLocaleString('zh-CN')}`);
+  console.log(`🌍 环境: ${isDev ? '开发模式' : '生产模式'}`);
   console.log(`🔗 健康检查: http://localhost:${PORT}/health`);
-  console.log(`📚 API文档: http://localhost:${PORT}/api-docs`);
-  console.log(`🔧 API路由: http://localhost:${PORT}/api/v1`);
-  console.log(`📄 JSON文档: http://localhost:${PORT}/api-docs.json`);
+  console.log(`📚 API文档: http://localhost:${PORT}/api-docs\n`);
 
   // 初始化系统配置
   try {
     await initializeConfigs();
-    console.log(`✅ 系统配置已初始化`);
+    // 成功时不显示信息（因为initializeConfigs内部已经有日志）
   } catch (error) {
-    logger.error('系统配置初始化失败', { error });
-    console.error('❌ 系统配置初始化失败:', error);
+    // 错误已经由initializeConfigs处理，这里不再显示
   }
 });
 

@@ -159,6 +159,33 @@ npm run admin:setup
 - **`src/config/`**: Configuration files (payments, swagger, etc.)
 - **`scripts/`**: Utility scripts for deployment, testing, and data management
 - **`docs/`**: Documentation files and guides
+- **`tests/`**: Comprehensive test suite with setup, helpers, mocks, and API tests
+
+### Testing System Architecture
+The project includes a comprehensive testing infrastructure designed for both frontend and backend validation:
+
+#### Frontend Testing (H5 Application)
+- **Location**: `D:\wwwroot\zhongdao-H5\` with React/Vue + TypeScript setup
+- **Key Testing Files**:
+  - `src/test/setup.ts` - Test environment configuration
+  - `src/test/components/` - Component test suites
+  - `vite.config.ts` - Test configuration with alias resolution
+
+#### Backend API Testing
+- **Location**: `tests/` directory with comprehensive API endpoint testing
+- **Infrastructure Components**:
+  - `tests/setup.ts` - Express app instance, database connection, global utilities
+  - `tests/helpers/auth.helper.ts` - JWT token generation, multi-level user authentication
+  - `tests/database/test-database.helper.ts` - Test database isolation, cleanup, seeding
+  - `tests/mocks/external.services.mock.ts` - WeChat, payment, SMS, email service mocking
+  - `tests/config/test-security.config.ts` - Test-specific security middleware
+
+#### Key Testing Features
+- **Multi-Level User Testing**: Support for all user hierarchy levels (NORMAL, VIP, STAR_1-5, DIRECTOR)
+- **Database Isolation**: Separate test database with automatic cleanup
+- **External Service Mocking**: Complete mocking of WeChat, payments, SMS, email services
+- **Security Configuration**: Test-specific security settings bypassing production restrictions
+- **Comprehensive Assertions**: Custom helpers for API responses, JWT tokens, UUIDs, etc.
 
 ### Key Business Modules
 
@@ -279,10 +306,84 @@ This is not a typical e-commerce platform - key differences:
 - **Team network modeling**: Parent-child relationships with team paths for efficient querying
 
 ### Testing and Quality Assurance
+
+#### Test Infrastructure Usage
+
+**Backend API Testing:**
+```bash
+# Run all API tests
+npm test
+
+# Run specific test suites
+npm run test:api
+npm run test:integration
+
+# Run tests with coverage
+npm run test:coverage
+
+# Admin system testing
+npm run test:admin
+npm run admin:diagnostic
+```
+
+**Frontend Testing:**
+```bash
+# From H5 directory
+cd ../zhongdao-H5
+npm test
+npm run test:unit
+npm run test:integration
+npm run test:coverage
+```
+
+**Test Usage Patterns:**
+```typescript
+// Basic API test example
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { app, setupTestDatabase, cleanupTestDatabase, getAuthHeadersForUser } from '../setup';
+
+describe('User Authentication', () => {
+  beforeAll(async () => {
+    await setupTestDatabase();
+  });
+
+  afterAll(async () => {
+    await cleanupTestDatabase();
+  });
+
+  it('should authenticate admin user', async () => {
+    const response = await request(app)
+      .get('/api/v1/auth/me')
+      .set(getAuthHeadersForUser('admin'))
+      .expect(200);
+
+    expect(response.body.data.role).toBe('ADMIN');
+  });
+});
+```
+
+**Test Data Management:**
+```typescript
+// Get test users with different permission levels
+const adminUser = getTestUser('admin');
+const normalUser = getTestUser('normal');
+const vipUser = getTestUser('vip');
+
+// Generate test data
+const testData = generateTestData();
+
+// Use test agent for authenticated requests
+const agent = createTestAgent(app).asUser('admin');
+```
+
+**Quality Assurance Features:**
 - **Comprehensive test suite**: Unit tests for business logic, integration tests for workflows, E2E tests for critical user journeys
 - **Admin system testing**: Specialized compatibility tests with detailed reporting and diagnostics
 - **Coverage targets**: >80% for unit tests, >70% for integration tests with automated reporting
 - **Test data management**: Multiple seed configurations (minimal, standard, comprehensive) with validation utilities
+- **Multi-level user testing**: Support for all user hierarchy levels (NORMAL, VIP, STAR_1-5, DIRECTOR)
+- **Database isolation**: Separate test database with automatic cleanup
+- **External service mocking**: Complete mocking of WeChat, payments, SMS, email services
 
 ### Performance and Scalability
 - **Strategic database indexing**: Optimized for complex hierarchical queries and business logic

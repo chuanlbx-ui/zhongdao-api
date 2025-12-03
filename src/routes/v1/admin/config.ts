@@ -11,7 +11,6 @@ import { validate } from '../../../shared/middleware/validation';
 import { createSuccessResponse, createErrorResponse } from '../../../shared/types/response';
 import { configService } from '../../../modules/config';
 import { logger } from '../../../shared/utils/logger';
-import { UserLevel } from '@prisma/client';
 
 const router = Router();
 
@@ -26,7 +25,7 @@ router.get('/test', (req, res) => {
 
 // 所有配置管理接口都需要管理员权限
 router.use(authenticate);
-router.use(requireMinLevel(UserLevel.DIRECTOR));
+router.use(requireMinLevel('director'));
 
 /**
  * 获取所有配置（分页）

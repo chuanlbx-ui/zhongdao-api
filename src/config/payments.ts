@@ -100,9 +100,10 @@ export class PaymentConfigLoader {
       // 设置支付提供商配置 (仅微信支付)
       PaymentProviderFactory.setConfig(ProviderType.WECHAT, wechatConfig);
 
-      console.log('支付系统初始化成功');
-      console.log('微信支付沙箱模式:', wechatConfig.sandbox ? '启用' : '禁用');
-      console.log('支付宝支付: 已暂时禁用');
+      // 开发模式下简化支付系统信息显示
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✓ 支付系统已初始化');
+      }
     } catch (error) {
       console.error('支付系统初始化失败:', error);
     }

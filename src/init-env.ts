@@ -17,21 +17,18 @@ let result: dotenv.DotenvConfigOutput;
 if (require('fs').existsSync(localEnvFile)) {
   envFile = localEnvFile;
   result = dotenv.config({ path: envFile });
-  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'production') {
-    console.log('[INFO] 环境变量已加载 (.env.local):', envFile);
-    console.log('[DEBUG] JWT_SECRET present:', !!process.env.JWT_SECRET);
+  // 在开发模式下显示简化的加载信息
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`✓ 环境配置已加载: ${path.basename(envFile)}`);
   }
 } else {
   // 如果没有 .env.local，则根据 NODE_ENV 加载对应文件
   envFile = path.resolve(__dirname, `../.env.${process.env.NODE_ENV || 'development'}`);
   result = dotenv.config({ path: envFile });
-  if (process.env.NODE_ENV === 'development') {
-    if (result.error) {
-      console.warn('[WARN] 无法加载.env文件:', envFile);
-    } else {
-      console.log('[INFO] 环境变量已加载:', envFile);
-      console.log('[DEBUG] JWT_SECRET present:', !!process.env.JWT_SECRET);
-    }
+  if (result.error) {
+    console.warn(`⚠️ 无法加载环境配置文件`);
+  } else if (process.env.NODE_ENV === 'development') {
+    console.log(`✓ 环境配置已加载: ${path.basename(envFile)}`);
   }
 }
 

@@ -368,8 +368,14 @@ export class ConfigService {
         value: this.parseValue(config.value, config.type)
       };
     } catch (error: any) {
+      // 特殊处理初始化检查错误，避免在开发环境显示过多错误
+      if (key === 'init_check') {
+        // 静默处理，不输出日志
+        throw error;
+      }
+
       logger.error('获取配置详情失败', { key, error, retryCount });
-      
+
       // 数据库连接错误，最多重试2次
       if (error.message?.includes('Unknown authentication plugin') || error.message?.includes('connect')) {
         if (retryCount < 2) {

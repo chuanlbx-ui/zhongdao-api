@@ -35,11 +35,11 @@
     "remote:deploy": "scp scripts/deploy-to-server.sh scripts/check-deploy.sh ecosystem.config.js root@162.14.114.224:/www/wwwroot/zd-api.wenbita.cn/ && ssh root@162.14.114.224 'bash /www/wwwroot/zd-api.wenbita.cn/deploy-to-server.sh'",
     "remote:status": "ssh root@162.14.114.224 'bash /www/wwwroot/zd-api.wenbita.cn/check-deploy.sh'",
     "remote:logs": "ssh root@162.14.114.224 'pm2 logs'",
-   "remote:restart": "ssh root@162.14.114.224 'pm2 restart zd-api'",
-    "workflow:deploy": "powershell -ExecutionPolicy Bypass -File scripts/deploy-workflow.ps1 all",
-    "workflow:commit": "powershell -ExecutionPolicy Bypass -File scripts/deploy-workflow.ps1 commit",
-    "workflow:status": "powershell -ExecutionPolicy Bypass -File scripts/deploy-workflow.ps1 status",
-    "workflow:setup": "powershell -ExecutionPolicy Bypass -File scripts/deploy-workflow.ps1 setup",
+    "remote:restart": "ssh root@162.14.114.224 'pm2 restart zd-api'",
+    "workflow:deploy": "powershell -ExecutionPolicy Bypass -File scripts/deploy-simple.ps1 all",
+    "workflow:commit": "powershell -ExecutionPolicy Bypass -File scripts/deploy-simple.ps1 commit",
+    "workflow:status": "powershell -ExecutionPolicy Bypass -File scripts/deploy-simple.ps1 status",
+    "workflow:setup": "powershell -ExecutionPolicy Bypass -File scripts/deploy-simple.ps1 help",
     "sync:server": "bash scripts/sync-to-server.sh",
     "dev:remote": "npm run tunnel:start && npm run dev",
     "tunnel:start": "bash scripts/ssh-tunnel.sh start",
@@ -56,7 +56,25 @@
     "deploy:config-fix": "bash scripts/deploy-and-verify.sh production 162.14.114.224 root /www/wwwroot/zd-api.wenbita.cn",
     "deploy:config-fix:bash": "bash scripts/deploy-and-verify.sh production 162.14.114.224 root /www/wwwroot/zd-api.wenbita.cn",
     "deploy:config-check": "npm run build && echo '编译成功'",
-    "admin:setup": "npm run db:migrate && npm run db:seed:standard"
+    "admin:setup": "npm run db:migrate && npm run db:seed:standard",
+    "bug:expert": "bug-expert.bat",
+    "bug:diagnose": "npm run db:validate && npm run db:stats && curl -s http://localhost:3000/health",
+    "bug:logs": "pm2 logs zd-api --lines 50",
+    "bug:restart": "pm2 restart zd-api && echo '服务已重启，请等待30秒后检查状态'",
+    "types:generate": "tsx scripts/generate-types-for-frontend.ts",
+    "types:sync": "tsx scripts/generate-types-for-frontend.ts && echo '类型已同步到前端'",
+    "mock:generate": "tsx scripts/generate-mock-data.ts",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest run --coverage",
+    "test:api": "vitest run tests/api",
+    "test:api:auth": "vitest run tests/api/auth.test.ts",
+    "test:api:products": "vitest run tests/api/products.test.ts",
+    "test:api:points": "vitest run tests/api/points.test.ts",
+    "test:api:orders": "vitest run tests/api/orders.test.ts",
+    "test:api:watch": "vitest watch tests/api",
+    "test:api:all": "npm run test:api:auth && npm run test:api:products && npm run test:api:points && npm run test:api:orders"
   },
   "keywords": [
     "e-commerce",
@@ -75,7 +93,6 @@
     "npm": ">=9.0.0"
   },
   "dependencies": {
-    "@faker-js/faker": "^10.1.0",
     "@paralleldrive/cuid2": "^3.0.4",
     "@prisma/client": "^6.19.0",
     "@types/bcryptjs": "^2.4.6",
@@ -115,11 +132,21 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.1.0",
     "@types/compression": "^1.8.1",
     "@types/cors": "^2.8.19",
     "@types/morgan": "^1.9.10",
     "@types/node": "^24.10.1",
+    "@types/supertest": "^6.0.3",
     "@types/swagger-jsdoc": "^6.0.4",
-    "@types/swagger-ui-express": "^4.1.8"
+    "@types/swagger-ui-express": "^4.1.8",
+    "autoprefixer": "^10.4.22",
+    "fs-extra": "^11.3.2",
+    "path": "^0.12.7",
+    "postcss": "^8.5.6",
+    "supertest": "^7.1.4",
+    "tailwindcss": "^3.4.18",
+    "ts-node": "^10.9.2",
+    "vitest": "^4.0.15"
   }
 }
