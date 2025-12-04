@@ -585,8 +585,8 @@ export class SupplyChainIntegrationService {
   ): Promise<ProcurementPath> {
     // 获取买卖双方信息
     const [buyer, seller] = await Promise.all([
-      prisma.user.findUnique({ where: { id: buyerId } }),
-      prisma.user.findUnique({ where: { id: sellerId } })
+      prisma.users.findUnique({ where: { id: buyerId } }),
+      prisma.users.findUnique({ where: { id: sellerId } })
     ]);
 
     if (!buyer || !seller) {
@@ -662,7 +662,7 @@ export class SupplyChainIntegrationService {
    */
   private async getPriceInfo(userId: string, productId: string): Promise<{ price: number }> {
     try {
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: userId },
         select: { level: true }
       });

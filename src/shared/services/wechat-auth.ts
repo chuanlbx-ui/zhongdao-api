@@ -184,7 +184,7 @@ export class WechatAuthService {
   ): Promise<{ success: boolean; user?: any; isNewUser?: boolean; error?: string; message?: string }> {
     try {
       // 先查找现有用户
-      let user = await prisma.user.findUnique({
+      let user = await prisma.users.findUnique({
         where: { openid }
       });
 
@@ -202,7 +202,7 @@ export class WechatAuthService {
           refereeId: null
         };
 
-        user = await prisma.user.create({
+        user = await prisma.users.create({
           data: newUser
         });
 
@@ -220,7 +220,7 @@ export class WechatAuthService {
           if (userInfo.nickname) updateData.nickname = userInfo.nickname;
           if (userInfo.avatarUrl) updateData.avatarUrl = userInfo.avatarUrl;
 
-          user = await prisma.user.update({
+          user = await prisma.users.update({
             where: { id: user.id },
             data: updateData
           });

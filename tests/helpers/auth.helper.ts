@@ -82,7 +82,7 @@ export class TestAuthHelper {
     const { phone, nickname, level = 'NORMAL', role = 'USER', wechatOpenId } = userData;
 
     // 检查用户是否已存在
-    let user = await testPrisma.user.findUnique({
+    let user = await testprisma.users.findUnique({
       where: { phone }
     });
 
@@ -90,7 +90,7 @@ export class TestAuthHelper {
       // 创建新用户
       const hashedPassword = await bcrypt.hash('Test123456!', 10);
 
-      user = await testPrisma.user.create({
+      user = await testprisma.users.create({
         data: {
           phone,
           nickname: nickname || `测试用户_${phone.slice(-4)}`,
@@ -110,7 +110,7 @@ export class TestAuthHelper {
       });
     } else {
       // 更新现有用户
-      user = await testPrisma.user.update({
+      user = await testprisma.users.update({
         where: { id: user.id },
         data: {
           level: level as any,
@@ -217,7 +217,7 @@ export class TestAuthHelper {
   static async cleanupTestUsers(): Promise<void> {
     try {
       // 删除测试创建的用户
-      await testPrisma.user.deleteMany({
+      await testprisma.users.deleteMany({
         where: {
           OR: [
             { phone: { startsWith: '1880000000' } },

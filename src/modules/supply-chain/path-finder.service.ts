@@ -756,7 +756,7 @@ export class PathFinderService {
       });
 
       // 按用户等级获取用户
-      const users = await prisma.user.findMany({
+      const users = await prisma.users.findMany({
         where: { id: { in: userIds } },
         select: { id: true, level: true }
       });

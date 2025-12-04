@@ -89,14 +89,14 @@ export class PointsService {
   // 支持：userId、userNumber、phone
   private async getUserIdByIdentifier(identifier: string): Promise<string> {
     // 首先尝试直接按ID查找
-    let user = await prisma.user.findUnique({
+    let user = await prisma.users.findUnique({
       where: { id: identifier },
       select: { id: true }
     });
 
     // 如果找不到，尝试按userNumber查找
     if (!user) {
-      user = await prisma.user.findUnique({
+      user = await prisma.users.findUnique({
         where: { userNumber: identifier },
         select: { id: true }
       });
@@ -104,7 +104,7 @@ export class PointsService {
 
     // 如果找不到，尝试按phone查找
     if (!user) {
-      user = await prisma.user.findUnique({
+      user = await prisma.users.findUnique({
         where: { phone: identifier },
         select: { id: true }
       });
@@ -120,7 +120,7 @@ export class PointsService {
   // 获取用户通券余额
   async getBalance(userId: string): Promise<PointsBalance> {
     try {
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: userId },
         select: {
           pointsBalance: true,

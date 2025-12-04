@@ -89,7 +89,7 @@ async function createBasicData() {
 
     const createdUsers = [];
     for (const userData of testUsers) {
-      const user = await prisma.user.upsert({
+      const user = await prisma.users.upsert({
         where: { phone: userData.phone },
         update: userData,
         create: {
@@ -110,19 +110,19 @@ async function createBasicData() {
 
     // 3. 设置推荐关系
     console.log('\n🔗 设置推荐关系...');
-    await prisma.user.update({
+    await prisma.users.update({
       where: { phone: '13800000002' },
       data: { parentId: createdUsers.find(u => u.level === 'DIRECTOR').id }
     });
-    await prisma.user.update({
+    await prisma.users.update({
       where: { phone: '13800000003' },
       data: { parentId: createdUsers.find(u => u.level === 'STAR_5').id }
     });
-    await prisma.user.update({
+    await prisma.users.update({
       where: { phone: '13800000004' },
       data: { parentId: createdUsers.find(u => u.level === 'STAR_3').id }
     });
-    await prisma.user.update({
+    await prisma.users.update({
       where: { phone: '13800000005' },
       data: { parentId: createdUsers.find(u => u.level === 'VIP').id }
     });

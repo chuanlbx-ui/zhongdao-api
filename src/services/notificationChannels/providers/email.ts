@@ -136,7 +136,7 @@ export class EmailNotificationService {
   private async getUserEmail(userId: string): Promise<string | null> {
     try {
       // 从用户数据库获取邮箱地址
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: userId },
         select: { email: true }
       });

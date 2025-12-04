@@ -43,7 +43,7 @@ router.post('/register',
     const { openid, nickname, phone, avatarUrl } = req.body;
 
     // 检查用户是否已存在
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { openid }
     });
 
@@ -59,7 +59,7 @@ router.post('/register',
     }
 
     // 创建用户
-    const user = await prisma.user.create({
+    const user = await prisma.users.create({
       data: {
         openid,
         nickname,
@@ -89,7 +89,7 @@ router.post('/register',
 router.get('/me',
   authenticate,
   asyncHandler(async (req, res) => {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: req.user!.id },
       select: {
         id: true,
@@ -143,7 +143,7 @@ router.put('/me',
     const { nickname, avatarUrl } = req.body;
     const userId = req.user!.id;
 
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id: userId },
       data: {
         ...(nickname && { nickname }),
@@ -192,7 +192,7 @@ router.get('/',
     const skip = (page - 1) * perPage;
 
     const [users, total] = await Promise.all([
-      prisma.user.findMany({
+      prisma.users.findMany({
         skip,
         take: perPage,
         select: {
@@ -208,7 +208,7 @@ router.get('/',
         },
         orderBy: { createdAt: 'desc' }
       }),
-      prisma.user.count()
+      prisma.users.count()
     ]);
 
     res.json(createSuccessResponse({

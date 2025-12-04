@@ -791,7 +791,7 @@ const getUserById = async (id: number) => {
 };
 
 // 使用ORM的查询构建器
-const users = await prisma.user.findMany({
+const users = await prisma.users.findMany({
   where: {
     id: userId,
     deletedAt: null
@@ -826,7 +826,7 @@ app.use((req, res, next) => {
 
 ```typescript
 // 字段选择
-const users = await prisma.user.findMany({
+const users = await prisma.users.findMany({
   select: {
     id: true,
     nickname: true,
@@ -852,7 +852,7 @@ app.use((req, res, next) => {
 
 ```typescript
 // 索引优化
-const users = await prisma.user.findMany({
+const users = await prisma.users.findMany({
   where: {
     status: 'active'
   },
@@ -864,7 +864,7 @@ const users = await prisma.user.findMany({
 });
 
 // 查询优化
-const userStats = await prisma.user.aggregate({
+const userStats = await prisma.users.aggregate({
   where: {
     level: 'star_1'
   },

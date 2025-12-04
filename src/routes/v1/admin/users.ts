@@ -19,7 +19,7 @@ router.get('/',
       const skip = (page - 1) * perPage;
 
       const [users, total] = await Promise.all([
-        prisma.user.findMany({
+        prisma.users.findMany({
           skip,
           take: perPage,
           select: {
@@ -39,7 +39,7 @@ router.get('/',
           },
           orderBy: { createdAt: 'desc' }
         }),
-        prisma.user.count()
+        prisma.users.count()
       ]);
 
       res.json(createPaginatedResponse(
@@ -67,7 +67,7 @@ router.get('/:id',
   authenticate,
   asyncHandler(async (req: Request, res: Response) => {
     try {
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: req.params.id },
         include: {
           shops: {
@@ -130,7 +130,7 @@ router.put('/:id',
       if (level !== undefined) updateData.level = level;
       if (status !== undefined) updateData.status = status;
 
-      const updated = await prisma.user.update({
+      const updated = await prisma.users.update({
         where: { id: req.params.id },
         data: updateData
       });
@@ -154,7 +154,7 @@ router.delete('/:id',
   authenticate,
   asyncHandler(async (req: Request, res: Response) => {
     try {
-      await prisma.user.delete({
+      await prisma.users.delete({
         where: { id: req.params.id }
       });
 
@@ -177,7 +177,7 @@ router.get('/:id/statistics',
   authenticate,
   asyncHandler(async (req: Request, res: Response) => {
     try {
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: req.params.id },
         select: {
           totalSales: true,

@@ -53,7 +53,7 @@ router.post('/register',
     const { openid, nickname, phone, avatarUrl, referralCode } = req.body;
 
     // 检查用户是否已存在
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { openid }
     });
 
@@ -69,7 +69,7 @@ router.post('/register',
     }
 
     // 检查是否为第一个用户（系统初始化）
-    const userCount = await prisma.user.count();
+    const userCount = await prisma.users.count();
     const isFirstUser = userCount === 0;
 
     // 如果不是第一个用户，必须有推荐码
@@ -105,7 +105,7 @@ router.post('/register',
       const userReferralCode = await generateUniqueReferralCode();
 
       // 创建用户（先不设置推荐关系）
-      const user = await prisma.user.create({
+      const user = await prisma.users.create({
         data: {
           openid,
           nickname,
@@ -128,7 +128,7 @@ router.post('/register',
       }
 
       // 重新获取用户信息（包含更新后的推荐关系）
-      const updatedUser = await prisma.user.findUnique({
+      const updatedUser = await prisma.users.findUnique({
         where: { id: user.id },
         select: {
           id: true,
@@ -190,7 +190,7 @@ router.post('/register',
 
       // 如果注册失败，删除已创建的用户记录
       try {
-        await prisma.user.delete({
+        await prisma.users.delete({
           where: { openid }
         });
       } catch (deleteError) {
@@ -213,7 +213,7 @@ router.post('/register',
 router.get('/me',
   authenticate,
   asyncHandler(async (req, res) => {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: req.user!.id },
       select: {
         id: true,
@@ -267,7 +267,7 @@ router.put('/me',
     const { nickname, avatarUrl } = req.body;
     const userId = req.user!.id;
 
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id: userId },
       data: {
         ...(nickname && { nickname }),
@@ -316,7 +316,7 @@ router.get('/',
     const skip = (page - 1) * perPage;
 
     const [users, total] = await Promise.all([
-      prisma.user.findMany({
+      prisma.users.findMany({
         skip,
         take: perPage,
         select: {
@@ -332,7 +332,7 @@ router.get('/',
         },
         orderBy: { createdAt: 'desc' }
       }),
-      prisma.user.count()
+      prisma.users.count()
     ]);
 
     res.json(createSuccessResponse({
@@ -394,7 +394,7 @@ router.get('/level/progress',
   asyncHandler(async (req, res) => {
     const userId = req.user!.id;
     
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId },
       select: {
         id: true,

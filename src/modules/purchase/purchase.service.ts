@@ -288,7 +288,7 @@ export class PurchaseService {
     this.performanceStats.cacheMisses++;
 
     try {
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: userId },
         select: {
           id: true,
@@ -635,7 +635,7 @@ export class PurchaseService {
 
     try {
       // 使用 teamPath 字段来优化查询，如果可用的话
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: userId },
         select: {
           teamPath: true,
@@ -690,7 +690,7 @@ export class PurchaseService {
       }
 
       // 批量查询所有上级用户
-      const uplines = await prisma.user.findMany({
+      const uplines = await prisma.users.findMany({
         where: {
           id: { in: uplineIds },
           status: 'ACTIVE'
@@ -727,7 +727,7 @@ export class PurchaseService {
 
     try {
       for (let depth = 0; depth < maxDepth; depth++) {
-        const user = await prisma.user.findUnique({
+        const user = await prisma.users.findUnique({
           where: { id: currentUserId },
           select: {
             parentId: true
@@ -739,7 +739,7 @@ export class PurchaseService {
         }
 
         // 获取上级用户
-        const upline = await prisma.user.findUnique({
+        const upline = await prisma.users.findUnique({
           where: { id: user.parentId },
           select: {
             id: true,
@@ -902,7 +902,7 @@ export class PurchaseService {
     requiredTeamSize?: number;
   }> {
     try {
-      const buyer = await prisma.user.findUnique({
+      const buyer = await prisma.users.findUnique({
         where: { id: buyerId },
         select: { level: true }
       });
@@ -1335,7 +1335,7 @@ export class PurchaseService {
     const maxDepth = 5;
 
     while (currentUserId && depth < maxDepth) {
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: currentUserId },
         select: { id: true, level: true, referrerId: true }
       });

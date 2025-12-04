@@ -360,7 +360,7 @@ export class UserLevelService {
     targetLevel: UserLevel,
     reason: string = '自动升级'
   ) {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId }
     });
 
@@ -377,7 +377,7 @@ export class UserLevelService {
     }
 
     // 更新用户等级
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id: userId },
       data: { level: targetLevel, updatedAt: new Date() }
     });
@@ -398,7 +398,7 @@ export class UserLevelService {
    * - 关联表：用于查询同级直推用户的关系
    */
   static async checkAndUpgradeUsers() {
-    const users = await prisma.user.findMany({
+    const users = await prisma.users.findMany({
       select: {
         id: true,
         level: true,

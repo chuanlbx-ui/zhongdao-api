@@ -38,7 +38,7 @@ router.post('/wechat-login',
     const mockOpenid = `mock_openid_${code}`;
 
     // 查找或创建用户
-    let user = await prisma.user.findUnique({
+    let user = await prisma.users.findUnique({
       where: { openid: mockOpenid }
     });
 
@@ -46,7 +46,7 @@ router.post('/wechat-login',
       // 生成用户编号
       const userNumber = await userNumberService.generateUserNumber();
       
-      user = await prisma.user.create({
+      user = await prisma.users.create({
         data: {
           openid: mockOpenid,
           nickname,
@@ -58,7 +58,7 @@ router.post('/wechat-login',
       });
     } else if (nickname || avatarUrl) {
       // 更新用户信息
-      user = await prisma.user.update({
+      user = await prisma.users.update({
         where: { id: user.id },
         data: {
           ...(nickname && { nickname }),

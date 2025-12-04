@@ -77,7 +77,7 @@ async function seedUsers(generator: TestDataGenerator) {
 
   const createdUsers = []
   for (const userData of usersData) {
-    const user = await prisma.user.create({
+    const user = await prisma.users.create({
       data: {
         id: userData.user.id,
         openid: userData.user.openid,

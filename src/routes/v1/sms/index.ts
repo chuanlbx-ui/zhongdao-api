@@ -31,7 +31,7 @@ router.post('/send-code',
 
     try {
       // 检查用户当前手机号状态
-      const currentUser = await prisma.user.findUnique({
+      const currentUser = await prisma.users.findUnique({
         where: { id: userId },
         select: { phone: true }
       });
@@ -150,7 +150,7 @@ router.post('/verify-and-bind',
       }
 
       // 获取用户当前信息
-      const currentUser = await prisma.user.findUnique({
+      const currentUser = await prisma.users.findUnique({
         where: { id: userId },
         select: { phone: true }
       });
@@ -181,7 +181,7 @@ router.post('/verify-and-bind',
           });
         }
 
-        updatedUser = await prisma.user.update({
+        updatedUser = await prisma.users.update({
           where: { id: userId },
           data: { phone },
           select: {
@@ -216,7 +216,7 @@ router.post('/verify-and-bind',
           });
         }
 
-        updatedUser = await prisma.user.update({
+        updatedUser = await prisma.users.update({
           where: { id: userId },
           data: { phone: null },
           select: {
@@ -287,7 +287,7 @@ router.get('/check-phone/:phone',
     }
 
     try {
-      const existingUser = await prisma.user.findUnique({
+      const existingUser = await prisma.users.findUnique({
         where: { phone },
         select: {
           id: true,

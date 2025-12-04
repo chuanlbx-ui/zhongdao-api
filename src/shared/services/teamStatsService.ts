@@ -13,7 +13,7 @@ import { logger } from '../utils/logger';
 export async function updateReferrerStats(referrerId: string) {
   try {
     // 获取推荐人的所有直推用户
-    const directReferrals = await prisma.user.findMany({
+    const directReferrals = await prisma.users.findMany({
       where: { parentId: referrerId },
       select: { id: true }
     });
@@ -22,7 +22,7 @@ export async function updateReferrerStats(referrerId: string) {
     const teamCount = await calculateTeamCount(referrerId);
 
     // 更新推荐人的统计数据
-    await prisma.user.update({
+    await prisma.users.update({
       where: { id: referrerId },
       data: {
         directCount: directReferrals.length,
@@ -52,7 +52,7 @@ export async function updateReferrerStats(referrerId: string) {
  */
 async function calculateTeamCount(userId: string): Promise<number> {
   try {
-    const directReferrals = await prisma.user.findMany({
+    const directReferrals = await prisma.users.findMany({
       where: { parentId: userId },
       select: { id: true }
     });
@@ -81,7 +81,7 @@ async function calculateTeamCount(userId: string): Promise<number> {
 export async function updateReferralChainStats(userId: string) {
   try {
     // 获取用户的推荐人
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId },
       select: { parentId: true }
     });
@@ -97,7 +97,7 @@ export async function updateReferralChainStats(userId: string) {
       await updateReferrerStats(currentReferrerId);
 
       // 获取当前推荐人的推荐人，继续向上更新
-      const currentReferrer = await prisma.user.findUnique({
+      const currentReferrer = await prisma.users.findUnique({
         where: { id: currentReferrerId },
         select: { parentId: true }
       });
@@ -125,7 +125,7 @@ export async function updateReferralChainStats(userId: string) {
 export async function createReferralRelationship(referralCode: string, newUserId: string) {
   try {
     // 查找推荐人
-    const referrer = await prisma.user.findUnique({
+    const referrer = await prisma.users.findUnique({
       where: { referralCode },
       select: {
         id: true,
@@ -146,7 +146,7 @@ export async function createReferralRelationship(referralCode: string, newUserId
       : `/${referrer.id}/`;
 
     // 更新新用户的推荐关系
-    await prisma.user.update({
+    await prisma.users.update({
       where: { id: newUserId },
       data: {
         parentId: referrer.id,
@@ -187,7 +187,7 @@ export async function createReferralRelationship(referralCode: string, newUserId
  */
 export async function getReferralStats(userId: string) {
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId },
       select: {
         id: true,
@@ -205,7 +205,7 @@ export async function getReferralStats(userId: string) {
     }
 
     // 获取最近的直推用户
-    const recentReferrals = await prisma.user.findMany({
+    const recentReferrals = await prisma.users.findMany({
       where: { parentId: userId },
       select: {
         id: true,
@@ -219,7 +219,7 @@ export async function getReferralStats(userId: string) {
     });
 
     // 计算各等级的用户数量
-    const levelStats = await prisma.user.groupBy({
+    const levelStats = await prisma.users.groupBy({
       by: ['level'],
       where: { parentId: userId },
       _count: true

@@ -20,12 +20,12 @@ router.get('/users',
       yesterdayStart.setDate(yesterdayStart.getDate() - 1);
 
       const [total, activeCount, todayNew, yesterdayNew] = await Promise.all([
-        prisma.user.count(),
-        prisma.user.count({ where: { status: 'ACTIVE' } }),
-        prisma.user.count({
+        prisma.users.count(),
+        prisma.users.count({ where: { status: 'ACTIVE' } }),
+        prisma.users.count({
           where: { createdAt: { gte: todayStart } }
         }),
-        prisma.user.count({
+        prisma.users.count({
           where: {
             createdAt: {
               gte: yesterdayStart,
@@ -138,7 +138,7 @@ router.get('/overview',
   asyncHandler(async (req: Request, res: Response) => {
     try {
       const [userCount, orderCount, shopCount, salesAmount] = await Promise.all([
-        prisma.user.count(),
+        prisma.users.count(),
         prisma.order.count(),
         prisma.shop.count({ where: { status: 'ACTIVE' } }),
         prisma.order.aggregate({

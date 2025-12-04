@@ -529,7 +529,7 @@ export class PerformanceService {
   ): Promise<UpgradeProgress> {
     try {
       // 获取用户当前信息
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: userId },
         select: { level: true }
       });
@@ -683,7 +683,7 @@ export class PerformanceService {
       ]);
 
       // 获取用户等级
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: userId },
         select: { level: true }
       });
@@ -949,7 +949,7 @@ export class PerformanceService {
   private async getAllTeamMembers(userId: string): Promise<Array<{ userId: string; level: number }>> {
     try {
       // 使用 teamPath 字段进行高效查询
-      const members = await prisma.user.findMany({
+      const members = await prisma.users.findMany({
         where: {
           teamPath: {
             startsWith: `/${userId}/`
@@ -1025,7 +1025,7 @@ export class PerformanceService {
    */
   private async getNewMembersCount(userId: string, startDate: Date, endDate: Date): Promise<number> {
     try {
-      return await prisma.user.count({
+      return await prisma.users.count({
         where: {
           parentId: userId,
           createdAt: {
@@ -1130,7 +1130,7 @@ export class PerformanceService {
     indirectReferrals: string[];
   }> {
     try {
-      const directReferrals = await prisma.user.findMany({
+      const directReferrals = await prisma.users.findMany({
         where: { parentId: userId },
         select: { id: true }
       });
@@ -1138,7 +1138,7 @@ export class PerformanceService {
       const directReferralIds = directReferrals.map(r => r.id);
 
       // 获取间接推荐（下级的推荐）
-      const indirectReferrals = await prisma.user.findMany({
+      const indirectReferrals = await prisma.users.findMany({
         where: {
           parentId: { in: directReferralIds }
         },
@@ -1258,7 +1258,7 @@ export class PerformanceService {
   private async getTeamLeaderboard(startDate: Date, endDate: Date, limit: number): Promise<LeaderboardItem[]> {
     try {
       // 简化实现，获取团队领导者的团队业绩
-      const teamLeaders = await prisma.user.findMany({
+      const teamLeaders = await prisma.users.findMany({
         where: {
           status: 'ACTIVE',
           level: { in: ['STAR_1', 'STAR_2', 'STAR_3', 'STAR_4', 'STAR_5', 'DIRECTOR'] }
@@ -1305,7 +1305,7 @@ export class PerformanceService {
    */
   private async getReferralLeaderboard(startDate: Date, endDate: Date, limit: number): Promise<LeaderboardItem[]> {
     try {
-      const topReferrers = await prisma.user.findMany({
+      const topReferrers = await prisma.users.findMany({
         where: {
           status: 'ACTIVE'
         },
@@ -1517,7 +1517,7 @@ export class PerformanceService {
 
       if (userIds.length === 0) return 0;
 
-      const count = await prisma.user.count({
+      const count = await prisma.users.count({
         where: {
           id: { in: userIds },
           level: this.mapTeamRoleToUserLevel(role)
@@ -1842,7 +1842,7 @@ export class PerformanceService {
 
     try {
       // 检查用户是否存在
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: userId }
       });
 
@@ -1927,7 +1927,7 @@ export class PerformanceService {
       ]);
 
       // 获取用户信息
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: userId },
         select: { level: true }
       });

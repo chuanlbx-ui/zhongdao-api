@@ -63,7 +63,7 @@ describe('PerformanceService', () => {
       };
 
       // Mock Prisma 返回
-      (require('../../shared/database/client').prisma.user.findUnique as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findUnique as jest.Mock)
         .mockResolvedValue(mockUserData);
 
       (require('../../shared/database/client').prisma.order.aggregate as jest.Mock)
@@ -122,7 +122,7 @@ describe('PerformanceService', () => {
       ];
 
       // Mock Prisma 返回
-      (require('../../shared/database/client').prisma.user.findMany as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findMany as jest.Mock)
         .mockResolvedValue(mockTeamMembers.map(member => ({
           id: member.userId,
           teamLevel: member.level
@@ -134,7 +134,7 @@ describe('PerformanceService', () => {
       (require('../../shared/database/client').prisma.order.count as jest.Mock)
         .mockResolvedValue(100);
 
-      (require('../../shared/database/client').prisma.user.count as jest.Mock)
+      (require('../../shared/database/client').prisma.users.count as jest.Mock)
         .mockResolvedValue(2); // 新增成员
 
       const result = await performanceService.calculateTeamPerformance('user001', '2025-11');
@@ -148,7 +148,7 @@ describe('PerformanceService', () => {
 
     it('应该处理空团队的情况', async () => {
       // Mock 无团队成员
-      (require('../../shared/database/client').prisma.user.findMany as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findMany as jest.Mock)
         .mockResolvedValue([]);
 
       const result = await performanceService.calculateTeamPerformance('user001', '2025-11');
@@ -173,10 +173,10 @@ describe('PerformanceService', () => {
         { id: 'indirect001' }
       ];
 
-      (require('../../shared/database/client').prisma.user.findUnique as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findUnique as jest.Mock)
         .mockResolvedValue(mockUser);
 
-      (require('../../shared/database/client').prisma.user.findMany as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findMany as jest.Mock)
         .mockResolvedValueOnce(mockDirectReferrals) // 直推
         .mockResolvedValueOnce(mockIndirectReferrals); // 间推
 
@@ -264,7 +264,7 @@ describe('PerformanceService', () => {
     it('应该正确计算晋级进度', async () => {
       // Mock 用户数据
       const mockUser = { level: 'STAR_2' }; // 二星店长
-      (require('../../shared/database/client').prisma.user.findUnique as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findUnique as jest.Mock)
         .mockResolvedValue(mockUser);
 
       // Mock 业绩数据
@@ -393,7 +393,7 @@ describe('PerformanceService', () => {
         } as any);
 
       // Mock 用户等级
-      (require('../../shared/database/client').prisma.user.findUnique as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findUnique as jest.Mock)
         .mockResolvedValue({ level: 'STAR_3' });
 
       // Mock 增长率
@@ -423,7 +423,7 @@ describe('PerformanceService', () => {
       const commissionRates = [];
 
       for (const level of userLevels) {
-        (require('../../shared/database/client').prisma.user.findUnique as jest.Mock)
+        (require('../../shared/database/client').prisma.users.findUnique as jest.Mock)
           .mockResolvedValue({ level });
 
         const rate = performanceService['getCommissionRate'](CommissionType.PERSONAL_SALES, performanceService['mapUserLevelToTeamRole'](level));
@@ -479,7 +479,7 @@ describe('PerformanceService', () => {
   describe('数据校验', () => {
     it('应该验证业绩数据完整性', async () => {
       // Mock 用户数据
-      (require('../../shared/database/client').prisma.user.findUnique as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findUnique as jest.Mock)
         .mockResolvedValue({ id: 'user001' });
 
       // Mock 业绩数据
@@ -545,7 +545,7 @@ describe('PerformanceService', () => {
     });
 
     it('应该处理用户不存在的情况', async () => {
-      (require('../../shared/database/client').prisma.user.findUnique as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findUnique as jest.Mock)
         .mockResolvedValue(null);
 
       const result = await performanceService.validatePerformanceData('user999', '2025-11');
@@ -572,7 +572,7 @@ describe('PerformanceService', () => {
         .mockResolvedValue({ progressPercentage: 75 });
 
       // Mock 用户数据
-      (require('../../shared/database/client').prisma.user.findUnique as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findUnique as jest.Mock)
         .mockResolvedValue({ level: 'STAR_2' });
 
       const result = await performanceService.rebuildPerformanceMetrics('user001', '2025-11');
@@ -644,7 +644,7 @@ describe('PerformanceService', () => {
 
     it('应该处理无效的用户ID', async () => {
       // Mock 用户不存在
-      (require('../../shared/database/client').prisma.user.findUnique as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findUnique as jest.Mock)
         .mockResolvedValue(null);
 
       await expect(performanceService.getUpgradeProgress('user999'))

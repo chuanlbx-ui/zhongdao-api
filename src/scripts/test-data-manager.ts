@@ -170,7 +170,7 @@ class TestDataManager {
     }
 
     // 检查用户层级关系
-    const userHierarchy = await prisma.user.groupBy({
+    const userHierarchy = await prisma.users.groupBy({
       by: ['level'],
       _count: { level: true }
     })
@@ -225,7 +225,7 @@ class TestDataManager {
     })
 
     // 获取一些示例数据
-    const sampleUsers = await prisma.user.findMany({
+    const sampleUsers = await prisma.users.findMany({
       select: { nickname: true, level: true, phone: true },
       take: 5,
       orderBy: { createdAt: 'desc' }
@@ -270,7 +270,7 @@ class TestDataManager {
         continue
       }
 
-      await prisma.user.create({
+      await prisma.users.create({
         data: {
           ...data.user,
           id: data.user.id,
@@ -302,7 +302,7 @@ class TestDataManager {
         continue
       }
 
-      await prisma.user.create({
+      await prisma.users.create({
         data: {
           ...data.user,
           id: data.user.id,
@@ -331,7 +331,7 @@ class TestDataManager {
         continue
       }
 
-      await prisma.user.create({
+      await prisma.users.create({
         data: {
           ...data.user,
           id: data.user.id,
@@ -364,7 +364,7 @@ class TestDataManager {
 
     const createdUsers = []
     for (const userData of usersData) {
-      const user = await prisma.user.create({
+      const user = await prisma.users.create({
         data: {
           id: userData.user.id,
           openid: userData.user.openid,
@@ -469,7 +469,7 @@ class TestDataManager {
         continue
       }
 
-      await prisma.user.create({
+      await prisma.users.create({
         data: {
           ...data.user,
           id: data.user.id,

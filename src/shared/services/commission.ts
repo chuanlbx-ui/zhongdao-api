@@ -482,14 +482,14 @@ export class CommissionService {
     let level = 0;
 
     while (level < maxLevels && currentUserId) {
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: currentUserId },
         select: { referrerId: true }
       });
 
       if (!user?.referrerId) break;
 
-      const referrer = await prisma.user.findUnique({
+      const referrer = await prisma.users.findUnique({
         where: { id: user.referrerId },
         select: { id: true, level: true }
       });
@@ -523,13 +523,13 @@ export class CommissionService {
       for (const currentUserId of currentLevelUsers) {
         if (processedIds.has(currentUserId)) continue;
 
-        const user = await prisma.user.findUnique({
+        const user = await prisma.users.findUnique({
           where: { id: currentUserId },
           select: { referrerId: true }
         });
 
         if (user?.referrerId && !processedIds.has(user.referrerId)) {
-          const referrer = await prisma.user.findUnique({
+          const referrer = await prisma.users.findUnique({
             where: { id: user.referrerId },
             select: { id: true, level: true }
           });

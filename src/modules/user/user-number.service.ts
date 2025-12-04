@@ -17,7 +17,7 @@ export class UserNumberService {
   async generateUserNumber(): Promise<string> {
     try {
       // 查找当前最大编号
-      const maxUser = await prisma.user.findFirst({
+      const maxUser = await prisma.users.findFirst({
         where: {
           userNumber: {
             not: null
@@ -60,7 +60,7 @@ export class UserNumberService {
       logger.info('开始批量生成用户编号...');
 
       // 获取所有没有编号的用户，按注册时间排序
-      const usersWithoutNumber = await prisma.user.findMany({
+      const usersWithoutNumber = await prisma.users.findMany({
         where: {
           userNumber: null
         },
@@ -81,7 +81,7 @@ export class UserNumberService {
       logger.info(`找到 ${usersWithoutNumber.length} 个用户需要分配编号`);
 
       // 查找当前最大编号
-      const maxUser = await prisma.user.findFirst({
+      const maxUser = await prisma.users.findFirst({
         where: {
           userNumber: {
             not: null
@@ -108,7 +108,7 @@ export class UserNumberService {
           throw new Error('用户编号已用尽');
         }
 
-        await prisma.user.update({
+        await prisma.users.update({
           where: {
             id: user.id
           },
@@ -133,7 +133,7 @@ export class UserNumberService {
    * @returns 用户信息
    */
   async findUserByNumber(userNumber: string) {
-    return prisma.user.findUnique({
+    return prisma.users.findUnique({
       where: {
         userNumber
       }

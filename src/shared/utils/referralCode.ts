@@ -30,7 +30,7 @@ export async function generateUniqueReferralCode(maxRetries: number = 100): Prom
     const code = generateReferralCode();
 
     // 检查推荐码是否已存在
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { referralCode: code },
       select: { id: true }
     });
@@ -55,7 +55,7 @@ export async function findUserByReferralCode(referralCode: string) {
     return null;
   }
 
-  return await prisma.user.findUnique({
+  return await prisma.users.findUnique({
     where: { referralCode },
     select: {
       id: true,

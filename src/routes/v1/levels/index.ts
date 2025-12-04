@@ -37,7 +37,7 @@ router.get('/me',
   asyncHandler(async (req, res) => {
     const userId = req.user!.id;
     
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId },
       select: {
         id: true,
@@ -132,7 +132,7 @@ router.get('/:userId',
       });
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: req.params.userId },
       select: {
         id: true,

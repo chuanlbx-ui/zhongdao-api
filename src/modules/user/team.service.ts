@@ -43,7 +43,7 @@ export class TeamService {
       const skip = (page - 1) * perPage;
 
       const [members, total] = await Promise.all([
-        prisma.user.findMany({
+        prisma.users.findMany({
           where: { referrerId: userId },
           select: {
             id: true,
@@ -64,7 +64,7 @@ export class TeamService {
           skip,
           take: perPage
         }),
-        prisma.user.count({
+        prisma.users.count({
           where: { referrerId: userId }
         })
       ]);
@@ -139,7 +139,7 @@ export class TeamService {
     }
 
     try {
-      const directMembers = await prisma.user.findMany({
+      const directMembers = await prisma.users.findMany({
         where: { referrerId: userId },
         select: {
           id: true,
@@ -182,7 +182,7 @@ export class TeamService {
   private async getUserWithStats(userId: string): Promise<TeamMember> {
     try {
       const [user, stats] = await Promise.all([
-        prisma.user.findUnique({
+        prisma.users.findUnique({
           where: { id: userId },
           select: {
             id: true,
@@ -235,7 +235,7 @@ export class TeamService {
           },
           _sum: { totalAmount: true }
         }),
-        prisma.user.count({
+        prisma.users.count({
           where: { referrerId: userId }
         })
       ]);
@@ -264,12 +264,12 @@ export class TeamService {
         salesStats,
         topPerformers
       ] = await Promise.all([
-        prisma.user.count({
+        prisma.users.count({
           where: {
             id: { in: allTeamMemberIds }
           }
         }),
-        prisma.user.count({
+        prisma.users.count({
           where: {
             id: { in: allTeamMemberIds },
             status: 'ACTIVE'
@@ -305,7 +305,7 @@ export class TeamService {
 
     const collectMembers = async (currentUserId: string) => {
       try {
-        const directMembers = await prisma.user.findMany({
+        const directMembers = await prisma.users.findMany({
           where: { referrerId: currentUserId },
           select: { id: true }
         });
@@ -326,7 +326,7 @@ export class TeamService {
   // 获取等级分布
   private async getLevelDistribution(memberIds: string[]): Promise<Record<UserLevel, number>> {
     try {
-      const levelStats = await prisma.user.groupBy({
+      const levelStats = await prisma.users.groupBy({
         by: ['level'],
         where: {
           id: { in: memberIds }
@@ -400,7 +400,7 @@ export class TeamService {
   // 获取优秀团队成员
   private async getTopPerformers(memberIds: string[], limit: number): Promise<TeamMember[]> {
     try {
-      const topMembers = await prisma.user.findMany({
+      const topMembers = await prisma.users.findMany({
         where: {
           id: { in: memberIds },
           status: 'ACTIVE'
@@ -453,13 +453,13 @@ export class TeamService {
       const twoMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, now.getDate());
 
       const [currentMonth, previousMonth] = await Promise.all([
-        prisma.user.count({
+        prisma.users.count({
           where: {
             referrerId: userId,
             createdAt: { gte: oneMonthAgo }
           }
         }),
-        prisma.user.count({
+        prisma.users.count({
           where: {
             referrerId: userId,
             createdAt: {
@@ -497,7 +497,7 @@ export class TeamService {
       }
 
       // 检查直接关系
-      const directRelation = await prisma.user.findFirst({
+      const directRelation = await prisma.users.findFirst({
         where: {
           id: downlineId,
           referrerId: uplineId
@@ -546,7 +546,7 @@ export class TeamService {
     }
 
     try {
-      const downlines = await prisma.user.findMany({
+      const downlines = await prisma.users.findMany({
         where: { referrerId: uplineId },
         select: { id: true }
       });
@@ -602,7 +602,7 @@ export class TeamService {
       const allMemberIds = await this.getAllTeamMemberIds(userId);
 
       const [newMembers, purchaseStats, salesStats, levelStats, topPerformers] = await Promise.all([
-        prisma.user.count({
+        prisma.users.count({
           where: {
             id: { in: allMemberIds },
             createdAt: {
@@ -674,13 +674,13 @@ export class TeamService {
       return Promise.all(
         levels.map(async (level) => {
           const [totalCount, newCount] = await Promise.all([
-            prisma.user.count({
+            prisma.users.count({
               where: {
                 id: { in: memberIds },
                 level
               }
             }),
-            prisma.user.count({
+            prisma.users.count({
               where: {
                 id: { in: memberIds },
                 level,

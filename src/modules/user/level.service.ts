@@ -71,7 +71,7 @@ export class UserLevelService {
   // 获取用户当前等级
   async getUserLevel(userId: string): Promise<UserLevel> {
     try {
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: userId },
         select: { level: true }
       });
@@ -99,7 +99,7 @@ export class UserLevelService {
     currentStats?: any;
   }> {
     try {
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: userId },
         select: { level: true }
       });
@@ -164,12 +164,12 @@ export class UserLevelService {
         }),
 
         // 直推团队人数
-        prisma.user.count({
+        prisma.users.count({
           where: { referrerId: userId }
         }),
 
         // 直推VIP人数
-        prisma.user.count({
+        prisma.users.count({
           where: {
             referrerId: userId,
             level: 'VIP'
@@ -204,7 +204,7 @@ export class UserLevelService {
     // 简化实现，实际项目中需要优化
     try {
       const allDownlines = await this.getAllDownlines(userId);
-      const activeCount = await prisma.user.count({
+      const activeCount = await prisma.users.count({
         where: {
           id: { in: allDownlines },
           status: 'ACTIVE'
@@ -226,7 +226,7 @@ export class UserLevelService {
     const downlines: string[] = [];
 
     try {
-      const directDownlines = await prisma.user.findMany({
+      const directDownlines = await prisma.users.findMany({
         where: { referrerId: userId },
         select: { id: true }
       });
@@ -275,7 +275,7 @@ export class UserLevelService {
       const previousLevel = upgradeCheck.currentLevel;
 
       // 更新用户等级
-      await prisma.user.update({
+      await prisma.users.update({
         where: { id: userId },
         data: { level: newLevel }
       });

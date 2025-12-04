@@ -9,7 +9,7 @@ async function testUserFields() {
     console.log('Testing User model fields...')
 
     // Try to create a simple user first
-    const testUser = await prisma.user.create({
+    const testUser = await prisma.users.create({
       data: {
         openid: `test_openid_${Date.now()}`,
         nickname: 'Test User',
@@ -30,14 +30,14 @@ async function testUserFields() {
     console.log('✓ Successfully created test user:', testUser)
 
     // Try to find the user and see all available fields
-    const foundUser = await prisma.user.findUnique({
+    const foundUser = await prisma.users.findUnique({
       where: { id: testUser.id },
     })
 
     console.log('✓ User fields available:', Object.keys(foundUser || {}))
 
     // Clean up
-    await prisma.user.delete({
+    await prisma.users.delete({
       where: { id: testUser.id }
     })
 

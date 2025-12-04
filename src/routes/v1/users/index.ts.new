@@ -54,7 +54,7 @@ router.post('/register',
       
       // 检查用户是否已存在（添加超时控制）
       const existingUser = await Promise.race([
-        prisma.user.findUnique({ where: { openid } }),
+        prisma.users.findUnique({ where: { openid } }),
         timeout
       ]);
       
@@ -76,7 +76,7 @@ router.post('/register',
       
       // 创建用户（添加超时控制）
       const user = await Promise.race([
-        prisma.user.create({
+        prisma.users.create({
           data: {
             openid,
             nickname,

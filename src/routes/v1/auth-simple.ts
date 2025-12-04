@@ -229,7 +229,7 @@ router.post('/password-register',
       }
 
       // ... 检查手机号是否已注册
-      const existingUser = await prisma.user.findUnique({
+      const existingUser = await prisma.users.findUnique({
         where: { phone }
       });
 
@@ -275,7 +275,7 @@ router.post('/password-register',
       const openid = `phone_${phone}_${Date.now()}`;
 
       // ... 创建用户
-      const user = await prisma.user.create({
+      const user = await prisma.users.create({
         data: {
           openid,
           phone,

@@ -220,7 +220,7 @@ export class NetworkBuilderService {
     logger.debug('开始获取用户数据...');
 
     try {
-      const users = await prisma.user.findMany({
+      const users = await prisma.users.findMany({
         where: {
           status: 'ACTIVE'  // 只获取活跃用户
         },
@@ -482,7 +482,7 @@ export class NetworkBuilderService {
 
     try {
       // 获取更新的用户数据
-      const updatedUsers = await prisma.user.findMany({
+      const updatedUsers = await prisma.users.findMany({
         where: {
           id: { in: userIds },
           status: 'ACTIVE'

@@ -49,7 +49,7 @@ export class OrderService {
       let canCreate = true;
 
       // 1. 检查用户是否存在
-      const buyer = await prisma.user.findUnique({
+      const buyer = await prisma.users.findUnique({
         where: { id: params.buyerId },
         select: { id: true, level: true, status: true }
       });
@@ -136,7 +136,7 @@ export class OrderService {
     }
 
     // 检查是否为店长
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: params.buyerId },
       select: { level: true }
     });
@@ -175,11 +175,11 @@ export class OrderService {
 
     // 检查等级权限（采购方等级必须低于销售方）
     const [buyer, seller] = await Promise.all([
-      prisma.user.findUnique({
+      prisma.users.findUnique({
         where: { id: params.buyerId },
         select: { level: true }
       }),
-      prisma.user.findUnique({
+      prisma.users.findUnique({
         where: { id: params.sellerId },
         select: { level: true }
       })
@@ -205,7 +205,7 @@ export class OrderService {
     let canCreate = true;
 
     // 团队订单只有管理员可以创建
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: params.buyerId },
       select: { level: true }
     });
@@ -473,7 +473,7 @@ export class OrderService {
 
         if (orderType === OrderType.PURCHASE) {
           // 采购订单使用买方等级折扣
-          const buyer = await prisma.user.findUnique({
+          const buyer = await prisma.users.findUnique({
             where: { id: buyerId },
             select: { level: true }
           });
@@ -766,7 +766,7 @@ export class OrderService {
       }
 
       // 2. 验证换货权限
-      const requester = await prisma.user.findUnique({
+      const requester = await prisma.users.findUnique({
         where: { id: originalOrder.buyerId },
         select: { level: true }
       });
@@ -836,7 +836,7 @@ export class OrderService {
   }> {
     try {
       // 获取申请人等级价格
-      const requester = await prisma.user.findUnique({
+      const requester = await prisma.users.findUnique({
         where: { id: params.originalOrderId },
         select: { level: true }
       });

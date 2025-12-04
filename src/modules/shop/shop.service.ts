@@ -34,7 +34,7 @@ export class ShopService {
    */
   async canApplyShop(userId: string, shopType: ShopType): Promise<CanApplyShopResult> {
     try {
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: userId },
         select: { id: true, level: true, status: true, shops: true }
       });
@@ -116,7 +116,7 @@ export class ShopService {
       }
 
       // 2. 检查用户是否存在
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: userId }
       });
 
@@ -188,7 +188,7 @@ export class ShopService {
    */
   async checkCloudShopUpgrade(userId: string): Promise<CloudShopUpgradeCheckResult> {
     try {
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: userId },
         select: {
           cloudShopLevel: true,
@@ -356,7 +356,7 @@ export class ShopService {
   ): Promise<PurchaseWutongShopResult> {
     try {
       // 1. 检查用户是否存在
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: userId },
         select: { id: true, level: true, status: true, pointsBalance: true, shops: true }
       });

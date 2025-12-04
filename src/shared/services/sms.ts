@@ -39,7 +39,7 @@ export class SMSService {
 
       // 检查是否已被其他用户绑定
       if (type === 'bind') {
-        const existingUser = await prisma.user.findUnique({
+        const existingUser = await prisma.users.findUnique({
           where: { phone }
         });
 
