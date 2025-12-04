@@ -23,6 +23,7 @@ router.get('/', (req, res) => {
   res.json({
     success: true,
     data: {
+
       message: '商品管理模块 API',
       version: '1.0.0',
       endpoints: {
