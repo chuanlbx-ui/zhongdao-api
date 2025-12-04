@@ -951,7 +951,7 @@ model users {
   points_balance                                              Float                     @default(0)
   points_frozen                                               Float                     @default(0)
   created_at                                                  DateTime                  @default(now())
-  updated_at                                                  DateTime
+  updated_at                                                  DateTime                  @default(now())
   last_login_at                                               DateTime?
   referral_code                                               String?                   @unique
   user_number                                                 String?                   @unique

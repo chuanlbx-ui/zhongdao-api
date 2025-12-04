@@ -277,15 +277,16 @@ router.post('/password-register',
       // ... 创建用户
       const user = await prisma.users.create({
         data: {
+          id: "sdjslkdjflksdfjlsdf",
           openid,
           phone,
           nickname: phone,
-          referralCode: userReferralCode,
+          referral_code: userReferralCode,
           level: 'NORMAL',
           status: 'ACTIVE',
-          parentId,
-          teamLevel: parentId ? 2 : 1,
-          teamPath: parentId ? `/${parentId}/` : null
+          parent_id: parentId || null,
+          team_level: parentId ? 2 : 1,
+          team_path: parentId ? `/${parentId}/` : null,
         }
       });
 
