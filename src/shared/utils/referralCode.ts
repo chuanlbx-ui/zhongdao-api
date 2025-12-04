@@ -1,4 +1,5 @@
 import { prisma } from '../database/client';
+import logger from "@/shared/utils/logger";
 
 /**
  * 生成6位数字字母组合随机推荐码
@@ -31,7 +32,7 @@ export async function generateUniqueReferralCode(maxRetries: number = 100): Prom
 
     // 检查推荐码是否已存在
     const existingUser = await prisma.users.findUnique({
-      where: { referralCode: code },
+      where: { referral_code: code },
       select: { id: true }
     });
 
@@ -56,11 +57,11 @@ export async function findUserByReferralCode(referralCode: string) {
   }
 
   return await prisma.users.findUnique({
-    where: { referralCode },
+    where: { referral_code: referralCode },
     select: {
       id: true,
       nickname: true,
-      avatarUrl: true,
+      avatar_url: true,
       level: true,
       status: true
     }
