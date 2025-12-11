@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { query } from 'express-validator';
 import { authenticate } from '../../../shared/middleware/auth';
-import { asyncHandler } from '../../../shared/middleware/error';
+import { asyncHandler, asyncHandler2 } from '../../../shared/middleware/error';
 import { validate } from '../../../shared/middleware/validation';
 import { createSuccessResponse } from '../../../shared/types/response';
 import { prisma } from '../../../shared/database/client';
@@ -80,11 +80,11 @@ router.get('/',
     // 管理员及以上可以查看所有记录
 
     if (productId) {
-      where.productId = productId as string;
+      where.productsId = productId as string;
     }
 
     if (specId) {
-      where.specId = specId as string;
+      where.specsId = specId as string;
     }
 
     if (warehouseType) {
@@ -107,7 +107,7 @@ router.get('/',
     }
 
     const [logs, total] = await Promise.all([
-      prisma.inventoryLog.findMany({
+      prisma.inventoryLogssss.findMany({
         where,
         select: {
           id: true,
@@ -130,7 +130,7 @@ router.get('/',
               level: true
             }
           },
-          product: {
+          products: {
             select: {
               id: true,
               name: true,
@@ -138,7 +138,7 @@ router.get('/',
               sku: true
             }
           },
-          spec: {
+          specs: {
             select: {
               id: true,
               name: true,
@@ -168,7 +168,7 @@ router.get('/',
         skip,
         take: perPageNum
       }),
-      prisma.inventoryLog.count({ where })
+      prisma.inventoryLogssss.count({ where })
     ]);
 
     res.json(createSuccessResponse({
@@ -199,7 +199,7 @@ router.get('/:id',
   asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    const log = await prisma.inventoryLog.findUnique({
+    const log = await prisma.inventoryLogssss.findUnique({
       where: { id },
       select: {
         id: true,
@@ -223,7 +223,7 @@ router.get('/:id',
             level: true
           }
         },
-        product: {
+        products: {
           select: {
             id: true,
             name: true,
@@ -239,7 +239,7 @@ router.get('/:id',
             }
           }
         },
-        spec: {
+        specs: {
           select: {
             id: true,
             name: true,
@@ -305,11 +305,11 @@ router.get('/:id',
     }
 
     // 解析图片JSON
-    if (log.product.images) {
-      (log.product as any).images = JSON.parse(log.product.images);
+    if (log.products.images) {
+      (log.products as any).images = JSON.parse(log.products.images);
     }
-    if (log.spec.images) {
-      (log.spec as any).images = JSON.parse(log.spec.images);
+    if (log.specs.images) {
+      (log.specs as any).images = JSON.parse(log.specs.images);
     }
 
     res.json(createSuccessResponse(log, '获取库存流水记录详情成功'));
@@ -374,22 +374,22 @@ router.get('/statistics/summary',
       dailyStats
     ] = await Promise.all([
       // 总记录数
-      prisma.inventoryLog.count({ where }),
+      prisma.inventoryLogssss.count({ where }),
 
       // 总入库量
-      prisma.inventoryLog.aggregate({
+      prisma.inventoryLogssss.aggregate({
         where: { ...where, quantity: { gt: 0 } },
         _sum: { quantity: true }
       }),
 
       // 总出库量
-      prisma.inventoryLog.aggregate({
+      prisma.inventoryLogssss.aggregate({
         where: { ...where, quantity: { lt: 0 } },
         _sum: { quantity: true }
       }),
 
       // 按操作类型统计
-      prisma.inventoryLog.groupBy({
+      prisma.inventoryLogssss.groupBy({
         by: ['operationType'],
         where,
         _count: { id: true },
@@ -397,7 +397,7 @@ router.get('/statistics/summary',
       }),
 
       // 按仓库类型统计
-      prisma.inventoryLog.groupBy({
+      prisma.inventoryLogssss.groupBy({
         by: ['warehouseType'],
         where,
         _count: { id: true },

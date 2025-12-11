@@ -1,15 +1,20 @@
 import { Router } from 'express';
-import { body, query } from 'express-validator';
+import * as expressValidator from 'express-validator';
+const { body, query } = expressValidator;
 import { authenticate, requireMinLevel } from '../../../shared/middleware/auth';
-import { asyncHandler } from '../../../shared/middleware/error';
+import { asyncHandler, asyncHandler2 } from '../../../shared/middleware/error';
 import { validate } from '../../../shared/middleware/validation';
 import { createSuccessResponse } from '../../../shared/types/response';
 import { prisma } from '../../../shared/database/client';
 import { pointsService, PointsTransactionType } from '../../../shared/services/points';
 import { logger } from '../../../shared/utils/logger';
 import { configService } from '../../../modules/config';
+import simpleTransactionsRouter from './transactions-simple';
 
 const router = Router();
+
+// 注册简化版交易记录API（紧急修复用）
+router.use(simpleTransactionsRouter);
 
 // 获取用户通券余额
 router.get('/balance',
@@ -131,7 +136,21 @@ router.post('/transfer',
 // 通券充值（管理员权限）
 router.post('/recharge',
   authenticate,
-  requireMinLevel('director'),
+  (req, res, next) => {
+    // 检查是否是管理员或者是董事等级
+    if (req.user && (req.user.role === 'ADMIN' || req.user.level === 'DIRECTOR')) {
+      next();
+    } else {
+      res.status(403).json({
+        success: false,
+        error: {
+          code: 'INSUFFICIENT_PERMISSIONS',
+          message: '需要管理员权限或董事等级',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+  },
   [
     body('userId')
       .notEmpty()
@@ -229,18 +248,22 @@ router.get('/transactions',
   ],
   validate,
   asyncHandler(async (req, res) => {
+    const startTime = Date.now();
     const userId = req.user!.id;
     const page = parseInt(req.query.page as string) || 1;
 
-    // 从动态配置读取分页参数
-    const defaultPerPage = await configService.getConfig<number>('points_default_page_size', 20);
-    const maxPerPage = await configService.getConfig<number>('points_max_page_size', 100);
+    // 移除动态配置调用，使用固定值避免数据库查询
+    const defaultPerPage = 20;
+    const maxPerPage = 100;
     const perPage = Math.min(parseInt(req.query.perPage as string) || defaultPerPage, maxPerPage);
     const type = req.query.type as PointsTransactionType | undefined;
     const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
     const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
 
+    console.log(`[API] 交易记录查询开始: userId=${userId}, page=${page}, perPage=${perPage}`);
+
     try {
+      console.log(`[API] 调用getTransactions...`);
       const result = await pointsService.getTransactions(
         userId,
         page,
@@ -250,8 +273,11 @@ router.get('/transactions',
         endDate
       );
 
+      console.log(`[API] getTransactions完成, 耗时: ${Date.now() - startTime}ms`);
+
       res.json(createSuccessResponse(result, '获取通券流水成功'));
     } catch (error) {
+      console.error(`[API] 交易记录查询失败: 耗时${Date.now() - startTime}ms, 错误:`, error);
       logger.error('获取通券流水失败', {
         userId,
         error: error instanceof Error ? error.message : '未知错误',
@@ -277,7 +303,7 @@ router.get('/statistics',
     const userId = req.user!.id;
 
     try {
-      const statistics = await pointsService.getStatistics(userId);
+      const statistics = await pointsService.getPointsStatistics(userId);
 
       res.json(createSuccessResponse(statistics, '获取通券统计成功'));
     } catch (error) {
@@ -302,7 +328,21 @@ router.get('/statistics',
 // 通券冻结/解冻（管理员权限）
 router.post('/freeze',
   authenticate,
-  requireMinLevel('director'),
+  (req, res, next) => {
+    // 检查是否是管理员或者是董事等级
+    if (req.user && (req.user.role === 'ADMIN' || req.user.level === 'DIRECTOR')) {
+      next();
+    } else {
+      res.status(403).json({
+        success: false,
+        error: {
+          code: 'INSUFFICIENT_PERMISSIONS',
+          message: '需要管理员权限或董事等级',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+  },
   [
     body('userId')
       .notEmpty()
@@ -370,7 +410,21 @@ router.post('/freeze',
 // 批量充值（管理员权限）
 router.post('/batch-recharge',
   authenticate,
-  requireMinLevel('director'),
+  (req, res, next) => {
+    // 检查是否是管理员或者是董事等级
+    if (req.user && (req.user.role === 'ADMIN' || req.user.level === 'DIRECTOR')) {
+      next();
+    } else {
+      res.status(403).json({
+        success: false,
+        error: {
+          code: 'INSUFFICIENT_PERMISSIONS',
+          message: '需要管理员权限或董事等级',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+  },
   [
     body('recharges')
       .isArray({ min: 1, max: 100 })

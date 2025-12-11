@@ -3,11 +3,10 @@
  * 基于现有微信支付基础设施，提供高级业务封装
  */
 
-// @ts-nocheck
 import { logger } from '../../utils/logger';
-import { WechatPayProvider } from '../../shared/payments/wechat/provider';
-import { WechatPayConfig } from '../../shared/payments/wechat/config';
-import { PaymentProvider, PaymentRequest, PaymentResponse, RefundRequest, RefundResponse, QueryResponse, NotifyData } from '../../shared/payments/base/provider';
+import { WechatPayProvider } from '@/shared/payments/wechat/provider';
+import { WechatPayConfig } from '@/shared/payments/wechat/config';
+import { PaymentProvider, PaymentRequest, PaymentResponse, RefundRequest, RefundResponse, QueryResponse, NotifyData } from '@/shared/payments/base/provider';
 import { PaymentMethod, PaymentStatus } from '@prisma/client';
 
 export interface WechatPaymentRequest extends PaymentRequest {

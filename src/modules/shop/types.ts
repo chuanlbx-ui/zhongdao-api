@@ -3,7 +3,7 @@
  * 包含云店和五通店的数据结构
  */
 
-import { ShopType, ShopStatus } from '@prisma/client';
+import { shops_shopType as ShopType, shops_status as ShopStatus } from '@prisma/client';
 
 // ==================== 云店配置 ====================
 

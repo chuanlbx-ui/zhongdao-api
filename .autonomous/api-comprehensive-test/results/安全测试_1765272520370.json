@@ -1,0 +1,10 @@
+{
+  "name": "安全测试",
+  "command": "npm run test:security",
+  "startTime": "2025-12-09T09:28:39.597Z",
+  "status": "failed",
+  "output": "",
+  "error": "Command failed: npm run test:security\nnpm error Missing script: \"test:security\"\nnpm error\nnpm error To see a list of scripts, run:\nnpm error   npm run\nnpm error A complete log of this run can be found in: C:\\Users\\yc\\AppData\\Local\\npm-cache\\_logs\\2025-12-09T09_28_40_256Z-debug-0.log\n",
+  "endTime": "2025-12-09T09:28:40.370Z",
+  "duration": 773
+}

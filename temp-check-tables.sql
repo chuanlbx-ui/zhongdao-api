@@ -1,0 +1,3 @@
+SHOW TABLES LIKE '%user%';
+SHOW TABLES LIKE '%shop%';
+SHOW TABLES LIKE '%product%';

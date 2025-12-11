@@ -1,0 +1,40 @@
+{
+  "timestamp": "2025-12-09T14:35:06.795Z",
+  "fixes": [
+    {
+      "command": "npm run build",
+      "description": "1. 编译TypeScript代码",
+      "critical": true,
+      "success": false
+    },
+    {
+      "command": "npm run db:generate",
+      "description": "2. 生成Prisma客户端",
+      "critical": true,
+      "success": false
+    },
+    {
+      "command": "node test-auth-direct.js",
+      "description": "3. 测试认证系统",
+      "critical": false,
+      "success": false
+    },
+    {
+      "command": "npm test tests/api/payments.test.ts",
+      "description": "4. 测试支付模块（已知通过的模块）",
+      "critical": false,
+      "success": false
+    },
+    {
+      "command": "npm test tests/api/teams.test.ts",
+      "description": "5. 测试团队模块（已修复的认证问题）",
+      "critical": false,
+      "success": false
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "success": 0,
+    "failed": 5
+  }
+}

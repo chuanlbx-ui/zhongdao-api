@@ -1,3 +1,6 @@
+import { Stream } from 'stream';
+import { ErrorCode } from '../../../shared/errors';
+
 // 统一API响应格式
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -7,6 +10,7 @@ export interface ApiResponse<T = any> {
   timestamp: string;
   requestId?: string;
   meta?: ResponseMeta;
+  code?: string; // 业务操作代码
 }
 
 // 错误响应格式
@@ -96,6 +100,7 @@ export enum ErrorCode {
   // 系统错误码
   SYSTEM_DATABASE_ERROR = 'SYSTEM_DATABASE_ERROR',
   SYSTEM_EXTERNAL_SERVICE_ERROR = 'SYSTEM_EXTERNAL_SERVICE_ERROR',
+  OPERATION_TIMEOUT = 'OPERATION_TIMEOUT',
 }
 
 // HTTP状态码映射
@@ -141,14 +146,16 @@ export const createSuccessResponse = <T>(
   data: T,
   message?: string,
   meta?: ResponseMeta,
-  requestId?: string
+  requestId?: string,
+  code?: string
 ): ApiResponse<T> => ({
   success: true,
   data,
   message,
   timestamp: new Date().toISOString(),
   requestId,
-  meta
+  meta,
+  code
 });
 
 // 创建错误响应
@@ -178,7 +185,8 @@ export const createPaginatedResponse = <T>(
   page: number,
   perPage: number,
   message?: string,
-  requestId?: string
+  requestId?: string,
+  meta?: Omit<ResponseMeta, 'pagination'>
 ): ApiResponse<PaginatedResponse<T>> => {
   const totalPages = Math.ceil(totalCount / perPage);
 
@@ -197,9 +205,87 @@ export const createPaginatedResponse = <T>(
     },
     message,
     timestamp: new Date().toISOString(),
+    requestId,
+    meta: {
+      ...meta,
+      pagination: {
+        page,
+        perPage,
+        totalCount,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
+      }
+    }
+  };
+};
+
+// 创建空响应
+export const createEmptyResponse = (
+  message?: string,
+  requestId?: string,
+  code?: string
+): ApiResponse<null> => ({
+  success: true,
+  data: null,
+  message,
+  timestamp: new Date().toISOString(),
+  requestId,
+  code
+});
+
+// 创建批量操作响应
+export const createBatchResponse = <T>(
+  results: Array<{
+    success: boolean;
+    data?: T;
+    error?: string;
+    index?: number;
+  }>,
+  message?: string,
+  requestId?: string
+): ApiResponse<{
+  total: number;
+  successCount: number;
+  failureCount: number;
+  results: typeof results;
+}> => {
+  const total = results.length;
+  const successCount = results.filter(r => r.success).length;
+  const failureCount = total - successCount;
+
+  return {
+    success: true,
+    data: {
+      total,
+      successCount,
+      failureCount,
+      results
+    },
+    message,
+    timestamp: new Date().toISOString(),
     requestId
   };
 };
+
+// 创建文件下载响应
+export const createFileResponse = (
+  filename: string,
+  contentType: string,
+  data: Buffer | Stream,
+  requestId?: string
+): {
+  headers: Record<string, string>;
+  data: Buffer | Stream;
+} => ({
+  headers: {
+    'Content-Type': contentType,
+    'Content-Disposition': `attachment; filename="${filename}"`,
+    'X-Request-ID': requestId || '',
+    'X-Timestamp': new Date().toISOString()
+  },
+  data
+});
 
 // 获取默认错误消息
 const getDefaultErrorMessage = (code: ErrorCode): string => {
@@ -240,7 +326,8 @@ const getDefaultErrorMessage = (code: ErrorCode): string => {
     [ErrorCode.BUSINESS_STATE_INVALID]: '业务状态无效',
 
     [ErrorCode.SYSTEM_DATABASE_ERROR]: '数据库错误',
-    [ErrorCode.SYSTEM_EXTERNAL_SERVICE_ERROR]: '外部服务错误'
+    [ErrorCode.SYSTEM_EXTERNAL_SERVICE_ERROR]: '外部服务错误',
+    [ErrorCode.OPERATION_TIMEOUT]: '操作超时'
   };
 
   return messages[code] || '未知错误';

@@ -1,13 +1,12 @@
-// @ts-nocheck
 /**
  * 中道商城支付宝支付适配器
  * 基于现有支付宝支付基础设施，提供高级业务封装
  */
 
 import { logger } from '../../utils/logger';
-import { AlipayPayProvider } from '../../shared/payments/alipay/provider';
-import { AlipayConfig } from '../../shared/payments/alipay/config';
-import { PaymentProvider, PaymentRequest, PaymentResponse, RefundRequest, RefundResponse, QueryResponse, NotifyData } from '../../shared/payments/base/provider';
+import { AlipayPayProvider } from '@/shared/payments/alipay/provider';
+import { AlipayConfig } from '@/shared/payments/alipay/config';
+import { PaymentProvider, PaymentRequest, PaymentResponse, RefundRequest, RefundResponse, QueryResponse, NotifyData } from '@/shared/payments/base/provider';
 import { PaymentMethod, PaymentStatus } from '@prisma/client';
 
 export interface AlipayPaymentRequest extends PaymentRequest {

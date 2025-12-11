@@ -112,7 +112,7 @@ router.get('/query',
       };
 
       // 普通用户只能查询自己的支付记录
-      if (req.user.role !== 'admin') {
+      if (req.user.role !== 'ADMIN') {
         queryRequest.userId = req.user.id;
       }
 
@@ -142,7 +142,7 @@ router.get('/:paymentId', authenticate, async (req: Request, res: Response, next
     const result = await paymentService.queryPaymentStatus(paymentId);
 
     // 检查权限（普通用户只能查询自己的支付记录）
-    if (req.user.role !== 'admin' && result.payment.userId !== req.user.id) {
+    if (req.user.role !== 'ADMIN' && result.payment.userId !== req.user.id) {
       return res.status(403).json({
         success: false,
         message: '无权访问该支付记录',
@@ -198,7 +198,7 @@ router.post('/refund',
 router.post('/reconcile',
   authenticate,
   (req: Request, res: Response, next: NextFunction) => {
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'ADMIN') {
       return res.status(403).json({
         success: false,
         message: '需要管理员权限',
@@ -240,7 +240,7 @@ router.post('/reconcile',
 router.get('/statistics',
   authenticate,
   (req: Request, res: Response, next: NextFunction) => {
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'ADMIN') {
       return res.status(403).json({
         success: false,
         message: '需要管理员权限',

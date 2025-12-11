@@ -52,7 +52,7 @@ export class EmailNotificationService {
 
       // 验证连接
       await this.transporter.verify();
-      console.log('邮件服务初始化成功');
+// [DEBUG REMOVED]       console.log('邮件服务初始化成功');
 
     } catch (error) {
       console.error('邮件服务初始化失败:', error);

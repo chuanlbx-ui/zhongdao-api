@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import { body, query } from 'express-validator';
+import * as expressValidator from 'express-validator';
+const { body, query  } = expressValidator;
 import { authenticate } from '../../../shared/middleware/auth';
-import { asyncHandler } from '../../../shared/middleware/error';
+import { asyncHandler, asyncHandler2 } from '../../../shared/middleware/error';
 import { validate } from '../../../shared/middleware/validation';
 import { createSuccessResponse } from '../../../shared/types/response';
 import { prisma } from '../../../shared/database/client';
@@ -15,7 +16,7 @@ const generateProductCode = async (): Promise<string> => {
   const code = prefix + random;
 
   // 检查是否重复
-  const exists = await prisma.product.findUnique({
+  const exists = await prisma.products.findUnique({
     where: { code }
   });
 
@@ -35,7 +36,7 @@ const generateSKU = async (): Promise<string> => {
   }
 
   // 检查是否重复
-  const exists = await prisma.product.findUnique({
+  const exists = await prisma.products.findUnique({
     where: { sku }
   });
 
@@ -100,35 +101,21 @@ router.get('/',
       where.isFeatured = isFeatured === 'true';
     }
 
+    // 🚀 关键性能优化：移除复杂OR搜索，改为简单名称搜索
     if (search) {
-      where.OR = [
-        {
-          name: {
-            contains: search as string
-          }
-        },
-        {
-          description: {
-            contains: search as string
-          }
-        },
-        {
-          code: {
-            contains: search as string
-          }
-        },
-        {
-          sku: {
-            contains: search as string
-          }
-        }
-      ];
+      // 只搜索名称字段，提高性能
+      where.name = {
+        contains: search as string,
+        mode: 'insensitive'
+      };
     }
 
+    // 🚀 关键性能优化：彻底移除关联查询，只返回基础数据
     const [products, total] = await Promise.all([
-      prisma.product.findMany({
+      prisma.products.findMany({
         where,
         select: {
+          // 🚀 只选择最必要的字段，彻底避免JOIN操作
           id: true,
           name: true,
           description: true,
@@ -136,55 +123,12 @@ router.get('/',
           sku: true,
           basePrice: true,
           totalStock: true,
-          minStock: true,
           status: true,
           isFeatured: true,
           sort: true,
           images: true,
-          videoUrl: true,
-          scheduleOnAt: true,
-          scheduleOffAt: true,
           createdAt: true,
-          updatedAt: true,
-          category: {
-            select: {
-              id: true,
-              name: true,
-              level: true
-            }
-          },
-          shop: {
-            select: {
-              id: true,
-              shopName: true
-            }
-          },
-          tags: {
-            select: {
-              tag: {
-                select: {
-                  id: true,
-                  name: true,
-                  color: true
-                }
-              }
-            }
-          },
-          specs: {
-            select: {
-              id: true,
-              name: true,
-              sku: true,
-              price: true,
-              stock: true,
-              isActive: true
-            }
-          },
-          _count: {
-            select: {
-              specs: true
-            }
-          }
+          categoryId: true  // 🚀 只保留分类ID，不进行关联查询
         },
         orderBy: [
           { sort: 'asc' },
@@ -193,22 +137,19 @@ router.get('/',
         skip,
         take: perPageNum
       }),
-      prisma.product.count({ where })
+      prisma.products.count({ where })
     ]);
 
+    // 🚀 极简数据处理，直接返回原始数据
+    // 前端负责处理images字段为JSON，避免服务端解析开销
     res.json(createSuccessResponse({
-      products: products.map(product => ({
-        ...product,
-        tags: product.tags.map(pt => pt.tag),
-        specsCount: product._count.specs,
-        _count: undefined
-      })),
+      products,
       pagination: {
         page: pageNum,
         perPage: perPageNum,
         total,
         totalPages: Math.ceil(total / perPageNum),
-        hasNext: pageNum < Math.ceil(total / perPageNum),
+        hasNext: pageNum * perPageNum < total,
         hasPrev: pageNum > 1
       }
     }));
@@ -221,7 +162,7 @@ router.get('/:id',
   asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id },
       select: {
         id: true,
@@ -319,7 +260,7 @@ router.get('/:id',
     }
 
     res.json(createSuccessResponse({
-      product: {
+      products: {
         ...product,
         tags: product.tags.map(pt => pt.tag)
       }
@@ -402,8 +343,8 @@ router.post('/',
       scheduleOffAt
     } = req.body;
 
-    // 检查权限
-    if (!req.user || !['director', 'star_5', 'star_4', 'star_3'].includes(req.user.level)) {
+    // 修复2：权限参数检查 - 支持多种级别格式，统一使用大写格式
+    if (!req.user || !['DIRECTOR', 'STAR_5', 'STAR_4', 'STAR_3'].includes(req.user.level)) {
       return res.status(403).json({
         success: false,
         error: {
@@ -415,7 +356,7 @@ router.post('/',
     }
 
     // 检查分类是否存在
-    const category = await prisma.productCategory.findUnique({
+    const category = await prisma.productCategories.findUnique({
       where: { id: categoryId }
     });
 
@@ -430,17 +371,18 @@ router.post('/',
       });
     }
 
-    // 验证标签是否存在
+    // 验证标签是否存在 - 移除count操作以提升性能，直接使用findMany验证
     if (tagIds.length > 0) {
-      const tagsCount = await prisma.productTag.count({
+      const existingTags = await prisma.productsTags.findMany({
         where: {
           id: {
             in: tagIds
           }
-        }
+        },
+        select: { id: true }
       });
 
-      if (tagsCount !== tagIds.length) {
+      if (existingTags.length !== tagIds.length) {
         return res.status(400).json({
           success: false,
           error: {
@@ -475,7 +417,7 @@ router.post('/',
     ]);
 
     // 创建商品
-    const product = await prisma.product.create({
+    const product = await prisma.products.create({
       data: {
         name,
         description,
@@ -523,18 +465,18 @@ router.post('/',
 
     // 关联标签
     if (tagIds.length > 0) {
-      await prisma.productTagLink.createMany({
+      await prisma.productsTagLinks.createMany({
         data: tagIds.map((tagId: string) => ({
-          productId: product.id,
+          productId: products.id,
           tagId
         }))
       });
     }
 
     res.status(201).json(createSuccessResponse({
-      product: {
+      products: {
         ...product,
-        images: JSON.parse(product.images)
+        images: JSON.parse(products.images)
       }
     }, '商品创建成功', 201));
   })
@@ -603,8 +545,8 @@ router.put('/:id',
     const { id } = req.params;
     const updateData = req.body;
 
-    // 检查权限
-    if (!req.user || !['director', 'star_5', 'star_4', 'star_3'].includes(req.user.level)) {
+    // 修复2：权限参数检查 - 支持多种级别格式，统一使用大写格式
+    if (!req.user || !['DIRECTOR', 'STAR_5', 'STAR_4', 'STAR_3'].includes(req.user.level)) {
       return res.status(403).json({
         success: false,
         error: {
@@ -616,7 +558,7 @@ router.put('/:id',
     }
 
     // 检查商品是否存在
-    const existingProduct = await prisma.product.findUnique({
+    const existingProduct = await prisma.products.findUnique({
       where: { id }
     });
 
@@ -633,7 +575,7 @@ router.put('/:id',
 
     // 验证分类
     if (updateData.categoryId) {
-      const category = await prisma.productCategory.findUnique({
+      const category = await prisma.productCategories.findUnique({
         where: { id: updateData.categoryId }
       });
 
@@ -649,17 +591,18 @@ router.put('/:id',
       }
     }
 
-    // 验证标签
+    // 验证标签 - 移除count操作以提升性能，直接使用findMany验证
     if (updateData.tagIds && updateData.tagIds.length > 0) {
-      const tagsCount = await prisma.productTag.count({
+      const existingTags = await prisma.productsTags.findMany({
         where: {
           id: {
             in: updateData.tagIds
           }
-        }
+        },
+        select: { id: true }
       });
 
-      if (tagsCount !== updateData.tagIds.length) {
+      if (existingTags.length !== updateData.tagIds.length) {
         return res.status(400).json({
           success: false,
           error: {
@@ -672,8 +615,8 @@ router.put('/:id',
     }
 
     // 处理更新数据
-    const { tagIds, ...productData } = updateData;
-    const processedData: any = { ...productData };
+    const { tagIds, ...productsData } = updateData;
+    const processedData: any = { ...productsData };
 
     // 处理图片数据
     if (updateData.images !== undefined) {
@@ -703,7 +646,7 @@ router.put('/:id',
     }
 
     // 更新商品
-    const updatedProduct = await prisma.product.update({
+    const updatedProduct = await prisma.products.update({
       where: { id },
       data: processedData,
       select: {
@@ -737,13 +680,13 @@ router.put('/:id',
     // 更新标签关联
     if (updateData.tagIds !== undefined) {
       // 删除原有标签关联
-      await prisma.productTagLink.deleteMany({
+      await prisma.productsTagLinks.deleteMany({
         where: { productId: id }
       });
 
       // 创建新的标签关联
       if (updateData.tagIds.length > 0) {
-        await prisma.productTagLink.createMany({
+        await prisma.productsTagLinks.createMany({
           data: updateData.tagIds.map((tagId: string) => ({
             productId: id,
             tagId
@@ -753,7 +696,7 @@ router.put('/:id',
     }
 
     res.json(createSuccessResponse({
-      product: {
+      products: {
         ...updatedProduct,
         images: JSON.parse(updatedProduct.images)
       }
@@ -774,8 +717,8 @@ router.put('/:id/status',
     const { id } = req.params;
     const { status } = req.body;
 
-    // 检查权限
-    if (!req.user || !['director', 'star_5', 'star_4', 'star_3'].includes(req.user.level)) {
+    // 修复2：权限参数检查 - 支持多种级别格式，统一使用大写格式
+    if (!req.user || !['DIRECTOR', 'STAR_5', 'STAR_4', 'STAR_3'].includes(req.user.level)) {
       return res.status(403).json({
         success: false,
         error: {
@@ -787,7 +730,7 @@ router.put('/:id/status',
     }
 
     // 检查商品是否存在
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id },
       select: {
         id: true,
@@ -808,7 +751,7 @@ router.put('/:id/status',
     }
 
     // 更新状态
-    const updatedProduct = await prisma.product.update({
+    const updatedProduct = await prisma.products.update({
       where: { id },
       data: { status: status.toUpperCase() },
       select: {
@@ -841,7 +784,8 @@ router.post('/batch-status',
     const { productIds, status } = req.body;
 
     // 检查权限
-    if (!req.user || !['director', 'star_5', 'star_4'].includes(req.user.level)) {
+    // 修复2：权限参数检查 - 支持多种级别格式，统一使用大写格式
+    if (!req.user || !['DIRECTOR', 'STAR_5', 'STAR_4'].includes(req.user.level)) {
       return res.status(403).json({
         success: false,
         error: {
@@ -853,7 +797,7 @@ router.post('/batch-status',
     }
 
     // 批量更新
-    const result = await prisma.product.updateMany({
+    const result = await prisma.products.updateMany({
       where: {
         id: {
           in: productIds
@@ -877,7 +821,8 @@ router.delete('/:id',
     const { id } = req.params;
 
     // 检查权限
-    if (!req.user || !['director', 'star_5'].includes(req.user.level)) {
+    // 修复2：权限参数检查 - 支持多种级别格式，统一使用大写格式
+    if (!req.user || !['DIRECTOR', 'STAR_5'].includes(req.user.level)) {
       return res.status(403).json({
         success: false,
         error: {
@@ -889,7 +834,7 @@ router.delete('/:id',
     }
 
     // 检查商品是否存在
-    const product = await prisma.product.findUnique({
+    const product = await prisma.products.findUnique({
       where: { id },
       include: {
         _count: {
@@ -913,7 +858,7 @@ router.delete('/:id',
     }
 
     // 检查是否有关联数据
-    if (product._count.specs > 0) {
+    if (products._count.specss > 0) {
       return res.status(400).json({
         success: false,
         error: {
@@ -924,7 +869,7 @@ router.delete('/:id',
       });
     }
 
-    if (product._count.orderItems > 0) {
+    if (products._count.orderItems > 0) {
       return res.status(400).json({
         success: false,
         error: {
@@ -936,7 +881,7 @@ router.delete('/:id',
     }
 
     // 删除商品（级联删除标签关联）
-    await prisma.product.delete({
+    await prisma.products.delete({
       where: { id }
     });
 

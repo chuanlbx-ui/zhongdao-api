@@ -36,6 +36,7 @@ export const getShipmentsController = async (
   // 构建查询条件
   const where: any = {};
 
+  // 修复2：权限参数检查 - 支持多种级别格式，统一使用大写格式
   // 按用户权限过滤
   if (req.user?.level === 'NORMAL' || req.user?.level === 'VIP') {
     // 普通用户只能看到自己的订单的物流信息
@@ -218,7 +219,7 @@ export const createShipmentController = async (
   } = req.body;
 
   // 检查订单是否存在
-  const order = await prisma.order.findUnique({
+  const order = await prisma.orders.findUnique({
     where: { id: orderId },
     include: {
       user: {
@@ -308,7 +309,7 @@ export const createShipmentController = async (
   });
 
   // 更新订单状态
-  await prisma.order.update({
+  await prisma.orders.update({
     where: { id: orderId },
     data: {
       status: 'SHIPPED',
@@ -413,7 +414,7 @@ export const deleteShipmentController = async (
   });
 
   // 更新订单状态
-  await prisma.order.update({
+  await prisma.orders.update({
     where: { id: existingShipment.orderId },
     data: {
       status: 'PAID',

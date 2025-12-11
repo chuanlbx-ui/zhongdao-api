@@ -1,5 +1,5 @@
-import { logger } from '../../shared/utils/logger';
-import { prisma } from '../../shared/database/client';
+import { logger } from '@/shared/utils/logger';
+import { prisma } from '@/shared/database/client';
 import { UserLevel, UserLevelService } from '../user/level.service';
 
 // 价格计算结果类型
@@ -114,15 +114,15 @@ export class PricingService {
       }
 
       // 获取商品基础信息
-      const product = await this.getProductWithPricing(productId, specId);
-      if (!product) {
+      const productData = await this.getProductWithPricing(productId, specId);
+      if (!productData) {
         throw new Error(`商品不存在: ${productId}`);
       }
 
       // 获取基础价格
       const basePrice = specId ?
-        (product.specs?.find(spec => spec.id === specId)?.price || product.basePrice) :
-        product.basePrice;
+        (productData.productSpecs?.find(spec => spec.id === specId)?.price || productData.basePrice) :
+        productData.basePrice;
 
       // 查找特殊定价
       const specialPricing = await this.getSpecialPricing(productId, userLevel, specId);
@@ -164,11 +164,11 @@ export class PricingService {
 
       // 批量获取商品信息
       const productIds = [...new Set(params.items.map(item => item.productId))];
-      const products = await prisma.product.findMany({
+      const products = await prisma.products.findMany({
         where: { id: { in: productIds } },
         include: {
-          specs: true,
-          pricings: {
+          productSpecs: true,
+          productPricings: {
             where: {
               userLevel: params.userLevel
             }
@@ -232,7 +232,7 @@ export class PricingService {
   }> {
     try {
       // 验证商品存在
-      const product = await prisma.product.findUnique({
+      const product = await prisma.products.findUnique({
         where: { id: params.productId }
       });
 
@@ -245,7 +245,7 @@ export class PricingService {
 
       // 如果有规格ID，验证规格存在
       if (params.specId) {
-        const spec = await prisma.productSpec.findUnique({
+        const spec = await prisma.productSpecs.findUnique({
           where: { id: params.specId }
         });
 
@@ -258,7 +258,7 @@ export class PricingService {
       }
 
       // 使用 upsert 更新或创建定价记录
-      const pricing = await prisma.productPricing.upsert({
+      const pricing = await prisma.productPricings.upsert({
         where: {
           productId_specId_userLevel: {
             productId: params.productId,
@@ -450,7 +450,7 @@ export class PricingService {
     message: string;
   }> {
     try {
-      const deleteResult = await prisma.productPricing.deleteMany({
+      const deleteResult = await prisma.productPricings.deleteMany({
         where: {
           productId,
           specId: specId || null,
@@ -542,13 +542,13 @@ export class PricingService {
    * 获取商品及定价信息
    */
   private async getProductWithPricing(productId: string, specId?: string) {
-    return await prisma.product.findUnique({
+    return await prisma.products.findUnique({
       where: { id: productId },
       include: {
-        specs: specId ? {
+        productSpecs: specId ? {
           where: { id: specId }
         } : true,
-        pricings: {
+        productPricings: {
           where: {
             specId: specId || null
           }
@@ -565,7 +565,7 @@ export class PricingService {
     userLevel: UserLevel,
     specId?: string
   ) {
-    return await prisma.productPricing.findFirst({
+    return await prisma.productPricings.findFirst({
       where: {
         productId,
         userLevel,

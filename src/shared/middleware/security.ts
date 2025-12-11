@@ -47,7 +47,7 @@ const sanitizeObject = (obj: any): void => {
 };
 
 // 输入验证中间件
-export const inputValidation = (req: Request, res: Response, next: NextFunction): void => {
+export const inputValidation = (req: Request, res: Response, next: NextFunction): void | Response => {
   // 检查请求大小
   const contentLength = parseInt(req.headers['content-length'] || '0');
   const maxSize = 10 * 1024 * 1024; // 10MB
@@ -85,8 +85,8 @@ export const inputValidation = (req: Request, res: Response, next: NextFunction)
 const requestCounts = new Map<string, { count: number; resetTime: number }>();
 
 export const rateLimit = (maxRequests: number = 100, windowMs: number = 60 * 1000) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
-    const clientId = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+  return (req: Request, res: Response, next: NextFunction): void | Response => {
+    const clientId = req.ip || (Array.isArray(req.headers['x-forwarded-for']) ? req.headers['x-forwarded-for'][0] : req.headers['x-forwarded-for']) || 'unknown';
     const now = Date.now();
 
     let clientData = requestCounts.get(clientId);
@@ -123,7 +123,7 @@ export const rateLimit = (maxRequests: number = 100, windowMs: number = 60 * 100
 };
 
 // 安全头中间件
-export const securityHeaders = (req: Request, res: Response, next: NextFunction): void => {
+export const securityHeaders = (req: Request, res: Response, next: NextFunction): void | Response => {
   // 防止点击劫持
   res.setHeader('X-Frame-Options', 'DENY');
 

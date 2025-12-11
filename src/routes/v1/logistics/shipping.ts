@@ -43,7 +43,7 @@ export const batchShipController = async (
   }
 
   // 查询订单信息
-  const orders = await prisma.order.findMany({
+  const orders = await prisma.orders.findMany({
     where: {
       id: { in: orderIds },
       userId: req.user!.id, // 只能处理自己的订单
@@ -124,7 +124,7 @@ export const batchShipController = async (
       });
 
       // 更新订单状态
-      await prisma.order.update({
+      await prisma.orders.update({
         where: { id: order.id },
         data: {
           status: 'SHIPPED',
@@ -200,7 +200,7 @@ export const partialShipController = async (
   }
 
   // 检查订单是否存在
-  const order = await prisma.order.findUnique({
+  const order = await prisma.orders.findUnique({
     where: { id: orderId },
     include: {
       orderItems: true
@@ -279,7 +279,7 @@ export const partialShipController = async (
         packageCount: packageInfo?.count || 1,
         packageWeight: packageInfo?.weight,
         packageVolume: packageInfo?.volume,
-        packageDesc: packageInfo?.description || `部分发货：${shippedOrderItems.map(item => item.productName).join('、')}`,
+        packageDesc: packageInfo?.description || `部分发货：${shippedOrderItems.map(item => item.productsName).join('、')}`,
         goodsValue,
         deliveryType,
         estimatedDelivery: estimatedDeliveryTime,
@@ -293,7 +293,7 @@ export const partialShipController = async (
 
     if (remainingItems.length === 0) {
       // 全部商品已发货
-      await prisma.order.update({
+      await prisma.orders.update({
         where: { id: orderId },
         data: {
           status: 'SHIPPED',
@@ -302,7 +302,7 @@ export const partialShipController = async (
       });
     } else {
       // 部分发货，更新为处理中状态
-      await prisma.order.update({
+      await prisma.orders.update({
         where: { id: orderId },
         data: {
           status: 'PROCESSING'
@@ -317,7 +317,7 @@ export const partialShipController = async (
         time: new Date(),
         status: '已揽收',
         location: senderInfo?.city || '发货地',
-        description: `您的包裹（部分发货）已由${company.displayName}揽收，包含：${shippedOrderItems.map(item => item.productName).join('、')}`,
+        description: `您的包裹（部分发货）已由${company.displayName}揽收，包含：${shippedOrderItems.map(item => item.productsName).join('、')}`,
         operator: senderInfo?.name || req.user!.nickname,
         source: TrackSource.MANUAL
       }
@@ -333,13 +333,13 @@ export const partialShipController = async (
       },
       shippedItems: shippedOrderItems.map(item => ({
         id: item.id,
-        productName: item.productName,
+        productName: item.productsName,
         quantity: item.quantity,
         totalAmount: item.totalAmount
       })),
       remainingItems: remainingItems.map(item => ({
         id: item.id,
-        productName: item.productName,
+        productName: item.productsName,
         quantity: item.quantity,
         totalAmount: item.totalAmount
       }))

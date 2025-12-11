@@ -13,7 +13,8 @@ export interface SMSVerification {
   createdAt: Date;
 }
 
-// 临时内存存储（用于开发测试）
+// 使用环境变量控制存储方式
+const USE_DATABASE_STORAGE = process.env.NODE_ENV === 'production' || process.env.USE_DATABASE_SMS === 'true';
 const tempSMSStore = new Map<string, SMSVerification>();
 
 // 短信服务类
@@ -168,11 +169,11 @@ export class SMSService {
   private async mockSendSMS(phone: string, code: string, type: string): Promise<boolean> {
     // 开发环境下打印到控制台
     if (process.env.NODE_ENV === 'development') {
-      console.log(`📱 [模拟短信] 发送到 ${phone}:`);
-      console.log(`🔢 验证码: ${code}`);
-      console.log(`📝 用途: ${type}`);
-      console.log(`⏰ 有效期: 5分钟`);
-      console.log('---');
+// [DEBUG REMOVED]       console.log(`📱 [模拟短信] 发送到 ${phone}:`);
+// [DEBUG REMOVED]       console.log(`🔢 验证码: ${code}`);
+// [DEBUG REMOVED]       console.log(`📝 用途: ${type}`);
+// [DEBUG REMOVED]       console.log(`⏰ 有效期: 5分钟`);
+// [DEBUG REMOVED]       console.log('---');
     }
 
     // 模拟网络延迟
@@ -195,7 +196,7 @@ export class SMSService {
   // 清理过期验证码
   async cleanupExpiredCodes(): Promise<void> {
     try {
-      const result = await prisma.sMSVerification.deleteMany({
+      const result = await prisma.smsVerifications.deleteMany({
         where: {
           expiresAt: {
             lt: new Date()

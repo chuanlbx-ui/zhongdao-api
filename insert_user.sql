@@ -1,0 +1,1 @@
+INSERT IGNORE INTO users (id, phone, nickname, password, role, level, status, pointsBalance, pointsFrozen, wechatOpenId, createdAt, updatedAt) VALUES ('cmi4nwm5j50010e15rbuagpog', '13800000001', '系统管理员', '\b\0\.hash.here', 'ADMIN', 'DIRECTOR', 'ACTIVE', 10000, 0, 'admin_wechat', NOW(), NOW());

@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../../../shared/database/client';
 import { createSuccessResponse, createErrorResponse, ErrorCode, createPaginatedResponse } from '../../../shared/types/response';
-import { asyncHandler } from '../../../shared/middleware/error';
+import { asyncHandler, asyncHandler2 } from '../../../shared/middleware/error';
 import { authenticate } from '../../../shared/middleware/auth';
 import { logger } from '../../../shared/utils/logger';
 
@@ -12,14 +12,14 @@ const router = Router();
  */
 router.get('/',
   authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const perPage = Math.min(parseInt(req.query.perPage as string) || 10, 100);
       const skip = (page - 1) * perPage;
 
       const [products, total] = await Promise.all([
-        prisma.product.findMany({
+        prisma.products.findMany({
           skip,
           take: perPage,
           include: {
@@ -41,7 +41,7 @@ router.get('/',
           },
           orderBy: { createdAt: 'desc' }
         }),
-        prisma.product.count()
+        prisma.products.count()
       ]);
 
       res.json(createPaginatedResponse(
@@ -67,9 +67,9 @@ router.get('/',
  */
 router.get('/:id',
   authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
-      const product = await prisma.product.findUnique({
+      const product = await prisma.products.findUnique({
         where: { id: req.params.id },
         include: {
           category: true,
@@ -106,11 +106,11 @@ router.get('/:id',
  */
 router.post('/',
   authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const { name, description, categoryId, basePrice, images, status } = req.body;
 
-      const product = await prisma.product.create({
+      const product = await prisma.products.create({
         data: {
           name,
           description,
@@ -141,7 +141,7 @@ router.post('/',
  */
 router.put('/:id',
   authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const { name, description, categoryId, basePrice, images, status } = req.body;
 
@@ -153,7 +153,7 @@ router.put('/:id',
       if (images !== undefined) updateData.images = images;
       if (status !== undefined) updateData.status = status;
 
-      const updated = await prisma.product.update({
+      const updated = await prisma.products.update({
         where: { id: req.params.id },
         data: updateData,
         include: {
@@ -178,9 +178,9 @@ router.put('/:id',
  */
 router.delete('/:id',
   authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
-      await prisma.product.delete({
+      await prisma.products.delete({
         where: { id: req.params.id }
       });
 

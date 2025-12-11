@@ -8,22 +8,22 @@ import { logger } from '../utils/logger';
 
 /**
  * 更新推荐人的直推人数和团队人数统计
- * @param referrerId 推荐人ID
+ * @param parentId 推荐人ID
  */
-export async function updateReferrerStats(referrerId: string) {
+export async function updateReferrerStats(parentId: string) {
   try {
     // 获取推荐人的所有直推用户
     const directReferrals = await prisma.users.findMany({
-      where: { parentId: referrerId },
+      where: { parentId: parentId },
       select: { id: true }
     });
 
     // 计算团队总人数（包括所有下级）
-    const teamCount = await calculateTeamCount(referrerId);
+    const teamCount = await calculateTeamCount(parentId);
 
     // 更新推荐人的统计数据
     await prisma.users.update({
-      where: { id: referrerId },
+      where: { id: parentId },
       data: {
         directCount: directReferrals.length,
         teamCount
@@ -31,14 +31,14 @@ export async function updateReferrerStats(referrerId: string) {
     });
 
     logger.info('推荐人统计更新成功', {
-      referrerId,
+      parentId,
       directCount: directReferrals.length,
       teamCount
     });
 
   } catch (error) {
     logger.error('更新推荐人统计失败', {
-      referrerId,
+      parentId,
       error: error instanceof Error ? error.message : '未知错误'
     });
     throw error;
@@ -160,12 +160,12 @@ export async function createReferralRelationship(referralCode: string, newUserId
 
     logger.info('推荐关系创建成功', {
       newUserId,
-      referrerId: referrer.id,
+      parentId: referrer.id,
       teamLevel: newTeamLevel
     });
 
     return {
-      referrerId: referrer.id,
+      parentId: referrer.id,
       teamLevel: newTeamLevel,
       teamPath: newTeamPath
     };

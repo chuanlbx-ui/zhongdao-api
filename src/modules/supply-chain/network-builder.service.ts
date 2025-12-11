@@ -4,8 +4,8 @@
  * 支持增量更新、实时同步和性能优化
  */
 
-import { logger } from '../../shared/utils/logger';
-import { prisma } from '../../shared/database/client';
+import { logger } from '@/shared/utils/logger';
+import { prisma } from '@/shared/database/client';
 import { UserLevel } from '../user/level.service';
 import {
   SupplyChainNode,

@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { body, query, param } from 'express-validator';
 import { authenticate, requireMinLevel } from '../../../shared/middleware/auth';
-import { asyncHandler } from '../../../shared/middleware/error';
+import { asyncHandler, asyncHandler2 } from '../../../shared/middleware/error';
 import { validate } from '../../../shared/middleware/validation';
 import { createSuccessResponse } from '../../../shared/types/response';
 import { logger } from '../../../shared/utils/logger';
@@ -64,7 +64,7 @@ router.post('/create',
       const createParams = {
         type,
         items: items.map((item: any) => ({
-          productId: item.productId,
+          productId: item.productsId,
           skuId: item.skuId,
           quantity: item.quantity
         })),

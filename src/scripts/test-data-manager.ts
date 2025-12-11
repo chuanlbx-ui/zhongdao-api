@@ -67,28 +67,28 @@ class TestDataManager {
   async getDataStats() {
     const stats = await prisma.$queryRaw`
       SELECT
-        'users' as table_name, COUNT(*) as count FROM User
+        'users' as table_name, COUNT(*) as count FROM users
       UNION ALL
       SELECT
-        'shops' as table_name, COUNT(*) as count FROM Shop
+        'shops' as table_name, COUNT(*) as count FROM shops
       UNION ALL
       SELECT
-        'products' as table_name, COUNT(*) as count FROM Product
+        'products' as table_name, COUNT(*) as count FROM products
       UNION ALL
       SELECT
-        'orders' as table_name, COUNT(*) as count FROM \`Order\`
+        'orders' as table_name, COUNT(*) as count FROM orders
       UNION ALL
       SELECT
-        'transactions' as table_name, COUNT(*) as count FROM PointsTransaction
+        'transactions' as table_name, COUNT(*) as count FROM pointsTransactions
       UNION ALL
       SELECT
-        'notifications' as table_name, COUNT(*) as count FROM Notification
+        'notifications' as table_name, COUNT(*) as count FROM notifications
       UNION ALL
       SELECT
-        'inventory' as table_name, COUNT(*) as count FROM InventoryItem
+        'inventory' as table_name, COUNT(*) as count FROM inventoryItems
       UNION ALL
       SELECT
-        'categories' as table_name, COUNT(*) as count FROM ProductCategory
+        'categories' as table_name, COUNT(*) as count FROM productCategories
     ` as Array<{ table_name: string; count: bigint }>
 
     return stats.reduce((acc, { table_name, count }) => {
@@ -107,10 +107,10 @@ class TestDataManager {
     this.log('开始清理测试数据...', 'info')
 
     const tablenames = [
-      'NotificationChannel', 'Notification',
-      'PointsTransaction', 'OrderItem', 'PurchaseOrder', 'Order',
-      'InventoryItem', 'ProductVariant', 'ProductTag', 'Product',
-      'ProductCategory', 'Shop', 'User'
+      'notificationChannels', 'notifications',
+      'pointsTransactions', 'orderItems', 'purchaseOrders', 'orders',
+      'inventoryItems', 'productSpecs', 'productTags', 'products',
+      'productCategories', 'shops', 'users'
     ]
 
     for (const tablename of tablenames) {
@@ -181,14 +181,14 @@ class TestDataManager {
     })
 
     // 检查店铺类型分布
-    const shopTypes = await prisma.shop.groupBy({
-      by: ['type'],
-      _count: { type: true }
+    const shopTypes = await prisma.shops.groupBy({
+      by: ['shopType'],
+      _count: { shopType: true }
     })
 
     this.log('店铺类型分布:', 'info')
     shopTypes.forEach(group => {
-      this.log(`  ${group.type}: ${group._count.type}个`, 'info')
+      this.log(`  ${group.shopType}: ${group._count.shopType}个`, 'info')
     })
 
     if (issues === 0) {
@@ -369,7 +369,7 @@ class TestDataManager {
           id: userData.user.id,
           openid: userData.user.openid,
           nickname: userData.user.nickname,
-          avatarUrl: userData.user.avatarUrl,
+          avatarUrl: userData.null,
           phone: userData.user.phone,
           referralCode: userData.user.referralCode,
           level: userData.user.level,
@@ -407,7 +407,7 @@ class TestDataManager {
 
     const createdCategories = []
     for (const category of categories) {
-      const created = await prisma.productCategory.create({
+      const created = await prisma.productCategories.create({
         data: {
           ...category,
           isActive: true,
@@ -430,23 +430,23 @@ class TestDataManager {
       const category = createdCategories[Math.floor(Math.random() * createdCategories.length)]
       const creator = createdUsers[Math.floor(Math.random() * createdUsers.length)]
 
-      const product = await prisma.product.create({
+      const product = await prisma.products.create({
         data: {
           id: createId(),
-          name: productData.product.name,
-          sku: productData.product.sku,
-          description: productData.product.description,
-          basePrice: productData.product.basePrice,
-          originalPrice: productData.product.originalPrice,
-          costPrice: productData.product.costPrice,
-          status: productData.product.status,
+          name: productData.products.name,
+          sku: productData.products.sku,
+          description: productData.products.description,
+          basePrice: productData.products.basePrice,
+          originalPrice: productData.products.originalPrice,
+          costPrice: productData.products.costPrice,
+          status: productData.products.status,
           categoryId: category.id,
-          images: productData.product.images,
-          specifications: productData.product.specifications,
-          shopType: productData.product.shopType,
+          images: productData.products.images,
+          specifications: productData.products.specsifications,
+          shopType: productData.products.shopType,
           createdBy: creator.id,
           updatedBy: creator.id,
-          tags: productData.product.tags,
+          tags: productData.products.tags,
           isActive: true,
           featured: Math.random() > 0.8,
           createdAt: new Date(),

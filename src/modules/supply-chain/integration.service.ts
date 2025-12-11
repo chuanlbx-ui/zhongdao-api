@@ -4,10 +4,10 @@
  * 包括采购权限验证、订单创建、佣金分配等功能
  */
 
-import { logger } from '../../shared/utils/logger';
-import { prisma } from '../../shared/database/client';
+import { logger } from '@/shared/utils/logger';
+import { prisma } from '@/shared/database/client';
 import { supplyChainOptimizer } from './index';
-import { purchaseService, CreatePurchaseParams } from '../purchase/purchase.service';
+import { purchaseService, CreatePurchaseParams } from '../purchase';
 import { userLevelService } from '../user/level.service';
 import { teamService } from '../user/team.service';
 import {
@@ -667,7 +667,7 @@ export class SupplyChainIntegrationService {
         select: { level: true }
       });
 
-      const pricing = await prisma.productPricing.findFirst({
+      const pricing = await prisma.productPricings.findFirst({
         where: {
           productId,
           userLevel: user?.level as any
@@ -688,7 +688,7 @@ export class SupplyChainIntegrationService {
    */
   private async getStockInfo(userId: string, productId: string): Promise<{ stock: number }> {
     try {
-      const stock = await prisma.inventoryStock.findFirst({
+      const stock = await prisma.inventoryStocks.findFirst({
         where: {
           productId,
           userId
@@ -726,7 +726,7 @@ export class SupplyChainIntegrationService {
 
       if (orderResult.success && orderResult.order) {
         // 将路径信息存储到订单元数据中
-        await prisma.purchaseOrder.update({
+        await prisma.purchaseOrders.update({
           where: { id: orderResult.order.id },
           data: {
             purchasePath: JSON.stringify(path),

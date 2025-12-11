@@ -1,6 +1,6 @@
-import { PaymentProviderFactory, ProviderType } from '../shared/payments';
-import { WechatPayConfig } from '../shared/payments/wechat/config';
-import { AlipayConfig } from '../shared/payments/alipay/config';
+import { PaymentProviderFactory, ProviderType } from '@/shared/payments';
+import { WechatPayConfig } from '@/shared/payments/wechat/config';
+import { AlipayConfig } from '@/shared/payments/alipay/config';
 
 /**
  * 支付配置加载

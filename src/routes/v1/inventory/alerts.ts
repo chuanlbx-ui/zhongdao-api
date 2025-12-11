@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { body, query } from 'express-validator';
 import { authenticate } from '../../../shared/middleware/auth';
-import { asyncHandler } from '../../../shared/middleware/error';
+import { asyncHandler, asyncHandler2 } from '../../../shared/middleware/error';
 import { validate } from '../../../shared/middleware/validation';
 import { createSuccessResponse } from '../../../shared/types/response';
 import { prisma } from '../../../shared/database/client';
@@ -91,11 +91,11 @@ router.get('/',
     // 管理员及以上可以查看所有预警
 
     if (productId) {
-      where.productId = productId as string;
+      where.productsId = productId as string;
     }
 
     if (specId) {
-      where.specId = specId as string;
+      where.specsId = specId as string;
     }
 
     if (warehouseType) {
@@ -126,7 +126,7 @@ router.get('/',
     }
 
     const [alerts, total] = await Promise.all([
-      prisma.inventoryAlert.findMany({
+      prisma.inventoryAlertss.findMany({
         where,
         select: {
           id: true,
@@ -150,7 +150,7 @@ router.get('/',
               level: true
             }
           },
-          product: {
+          products: {
             select: {
               id: true,
               name: true,
@@ -166,7 +166,7 @@ router.get('/',
               }
             }
           },
-          spec: {
+          specs: {
             select: {
               id: true,
               name: true,
@@ -198,20 +198,20 @@ router.get('/',
         skip,
         take: perPageNum
       }),
-      prisma.inventoryAlert.count({ where })
+      prisma.inventoryAlertss.count({ where })
     ]);
 
     // 解析图片JSON
     const formattedAlerts = alerts.map(alert => ({
       ...alert,
-      product: alert.product ? {
-        ...alert.product,
-        images: alert.product.images ? JSON.parse(alert.product.images) : []
-      } : alert.product,
-      spec: alert.spec ? {
-        ...alert.spec,
-        images: alert.spec.images ? JSON.parse(alert.spec.images) : []
-      } : alert.spec
+      product: alert.products ? {
+        ...alert.products,
+        images: alert.products.images ? JSON.parse(alert.products.images) : []
+      } : alert.products,
+      spec: alert.specs ? {
+        ...alert.specs,
+        images: alert.specs.images ? JSON.parse(alert.specs.images) : []
+      } : alert.specs
     }));
 
     res.json(createSuccessResponse({
@@ -244,7 +244,7 @@ router.get('/:id',
   asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    const alert = await prisma.inventoryAlert.findUnique({
+    const alert = await prisma.inventoryAlertss.findUnique({
       where: { id },
       select: {
         id: true,
@@ -269,7 +269,7 @@ router.get('/:id',
             level: true
           }
         },
-        product: {
+        products: {
           select: {
             id: true,
             name: true,
@@ -286,7 +286,7 @@ router.get('/:id',
             }
           }
         },
-        spec: {
+        specs: {
           select: {
             id: true,
             name: true,
@@ -352,11 +352,11 @@ router.get('/:id',
     }
 
     // 解析图片JSON
-    if (alert.product.images) {
-      (alert.product as any).images = JSON.parse(alert.product.images);
+    if (alert.products.images) {
+      (alert.products as any).images = JSON.parse(alert.products.images);
     }
-    if (alert.spec.images) {
-      (alert.spec as any).images = JSON.parse(alert.spec.images);
+    if (alert.specs.images) {
+      (alert.specs as any).images = JSON.parse(alert.specs.images);
     }
 
     res.json(createSuccessResponse(alert, '获取库存预警详情成功'));
@@ -369,7 +369,7 @@ router.put('/:id/read',
   asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    const alert = await prisma.inventoryAlert.findUnique({
+    const alert = await prisma.inventoryAlertss.findUnique({
       where: { id },
       select: {
         id: true,
@@ -425,7 +425,7 @@ router.put('/:id/read',
       return res.json(createSuccessResponse(alert, '预警已经是已读状态'));
     }
 
-    const updatedAlert = await prisma.inventoryAlert.update({
+    const updatedAlert = await prisma.inventoryAlertss.update({
       where: { id },
       data: { isRead: true },
       select: {
@@ -454,7 +454,7 @@ router.put('/:id/resolve',
     const { id } = req.params;
     const { resolveNote } = req.body;
 
-    const alert = await prisma.inventoryAlert.findUnique({
+    const alert = await prisma.inventoryAlertss.findUnique({
       where: { id },
       select: {
         id: true,
@@ -510,7 +510,7 @@ router.put('/:id/resolve',
       return res.json(createSuccessResponse(alert, '预警已经解决'));
     }
 
-    const updatedAlert = await prisma.inventoryAlert.update({
+    const updatedAlert = await prisma.inventoryAlertss.update({
       where: { id },
       data: {
         isResolved: true,
@@ -583,11 +583,11 @@ router.post('/check',
     const where: any = {};
 
     if (productId) {
-      where.productId = productId;
+      where.productsId = productId;
     }
 
     if (specId) {
-      where.specId = specId;
+      where.specsId = specId;
     }
 
     if (warehouseType) {
@@ -599,10 +599,10 @@ router.post('/check',
     }
 
     // 获取库存项目
-    const inventoryItems = await prisma.inventoryItem.findMany({
+    const inventoryItems = await prisma.inventoryItems.findMany({
       where,
       include: {
-        product: {
+        products: {
           select: {
             id: true,
             name: true,
@@ -616,7 +616,7 @@ router.post('/check',
             }
           }
         },
-        spec: {
+        specs: {
           select: {
             id: true,
             name: true,
@@ -639,11 +639,11 @@ router.post('/check',
     for (const item of inventoryItems) {
       // 检查库存不足预警
       if (item.quantity <= item.minStock) {
-        const existingAlert = await prisma.inventoryAlert.findFirst({
+        const existingAlert = await prisma.inventoryAlertss.findFirst({
           where: {
             userId: item.userId,
-            productId: item.productId,
-            specId: item.specId,
+            productId: item.productsId,
+            specId: item.specsId,
             warehouseType: item.warehouseType,
             alertType: 'LOW_STOCK',
             isResolved: false
@@ -651,11 +651,11 @@ router.post('/check',
         });
 
         if (!existingAlert) {
-          const newAlert = await prisma.inventoryAlert.create({
+          const newAlert = await prisma.inventoryAlertss.create({
             data: {
               userId: item.userId,
-              productId: item.productId,
-              specId: item.specId,
+              productId: item.productsId,
+              specId: item.specsId,
               warehouseType: item.warehouseType,
               alertType: 'LOW_STOCK',
               currentQuantity: item.quantity,
@@ -676,14 +676,14 @@ router.post('/check',
                   level: true
                 }
               },
-              product: {
+              products: {
                 select: {
                   id: true,
                   name: true,
                   code: true
                 }
               },
-              spec: {
+              specs: {
                 select: {
                   id: true,
                   name: true,
@@ -699,11 +699,11 @@ router.post('/check',
 
       // 检查缺货预警
       if (item.quantity === 0) {
-        const existingAlert = await prisma.inventoryAlert.findFirst({
+        const existingAlert = await prisma.inventoryAlertss.findFirst({
           where: {
             userId: item.userId,
-            productId: item.productId,
-            specId: item.specId,
+            productId: item.productsId,
+            specId: item.specsId,
             warehouseType: item.warehouseType,
             alertType: 'OUT_OF_STOCK',
             isResolved: false
@@ -711,11 +711,11 @@ router.post('/check',
         });
 
         if (!existingAlert) {
-          const newAlert = await prisma.inventoryAlert.create({
+          const newAlert = await prisma.inventoryAlertss.create({
             data: {
               userId: item.userId,
-              productId: item.productId,
-              specId: item.specId,
+              productId: item.productsId,
+              specId: item.specsId,
               warehouseType: item.warehouseType,
               alertType: 'OUT_OF_STOCK',
               currentQuantity: item.quantity,
@@ -736,14 +736,14 @@ router.post('/check',
                   level: true
                 }
               },
-              product: {
+              products: {
                 select: {
                   id: true,
                   name: true,
                   code: true
                 }
               },
-              spec: {
+              specs: {
                 select: {
                   id: true,
                   name: true,
@@ -824,27 +824,27 @@ router.get('/statistics/summary',
       trendStats
     ] = await Promise.all([
       // 总预警数
-      prisma.inventoryAlert.count({ where }),
+      prisma.inventoryAlertss.count({ where }),
 
       // 未读预警数
-      prisma.inventoryAlert.count({
+      prisma.inventoryAlertss.count({
         where: { ...where, isRead: false }
       }),
 
       // 未解决预警数
-      prisma.inventoryAlert.count({
+      prisma.inventoryAlertss.count({
         where: { ...where, isResolved: false }
       }),
 
       // 按预警类型统计
-      prisma.inventoryAlert.groupBy({
+      prisma.inventoryAlertss.groupBy({
         by: ['alertType'],
         where,
         _count: { id: true }
       }),
 
       // 按仓库类型统计
-      prisma.inventoryAlert.groupBy({
+      prisma.inventoryAlertss.groupBy({
         by: ['warehouseType'],
         where,
         _count: { id: true }

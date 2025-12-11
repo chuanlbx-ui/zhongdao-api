@@ -1,0 +1,10 @@
+{
+  "name": "支付系统 - payments.test.ts",
+  "command": "npm test tests/api/payments.test.ts",
+  "startTime": "2025-12-09T09:28:33.190Z",
+  "status": "failed",
+  "output": "",
+  "error": "Command failed: npm test tests/api/payments.test.ts\n\u001b[31mNo test files found, exiting with code 1\n\u001b[39m\n\u001b[2mfilter: \u001b[22m\u001b[33mtests/api/payments.test.ts\u001b[39m\n\u001b[2minclude: \u001b[22m\u001b[33m**/*.test.ts\u001b[39m\n\u001b[2mexclude:  \u001b[22m\u001b[33mnode_modules\u001b[2m, \u001b[22mdist\u001b[39m\n\n",
+  "endTime": "2025-12-09T09:28:34.733Z",
+  "duration": 1543
+}

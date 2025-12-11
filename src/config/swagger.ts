@@ -299,6 +299,160 @@ const options = {
             },
           },
         },
+        UserProfile: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              description: '用户ID',
+              example: 'cmi1234567890abcdef',
+            },
+            openid: {
+              type: 'string',
+              description: '微信OpenID',
+              example: 'wx_1234567890abcdef',
+            },
+            nickname: {
+              type: 'string',
+              description: '用户昵称',
+              example: '张三',
+            },
+            avatarUrl: {
+              type: 'string',
+              description: '头像URL',
+              example: 'https://thirdwx.qlogo.cn/mmopen/vi_32/...',
+            },
+            level: {
+              type: 'string',
+              enum: ['NORMAL', 'VIP', 'STAR_1', 'STAR_2', 'STAR_3', 'STAR_4', 'STAR_5', 'DIRECTOR'],
+              description: '用户等级',
+              example: 'STAR_3',
+            },
+            status: {
+              type: 'string',
+              enum: ['ACTIVE', 'INACTIVE', 'SUSPENDED'],
+              description: '用户状态',
+              example: 'ACTIVE',
+            },
+          },
+        },
+        Pagination: {
+          type: 'object',
+          properties: {
+            page: {
+              type: 'integer',
+              description: '当前页码',
+              example: 1,
+            },
+            limit: {
+              type: 'integer',
+              description: '每页数量',
+              example: 20,
+            },
+            total: {
+              type: 'integer',
+              description: '总记录数',
+              example: 100,
+            },
+            totalPages: {
+              type: 'integer',
+              description: '总页数',
+              example: 5,
+            },
+          },
+        },
+        TeamStats: {
+          type: 'object',
+          properties: {
+            directCount: {
+              type: 'integer',
+              description: '直推人数',
+              example: 10,
+            },
+            teamCount: {
+              type: 'integer',
+              description: '团队总人数',
+              example: 50,
+            },
+            level: {
+              type: 'string',
+              enum: ['NORMAL', 'VIP', 'STAR_1', 'STAR_2', 'STAR_3', 'STAR_4', 'STAR_5', 'DIRECTOR'],
+              description: '当前等级',
+              example: 'STAR_3',
+            },
+            nextLevel: {
+              type: 'string',
+              enum: ['NORMAL', 'VIP', 'STAR_1', 'STAR_2', 'STAR_3', 'STAR_4', 'STAR_5', 'DIRECTOR'],
+              description: '下一等级',
+              example: 'STAR_4',
+            },
+            progress: {
+              type: 'object',
+              properties: {
+                currentTeamSize: {
+                  type: 'integer',
+                  description: '当前团队人数',
+                  example: 50,
+                },
+                requiredTeamSize: {
+                  type: 'integer',
+                  description: '升级所需团队人数',
+                  example: 100,
+                },
+                percentage: {
+                  type: 'number',
+                  format: 'float',
+                  description: '进度百分比',
+                  example: 50.0,
+                },
+              },
+            },
+          },
+        },
+        Shop: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              description: '店铺ID',
+              example: 'cms1234567890abcdef',
+            },
+            name: {
+              type: 'string',
+              description: '店铺名称',
+              example: '张三的云店',
+            },
+            type: {
+              type: 'string',
+              enum: ['CLOUD', 'WUTONG'],
+              description: '店铺类型',
+              example: 'CLOUD',
+            },
+            level: {
+              type: 'integer',
+              description: '店铺等级',
+              example: 3,
+            },
+            status: {
+              type: 'string',
+              enum: ['ACTIVE', 'INACTIVE', 'SUSPENDED'],
+              description: '店铺状态',
+              example: 'ACTIVE',
+            },
+            totalSales: {
+              type: 'number',
+              format: 'float',
+              description: '总销售额',
+              example: 100000.00,
+            },
+            monthlySales: {
+              type: 'number',
+              format: 'float',
+              description: '月销售额',
+              example: 10000.00,
+            },
+          },
+        },
       },
     },
     tags: [

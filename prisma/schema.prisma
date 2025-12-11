@@ -8,986 +8,1064 @@ datasource db {
 }
 
 model admins {
-  id             String        @id
-  username       String        @unique
-  password       String
-  real_name      String?
-  email          String?
-  phone          String?
-  avatar         String?
-  role           admins_role   @default(ADMIN)
-  status         admins_status @default(ACTIVE)
-  last_login_at  DateTime?
-  last_login_ip  String?
-  permissions    Json?
-  login_attempts Int           @default(0)
-  locked_until   DateTime?
-  created_at     DateTime      @default(now())
-  updated_at     DateTime
+  id            String        @id
+  username      String        @unique
+  password      String
+  realName      String?
+  email         String?
+  phone         String?
+  avatar        String?
+  role          admins_role   @default(ADMIN)
+  status        admins_status @default(ACTIVE)
+  lastLoginAt   DateTime?
+  lastLoginIp   String?
+  permissions   Json?
+  loginAttempts Int           @default(0)
+  lockedUntil   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime
 }
 
-model commission_calculations {
-  id                  String                         @id
-  user_id             String
-  period              String
-  total_commission    Float                          @default(0)
-  personal_commission Float                          @default(0)
-  team_commission     Float                          @default(0)
-  referral_commission Float                          @default(0)
-  bonus_commission    Float                          @default(0)
-  status              commission_calculations_status @default(PENDING)
-  paid_date           DateTime?
-  calculated_at       DateTime                       @default(now())
-  created_at          DateTime                       @default(now())
-  updated_at          DateTime
-  users               users                          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+model commissionCalculations {
+  id                 String                        @id
+  userId             String
+  period             String
+  totalCommission    Float                         @default(0)
+  personalCommission Float                         @default(0)
+  teamCommission     Float                         @default(0)
+  referralCommission Float                         @default(0)
+  bonusCommission    Float                         @default(0)
+  status             commissionCalculations_status @default(PENDING)
+  paidDate           DateTime?
+  calculatedAt       DateTime                      @default(now())
+  createdAt          DateTime                      @default(now())
+  updatedAt          DateTime
+  users              users                         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([calculated_at])
+  @@index([userId], map: "commissionCalculationsUserIdFkey")
+  @@index([userId, period], map: "commissionCalculationsUserPeriodIdx")
+  @@index([calculatedAt])
   @@index([period])
   @@index([status])
-  @@index([user_id], map: "commission_calculations_user_id_fkey")
-  @@index([user_id, period], map: "commission_calculations_user_period_idx")
 }
 
-model gift_records {
-  id           String              @id
-  user_id      String
-  order_id     String
-  product_id   String
-  quantity     Int
-  value        Float
-  type         gift_records_type
-  status       gift_records_status @default(PENDING)
-  metadata     Json?
-  remarks      String?
-  created_at   DateTime            @default(now())
-  updated_at   DateTime
-  shipped_at   DateTime?
-  completed_at DateTime?
-  orders       orders              @relation(fields: [order_id], references: [id])
-  products     products            @relation(fields: [product_id], references: [id])
-  users        users               @relation(fields: [user_id], references: [id])
+model giftRecords {
+  id          String             @id
+  userId      String
+  orderId     String
+  productId   String
+  quantity    Int
+  value       Float
+  type        giftRecords_type
+  status      giftRecords_status @default(PENDING)
+  metadata    Json?
+  remarks     String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime
+  shippedAt   DateTime?
+  completedAt DateTime?
+  orders      orders             @relation(fields: [orderId], references: [id])
+  products    products           @relation(fields: [productId], references: [id])
+  users       users              @relation(fields: [userId], references: [id])
 
-  @@index([order_id], map: "gift_records_order_id_fkey")
-  @@index([product_id], map: "gift_records_product_id_fkey")
-  @@index([user_id], map: "gift_records_user_id_fkey")
+  @@index([orderId], map: "giftRecordsOrderIdFkey")
+  @@index([productId], map: "giftRecordsProductIdFkey")
+  @@index([userId], map: "giftRecordsUserIdFkey")
 }
 
-model inventory_alerts {
-  id                                        String                          @id
-  user_id                                   String
-  product_id                                String
-  spec_id                                   String?
-  shop_id                                   String?
-  alert_type                                inventory_alerts_alert_type
-  current_quantity                          Int
-  threshold                                 Int
-  warehouse_type                            inventory_alerts_warehouse_type
-  is_read                                   Boolean                         @default(false)
-  is_resolved                               Boolean                         @default(false)
-  resolved_at                               DateTime?
-  resolved_by                               String?
-  resolve_note                              String?
-  notification_sent                         Boolean                         @default(false)
-  last_notified_at                          DateTime?
-  created_at                                DateTime                        @default(now())
-  updated_at                                DateTime
-  products                                  products                        @relation(fields: [product_id], references: [id])
-  users_inventory_alerts_resolved_byTousers users?                          @relation("inventory_alerts_resolved_byTousers", fields: [resolved_by], references: [id])
-  shops                                     shops?                          @relation(fields: [shop_id], references: [id])
-  product_specs                             product_specs?                  @relation(fields: [spec_id], references: [id])
-  users_inventory_alerts_user_idTousers     users                           @relation("inventory_alerts_user_idTousers", fields: [user_id], references: [id])
-
-  @@index([product_id], map: "inventory_alerts_product_id_fkey")
-  @@index([resolved_by], map: "inventory_alerts_resolved_by_fkey")
-  @@index([shop_id], map: "inventory_alerts_shop_id_fkey")
-  @@index([spec_id], map: "inventory_alerts_spec_id_fkey")
-  @@index([user_id], map: "inventory_alerts_user_id_fkey")
-}
-
-model inventory_items {
-  id              String                         @id
-  user_id         String
-  product_id      String
-  spec_id         String?
-  shop_id         String?
-  warehouse_type  inventory_items_warehouse_type
-  quantity        Int                            @default(0)
-  frozen_quantity Int                            @default(0)
-  min_stock       Int                            @default(10)
-  last_in_at      DateTime?
-  last_out_at     DateTime?
-  last_alert_at   DateTime?
-  alert_count     Int                            @default(0)
-  created_at      DateTime                       @default(now())
-  updated_at      DateTime
-  products        products                       @relation(fields: [product_id], references: [id])
-  shops           shops?                         @relation(fields: [shop_id], references: [id])
-  product_specs   product_specs?                 @relation(fields: [spec_id], references: [id])
-  users           users                          @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@unique([user_id, product_id, spec_id, warehouse_type])
-  @@index([product_id], map: "inventory_items_product_id_fkey")
-  @@index([shop_id], map: "inventory_items_shop_id_fkey")
-  @@index([spec_id], map: "inventory_items_spec_id_fkey")
-}
-
-model inventory_logs {
+model inventoryAlerts {
   id                                      String                        @id
-  user_id                                 String
-  product_id                              String
-  spec_id                                 String?
-  shop_id                                 String?
-  operation_type                          inventory_logs_operation_type
-  quantity                                Int
-  quantity_before                         Int
-  quantity_after                          Int
-  warehouse_type                          inventory_logs_warehouse_type
-  related_order_id                        String?
-  related_purchase_id                     String?
-  adjustment_reason                       String?
-  operator_id                             String
-  operator_type                           inventory_logs_operator_type
-  remarks                                 String?
-  created_at                              DateTime                      @default(now())
-  users_inventory_logs_operator_idTousers users                         @relation("inventory_logs_operator_idTousers", fields: [operator_id], references: [id])
-  products                                products                      @relation(fields: [product_id], references: [id])
-  shops                                   shops?                        @relation(fields: [shop_id], references: [id])
-  product_specs                           product_specs?                @relation(fields: [spec_id], references: [id])
-  users_inventory_logs_user_idTousers     users                         @relation("inventory_logs_user_idTousers", fields: [user_id], references: [id])
+  userId                                  String
+  productId                               String
+  specId                                  String?
+  shopId                                  String?
+  alertType                               inventoryAlerts_alertType
+  currentQuantity                         Int
+  threshold                               Int
+  warehouseType                           inventoryAlerts_warehouseType
+  isRead                                  Boolean                       @default(false)
+  isResolved                              Boolean                       @default(false)
+  resolvedAt                              DateTime?
+  resolvedBy                              String?
+  resolveNote                             String?
+  notificationSent                        Boolean                       @default(false)
+  lastNotifiedAt                          DateTime?
+  createdAt                               DateTime                      @default(now())
+  updatedAt                               DateTime
+  products                                products                      @relation(fields: [productId], references: [id])
+  users_inventoryAlerts_resolvedByTousers users?                        @relation("inventoryAlerts_resolvedByTousers", fields: [resolvedBy], references: [id])
+  shops                                   shops?                        @relation(fields: [shopId], references: [id])
+  productSpecs                            productSpecs?                 @relation(fields: [specId], references: [id])
+  users_inventoryAlerts_userIdTousers     users                         @relation("inventoryAlerts_userIdTousers", fields: [userId], references: [id])
 
-  @@index([created_at])
-  @@index([created_at, user_id], map: "inventory_logs_date_user_idx")
-  @@index([operator_id], map: "inventory_logs_operator_id_fkey")
-  @@index([product_id], map: "inventory_logs_product_id_fkey")
-  @@index([shop_id], map: "inventory_logs_shop_id_fkey")
-  @@index([spec_id], map: "inventory_logs_spec_id_fkey")
-  @@index([user_id], map: "inventory_logs_user_id_fkey")
-  @@index([user_id, warehouse_type], map: "inventory_logs_user_warehouse_idx")
+  @@index([productId], map: "inventoryAlertsProductIdFkey")
+  @@index([resolvedBy], map: "inventoryAlertsResolvedByFkey")
+  @@index([shopId], map: "inventoryAlertsShopIdFkey")
+  @@index([specId], map: "inventoryAlertsSpecIdFkey")
+  @@index([userId], map: "inventoryAlertsUserIdFkey")
 }
 
-model inventory_stocks {
-  id                String                         @id
+model inventoryItems {
+  id             String                       @id
+  userId         String
+  productId      String
+  specId         String?
+  shopId         String?
+  warehouseType  inventoryItems_warehouseType
+  quantity       Int                          @default(0)
+  frozenQuantity Int                          @default(0)
+  minStock       Int                          @default(10)
+  lastInAt       DateTime?
+  lastOutAt      DateTime?
+  lastAlertAt    DateTime?
+  alertCount     Int                          @default(0)
+  createdAt      DateTime                     @default(now())
+  updatedAt      DateTime
+  products       products                     @relation(fields: [productId], references: [id])
+  shops          shops?                       @relation(fields: [shopId], references: [id])
+  productSpecs   productSpecs?                @relation(fields: [specId], references: [id])
+  users          users                        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId, specId, warehouseType])
+  @@index([productId], map: "inventoryItemsProductIdFkey")
+  @@index([shopId], map: "inventoryItemsShopIdFkey")
+  @@index([specId], map: "inventoryItemsSpecIdFkey")
+}
+
+model inventoryLogs {
+  id                                    String                      @id
+  userId                                String
+  productId                             String
+  specId                                String?
+  shopId                                String?
+  operationType                         inventoryLogs_operationType
+  quantity                              Int
+  quantityBefore                        Int
+  quantityAfter                         Int
+  warehouseType                         inventoryLogs_warehouseType
+  relatedOrderId                        String?
+  relatedPurchaseId                     String?
+  adjustmentReason                      String?
+  operatorId                            String
+  operatorType                          inventoryLogs_operatorType
+  remarks                               String?
+  createdAt                             DateTime                    @default(now())
+  users_inventoryLogs_operatorIdTousers users                       @relation("inventoryLogs_operatorIdTousers", fields: [operatorId], references: [id])
+  products                              products                    @relation(fields: [productId], references: [id])
+  shops                                 shops?                      @relation(fields: [shopId], references: [id])
+  productSpecs                          productSpecs?               @relation(fields: [specId], references: [id])
+  users_inventoryLogs_userIdTousers     users                       @relation("inventoryLogs_userIdTousers", fields: [userId], references: [id])
+
+  @@index([createdAt, userId], map: "inventoryLogsDateUserIdx")
+  @@index([operatorId], map: "inventoryLogsOperatorIdFkey")
+  @@index([productId], map: "inventoryLogsProductIdFkey")
+  @@index([shopId], map: "inventoryLogsShopIdFkey")
+  @@index([specId], map: "inventoryLogsSpecIdFkey")
+  @@index([userId], map: "inventoryLogsUserIdFkey")
+  @@index([userId, warehouseType], map: "inventoryLogsUserWarehouseIdx")
+  @@index([createdAt])
+}
+
+model inventoryStocks {
+  id                String                        @id
   productId         String
   specId            String?
-  warehouseType     inventory_stocks_warehouseType
+  warehouseType     inventoryStocks_warehouseType
   userId            String?
   shopId            String?
-  quantity          Int                            @default(0)
-  reservedQuantity  Int                            @default(0)
-  availableQuantity Int                            @default(0)
+  quantity          Int                           @default(0)
+  reservedQuantity  Int                           @default(0)
+  availableQuantity Int                           @default(0)
   batchNumber       String?
   location          String?
-  expiry_date       DateTime?
-  cost              Float                          @default(0)
-  salePrice         Float                          @default(0)
-  turnoverRate      Float                          @default(0)
-  outOfStockCount   Int                            @default(0)
-  created_at        DateTime                       @default(now())
-  updated_at        DateTime
-  products          products                       @relation(fields: [productId], references: [id], onDelete: Cascade)
-  shops             shops?                         @relation(fields: [shopId], references: [id])
-  product_specs     product_specs?                 @relation(fields: [specId], references: [id])
-  users             users?                         @relation(fields: [userId], references: [id])
+  expiryDate        DateTime?
+  cost              Float                         @default(0)
+  salePrice         Float                         @default(0)
+  turnoverRate      Float                         @default(0)
+  outOfStockCount   Int                           @default(0)
+  createdAt         DateTime                      @default(now())
+  updatedAt         DateTime
+  products          products                      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  shops             shops?                        @relation(fields: [shopId], references: [id])
+  productSpecs      productSpecs?                 @relation(fields: [specId], references: [id])
+  users             users?                        @relation(fields: [userId], references: [id])
 
+  @@index([specId], map: "inventoryStocksSpecIdFkey")
   @@index([productId])
   @@index([shopId])
-  @@index([specId], map: "inventory_stocks_specId_fkey")
   @@index([userId])
   @@index([warehouseType])
 }
 
-model level_upgrade_records {
-  id             String                               @id
-  user_id        String
-  previous_level level_upgrade_records_previous_level
-  new_level      level_upgrade_records_new_level
-  upgrade_type   level_upgrade_records_upgrade_type
-  approved_by_id String
-  approved_at    DateTime                             @default(now())
-  remarks        String?
-  stats          Json?
-  requirements   Json?
-  metadata       Json?
-  created_at     DateTime                             @default(now())
-  users          users                                @relation(fields: [user_id], references: [id])
+model levelUpgradeRecords {
+  id            String                            @id
+  userId        String
+  previousLevel levelUpgradeRecords_previousLevel
+  newLevel      levelUpgradeRecords_newLevel
+  upgradeType   levelUpgradeRecords_upgradeType
+  approvedById  String
+  approvedAt    DateTime                          @default(now())
+  remarks       String?
+  stats         Json?
+  requirements  Json?
+  metadata      Json?
+  createdAt     DateTime                          @default(now())
+  users         users                             @relation(fields: [userId], references: [id])
 
-  @@index([user_id], map: "level_upgrade_records_user_id_fkey")
+  @@index([userId], map: "levelUpgradeRecordsUserIdFkey")
 }
 
-model logistics_companies {
-  id                  String                            @id
-  code                String                            @unique
-  name                String
-  display_name        String
-  logo                String?
-  website             String?
-  phone               String?
-  service_scope       logistics_companies_service_scope
-  delivery_types      String
-  normal_delivery     Int                               @default(48)
-  express_delivery    Int                               @default(24)
-  api_provider        String?
-  api_config          Json?
-  api_enabled         Boolean                           @default(false)
-  is_active           Boolean                           @default(true)
-  sort                Int                               @default(0)
-  created_at          DateTime                          @default(now())
-  updated_at          DateTime
-  logistics_shipments logistics_shipments[]
+model logisticsCompanies {
+  id                 String                          @id
+  code               String                          @unique
+  name               String
+  displayName        String
+  logo               String?
+  website            String?
+  phone              String?
+  serviceScope       logisticsCompanies_serviceScope
+  deliveryTypes      String
+  normalDelivery     Int                             @default(48)
+  expressDelivery    Int                             @default(24)
+  apiProvider        String?
+  apiConfig          Json?
+  apiEnabled         Boolean                         @default(false)
+  isActive           Boolean                         @default(true)
+  sort               Int                             @default(0)
+  createdAt          DateTime                        @default(now())
+  updatedAt          DateTime
+  logisticsShipments logisticsShipments[]
 }
 
-model logistics_info {
-  id                      String                @id
-  order_id                String                @unique
-  express_company         String
-  tracking_number         String
-  status                  logistics_info_status @default(NOT_SHIPPED)
-  current_location        String?
-  estimated_delivery_date DateTime?
-  tracks                  String?
-  metadata                String?
-  created_at              DateTime              @default(now())
-  updated_at              DateTime
-  orders                  orders                @relation(fields: [order_id], references: [id], onDelete: Cascade)
+model logisticsInfo {
+  id                    String               @id
+  orderId               String               @unique
+  expressCompany        String
+  trackingNumber        String
+  status                logisticsInfo_status @default(NOT_SHIPPED)
+  currentLocation       String?
+  estimatedDeliveryDate DateTime?
+  tracks                String?
+  metadata              String?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime
+  orders                orders               @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
-model logistics_shipments {
-  id                   String                            @id
-  shipment_no          String                            @unique
-  order_id             String
-  user_id              String
-  company_id           String
-  tracking_number      String
-  express_type         String?
-  sender_name          String
-  sender_phone         String
-  sender_address       String
-  sender_province      String?
-  sender_city          String?
-  sender_district      String?
-  sender_postal_code   String?
-  receiver_name        String
-  receiver_phone       String
-  receiver_address     String
-  receiver_province    String?
-  receiver_city        String?
-  receiver_district    String?
-  receiver_postal_code String?
-  package_count        Int                               @default(1)
-  package_weight       Float?
-  package_volume       Float?
-  package_desc         String?
-  goods_value          Float?
-  delivery_type        logistics_shipments_delivery_type @default(STANDARD)
-  delivery_fee         Float                             @default(0)
-  cod_amount           Float?
-  estimated_delivery   DateTime?
-  actual_delivery      DateTime?
-  delivery_photo       String?
-  delivery_signature   String?
-  status               logistics_shipments_status        @default(NOT_SHIPPED)
-  last_status          String?
-  last_location        String?
-  is_exception         Boolean                           @default(false)
-  exception_reason     String?
-  exception_time       DateTime?
-  resolved_at          DateTime?
-  api_synced_at        DateTime?
-  sync_status          logistics_shipments_sync_status   @default(PENDING)
-  remarks              String?
-  created_at           DateTime                          @default(now())
-  updated_at           DateTime
-  shipped_at           DateTime?
-  completed_at         DateTime?
-  logistics_companies  logistics_companies               @relation(fields: [company_id], references: [id])
-  orders               orders                            @relation(fields: [order_id], references: [id])
-  users                users                             @relation(fields: [user_id], references: [id])
-  logistics_tracks     logistics_tracks[]
+model logisticsShipments {
+  id                 String                          @id
+  shipmentNo         String                          @unique
+  orderId            String
+  userId             String
+  companyId          String
+  trackingNumber     String
+  expressType        String?
+  senderName         String
+  senderPhone        String
+  senderAddress      String
+  senderProvince     String?
+  senderCity         String?
+  senderDistrict     String?
+  senderPostalCode   String?
+  receiverName       String
+  receiverPhone      String
+  receiverAddress    String
+  receiverProvince   String?
+  receiverCity       String?
+  receiverDistrict   String?
+  receiverPostalCode String?
+  packageCount       Int                             @default(1)
+  packageWeight      Float?
+  packageVolume      Float?
+  packageDesc        String?
+  goodsValue         Float?
+  deliveryType       logisticsShipments_deliveryType @default(STANDARD)
+  deliveryFee        Float                           @default(0)
+  codAmount          Float?
+  estimatedDelivery  DateTime?
+  actualDelivery     DateTime?
+  deliveryPhoto      String?
+  deliverySignature  String?
+  status             logisticsShipments_status       @default(NOT_SHIPPED)
+  lastStatus         String?
+  lastLocation       String?
+  isException        Boolean                         @default(false)
+  exceptionReason    String?
+  exceptionTime      DateTime?
+  resolvedAt         DateTime?
+  apiSyncedAt        DateTime?
+  syncStatus         logisticsShipments_syncStatus   @default(PENDING)
+  remarks            String?
+  createdAt          DateTime                        @default(now())
+  updatedAt          DateTime
+  shippedAt          DateTime?
+  completedAt        DateTime?
+  logisticsCompanies logisticsCompanies              @relation(fields: [companyId], references: [id])
+  orders             orders                          @relation(fields: [orderId], references: [id])
+  users              users                           @relation(fields: [userId], references: [id])
+  logisticsTracks    logisticsTracks[]
 
-  @@index([company_id], map: "logistics_shipments_company_id_fkey")
-  @@index([order_id], map: "logistics_shipments_order_id_fkey")
-  @@index([user_id], map: "logistics_shipments_user_id_fkey")
+  @@index([companyId], map: "logisticsShipmentsCompanyIdFkey")
+  @@index([orderId], map: "logisticsShipmentsOrderIdFkey")
+  @@index([userId], map: "logisticsShipmentsUserIdFkey")
 }
 
-model logistics_tracks {
-  id                  String                  @id
-  shipment_id         String
-  time                DateTime
-  status              String
-  location            String?
-  description         String?
-  operator            String?
-  operatorPhone       String?
-  source              logistics_tracks_source @default(MANUAL)
-  source_code         String?
-  created_at          DateTime                @default(now())
-  logistics_shipments logistics_shipments     @relation(fields: [shipment_id], references: [id], onDelete: Cascade)
+model logisticsTracks {
+  id                 String                 @id
+  shipmentId         String
+  time               DateTime
+  status             String
+  location           String?
+  description        String?
+  operator           String?
+  operatorPhone      String?
+  source             logisticsTracks_source @default(MANUAL)
+  sourceCode         String?
+  createdAt          DateTime               @default(now())
+  logisticsShipments logisticsShipments     @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
 
-  @@index([shipment_id], map: "logistics_tracks_shipment_id_fkey")
+  @@index([shipmentId], map: "logisticsTracksShipmentIdFkey")
 }
 
-model notification_channels {
-  id              String                             @id
-  channel_type    notification_channels_channel_type
+model notificationChannels {
+  id             String                           @id
+  channelType    notificationChannels_channelType
+  name           String
+  description    String?
+  config         Json
+  isActive       Boolean                          @default(true)
+  canRetry       Boolean                          @default(true)
+  maxRetries     Int                              @default(3)
+  timeoutSeconds Int                              @default(30)
+  dailyLimit     Int?
+  rateLimit      Int?
+  batchSize      Int                              @default(100)
+  createdAt      DateTime                         @default(now())
+  updatedAt      DateTime
+}
+
+model notificationPreferences {
+  id                 String   @id
+  userId             String   @unique
+  isEnabled          Boolean  @default(true)
+  quietHoursStart    String?
+  quietHoursEnd      String?
+  channelPreferences Json
+  categorySettings   Json
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime
+  users              users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model notificationStatistics {
+  id                  String                             @id
+  date                DateTime
+  category            notificationStatistics_category
+  channelType         notificationStatistics_channelType
+  totalSent           Int                                @default(0)
+  totalSuccess        Int                                @default(0)
+  totalFailed         Int                                @default(0)
+  successRate         Float                              @default(0)
+  averageResponseTime Float?
+  errorReasons        Json?
+  createdAt           DateTime                           @default(now())
+  updatedAt           DateTime
+
+  @@unique([date, category, channelType])
+}
+
+model notificationTemplates {
+  id              String                         @id
+  code            String                         @unique
   name            String
-  description     String?
-  config          Json
-  is_active       Boolean                            @default(true)
-  canRetry        Boolean                            @default(true)
-  max_retries     Int                                @default(3)
-  timeout_seconds Int                                @default(30)
-  daily_limit     Int?
-  rate_limit      Int?
-  batch_size      Int                                @default(100)
-  created_at      DateTime                           @default(now())
-  updated_at      DateTime
-}
-
-model notification_preferences {
-  id                  String   @id
-  user_id             String   @unique
-  is_enabled          Boolean  @default(true)
-  quiet_hours_start   String?
-  quiet_hours_end     String?
-  channel_preferences Json
-  category_settings   Json
-  created_at          DateTime @default(now())
-  updated_at          DateTime
-  users               users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
-}
-
-model notification_statistics {
-  id                    String                               @id
-  date                  DateTime
-  category              notification_statistics_category
-  channel_type          notification_statistics_channel_type
-  total_sent            Int                                  @default(0)
-  total_success         Int                                  @default(0)
-  total_failed          Int                                  @default(0)
-  successRate           Float                                @default(0)
-  average_response_time Float?
-  errorReasons          Json?
-  created_at            DateTime                             @default(now())
-  updated_at            DateTime
-
-  @@unique([date, category, channel_type])
-}
-
-model notification_templates {
-  id              String                          @id
-  code            String                          @unique
-  name            String
-  category        notification_templates_category
+  category        notificationTemplates_category
   title           String
   content         String
   variables       Json?
   enabledChannels Json
   defaultChannels String
-  isSystem        Boolean                         @default(false)
-  isActive        Boolean                         @default(true)
-  priority        notification_templates_priority @default(NORMAL)
-  daily_limit     Int?
-  rate_limit      Int?
-  created_at      DateTime                        @default(now())
-  updated_at      DateTime
+  isSystem        Boolean                        @default(false)
+  isActive        Boolean                        @default(true)
+  priority        notificationTemplates_priority @default(NORMAL)
+  dailyLimit      Int?
+  rateLimit       Int?
+  createdAt       DateTime                       @default(now())
+  updatedAt       DateTime
   notifications   notifications[]
 }
 
 model notifications {
-  id                     String                       @id
-  recipient_id           String
-  recipient_type         notifications_recipient_type
-  template_id            String?
-  category               notifications_category
-  type                   notifications_type
-  title                  String
-  content                String
-  variables              Json?
-  channels               Json
-  sent_channels          String
-  failed_channels        String?
-  status                 notifications_status         @default(PENDING)
-  priority               notifications_priority       @default(NORMAL)
-  is_read                Boolean                      @default(false)
-  read_at                DateTime?
-  sendResult             Json?
-  error_reason           String?
-  retry_count            Int                          @default(0)
-  max_retries            Int                          @default(3)
-  related_type           String?
-  related_id             String?
-  businessData           Json?
-  scheduled_at           DateTime?
-  sent_at                DateTime?
-  completed_at           DateTime?
-  created_at             DateTime                     @default(now())
-  updated_at             DateTime
-  users                  users                        @relation(fields: [recipient_id], references: [id], onDelete: Cascade)
-  notification_templates notification_templates?      @relation(fields: [template_id], references: [id])
+  id                    String                      @id
+  recipientId           String
+  recipientType         notifications_recipientType
+  templateId            String?
+  category              notifications_category
+  type                  notifications_type
+  title                 String
+  content               String
+  variables             Json?
+  channels              Json
+  sentChannels          String
+  failedChannels        String?
+  status                notifications_status        @default(PENDING)
+  priority              notifications_priority      @default(NORMAL)
+  isRead                Boolean                     @default(false)
+  readAt                DateTime?
+  sendResult            Json?
+  errorReason           String?
+  retryCount            Int                         @default(0)
+  maxRetries            Int                         @default(3)
+  relatedType           String?
+  relatedId             String?
+  businessData          Json?
+  scheduledAt           DateTime?
+  sentAt                DateTime?
+  completedAt           DateTime?
+  createdAt             DateTime                    @default(now())
+  updatedAt             DateTime
+  users                 users                       @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  notificationTemplates notificationTemplates?      @relation(fields: [templateId], references: [id])
 
-  @@index([recipient_id], map: "notifications_recipient_id_fkey")
-  @@index([template_id], map: "notifications_template_id_fkey")
+  @@index([recipientId, id], map: "idx_notifications_recipient_id")
+  @@index([recipientId, isRead], map: "idx_notifications_recipient_read")
+  @@index([recipientId], map: "notificationsRecipientIdFkey")
+  @@index([templateId], map: "notificationsTemplateIdFkey")
 }
 
-model order_items {
-  id              String         @id
-  order_id        String
-  product_id      String
-  product_name    String
-  product_spec    String?
-  product_image   String?
-  quantity        Int
-  discount_amount Float          @default(0)
-  final_price     Float
-  metadata        String?
-  sku_id          String?
-  total_price     Float
-  unit_price      Float
-  orders          orders         @relation(fields: [order_id], references: [id], onDelete: Cascade)
-  products        products       @relation(fields: [product_id], references: [id])
-  product_specs   product_specs? @relation(fields: [sku_id], references: [id])
+model orderItems {
+  id             String        @id
+  orderId        String
+  productId      String
+  productName    String
+  productSpec    String?
+  productImage   String?
+  quantity       Int
+  discountAmount Float         @default(0)
+  finalPrice     Float
+  metadata       String?
+  skuId          String?
+  totalPrice     Float
+  unitPrice      Float
+  orders         orders        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  products       products      @relation(fields: [productId], references: [id])
+  productSpecs   productSpecs? @relation(fields: [skuId], references: [id])
 
-  @@index([order_id], map: "order_items_order_id_fkey")
-  @@index([product_id], map: "order_items_product_id_fkey")
-  @@index([sku_id], map: "order_items_sku_id_fkey")
+  @@index([orderId], map: "orderItemsOrderIdFkey")
+  @@index([productId], map: "orderItemsProductIdFkey")
+  @@index([skuId], map: "orderItemsSkuIdFkey")
 }
 
 model orders {
-  id                            String                @id
-  order_no                      String                @unique
-  total_amount                  Float
-  discount_amount               Float                 @default(0)
-  final_amount                  Float
-  status                        orders_status         @default(PENDING)
-  paymentStatus                 orders_paymentStatus  @default(UNPAID)
-  created_at                    DateTime              @default(now())
-  updated_at                    DateTime
-  paid_at                       DateTime?
-  shipped_at                    DateTime?
-  delivered_at                  DateTime?
-  buyer_id                      String
-  buyer_notes                   String?
-  cancelled_at                  DateTime?
-  cash_amount                   Float?
-  completed_at                  DateTime?
-  metadata                      String?
-  paymentMethod                 orders_paymentMethod?
-  points_amount                 Float?
-  promotion_info                String?
-  seller_id                     String?
-  seller_notes                  String?
-  shipping_address              String?
-  shipping_fee                  Float                 @default(0)
-  type                          orders_type
-  gift_records                  gift_records[]
-  logistics_info                logistics_info?
-  logistics_shipments           logistics_shipments[]
-  order_items                   order_items[]
-  users_orders_buyer_idTousers  users                 @relation("orders_buyer_idTousers", fields: [buyer_id], references: [id])
-  users_orders_seller_idTousers users?                @relation("orders_seller_idTousers", fields: [seller_id], references: [id])
-  payment_records               payment_records[]
+  id                           String                @id
+  orderNo                      String                @unique
+  totalAmount                  Float
+  discountAmount               Float                 @default(0)
+  finalAmount                  Float
+  status                       orders_status         @default(PENDING)
+  paymentStatus                orders_paymentStatus  @default(UNPAID)
+  createdAt                    DateTime              @default(now())
+  updatedAt                    DateTime
+  paidAt                       DateTime?
+  shippedAt                    DateTime?
+  deliveredAt                  DateTime?
+  buyerId                      String
+  buyerNotes                   String?
+  cancelledAt                  DateTime?
+  cashAmount                   Float?
+  completedAt                  DateTime?
+  metadata                     String?
+  paymentMethod                orders_paymentMethod?
+  pointsAmount                 Float?
+  promotionInfo                String?
+  sellerId                     String?
+  sellerNotes                  String?
+  shippingAddress              String?
+  shippingFee                  Float                 @default(0)
+  type                         orders_type
+  giftRecords                  giftRecords[]
+  logisticsInfo                logisticsInfo?
+  logisticsShipments           logisticsShipments[]
+  orderItems                   orderItems[]
+  users_orders_buyerIdTousers  users                 @relation("orders_buyerIdTousers", fields: [buyerId], references: [id])
+  users_orders_sellerIdTousers users?                @relation("orders_sellerIdTousers", fields: [sellerId], references: [id])
+  paymentRecords               paymentRecords[]
 
-  @@index([buyer_id], map: "orders_buyer_id_fkey")
-  @@index([buyer_id, status], map: "orders_buyer_status_idx")
-  @@index([created_at])
-  @@index([paymentStatus], map: "orders_payment_status_idx")
-  @@index([seller_id], map: "orders_seller_id_fkey")
+  @@index([buyerId], map: "ordersBuyerIdFkey")
+  @@index([buyerId, status], map: "ordersBuyerStatusIdx")
+  @@index([paymentStatus], map: "ordersPaymentStatusIdx")
+  @@index([sellerId], map: "ordersSellerIdFkey")
+  @@index([createdAt])
   @@index([status])
 }
 
-model payment_locks {
-  id         String   @id
-  lockKey    String   @unique
-  order_id   String
-  user_id    String
-  amount     Float
-  expires_at DateTime
-  is_active  Boolean  @default(true)
-  created_at DateTime @default(now())
-  updated_at DateTime
+model paymentLocks {
+  id        String   @id
+  lockKey   String   @unique
+  orderId   String
+  userId    String
+  amount    Float
+  expiresAt DateTime
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
 
-  @@index([expires_at])
+  @@index([expiresAt])
   @@index([lockKey])
-  @@index([order_id])
-  @@index([user_id])
+  @@index([orderId])
+  @@index([userId])
 }
 
-model payment_logs {
-  id              String                      @id
-  payment_id      String
-  action          payment_logs_action
-  description     String
-  before_status   payment_logs_before_status?
-  after_status    payment_logs_after_status?
-  request_data    String?
-  response_data   String?
-  operator_id     String?
-  client_ip       String?
-  user_agent      String?
-  extra           String?
-  created_at      DateTime                    @default(now())
-  users           users?                      @relation(fields: [operator_id], references: [id])
-  payment_records payment_records             @relation(fields: [payment_id], references: [id], onDelete: Cascade)
+model paymentLogs {
+  id             String                    @id
+  paymentId      String
+  action         paymentLogs_action
+  description    String
+  beforeStatus   paymentLogs_beforeStatus?
+  afterStatus    paymentLogs_afterStatus?
+  requestData    String?
+  responseData   String?
+  operatorId     String?
+  clientIp       String?
+  userAgent      String?
+  extra          String?
+  createdAt      DateTime                  @default(now())
+  users          users?                    @relation(fields: [operatorId], references: [id])
+  paymentRecords paymentRecords            @relation(fields: [paymentId], references: [id], onDelete: Cascade)
 
+  @@index([operatorId], map: "paymentLogsOperatorIdFkey")
   @@index([action])
-  @@index([created_at])
-  @@index([operator_id], map: "payment_logs_operator_id_fkey")
-  @@index([payment_id])
+  @@index([createdAt])
+  @@index([paymentId])
 }
 
-model payment_reconciliations {
-  id                String                         @id
-  reconcile_no      String                         @unique
-  reconcile_date    DateTime
-  total_count       Int                            @default(0)
-  total_amount      Float                          @default(0)
-  success_count     Int                            @default(0)
-  success_amount    Float                          @default(0)
-  failed_count      Int                            @default(0)
-  failed_amount     Float                          @default(0)
-  status            payment_reconciliations_status @default(PENDING)
-  error_message     String?
-  channel_data_file String?
-  system_data_file  String?
-  report_file       String?
-  extra             String?
-  created_at        DateTime                       @default(now())
-  updated_at        DateTime
-  completed_at      DateTime?
+model paymentCallbackLogs {
+  id              String   @id
+  provider        String   // WECHAT, ALIPAY
+  orderId         String?  // 关联的订单ID
+  transactionId   String?  // 支付平台交易号
+  callbackId      String   // 回调唯一标识
+  ip              String   // 请求IP
+  action          String   // RECEIVED, VERIFIED, PROCESSED, FAILED, REJECTED
+  details         Json     // 详细信息
+  rawRequest      String?  // 原始请求数据
+  processingTime  Int?     // 处理耗时（毫秒）
+  createdAt       DateTime @default(now())
 
-  @@index([reconcile_date])
+  @@index([provider, callbackId])
+  @@index([orderId])
+  @@index([transactionId])
+  @@index([ip])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model paymentRetryTasks {
+  id            String   @id
+  type          String   // PAYMENT_PROCESS, COMMISSION_CALC, INVENTORY_ADJUST, REFUND_PROCESS
+  data          Json     // 任务数据
+  attempt       Int      @default(0)
+  maxRetries    Int      @default(5)
+  nextRetryAt   DateTime
+  lastError     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime
+
+  @@index([type, nextRetryAt])
+  @@index([attempt])
+}
+
+model paymentCompensations {
+  id            String                           @id
+  orderId       String
+  transactionId String?
+  type          paymentCompensations_type
+  status        paymentCompensations_status     @default(PENDING)
+  reason        String
+  data          Json
+  createdAt     DateTime                         @default(now())
+  processedAt   DateTime?
+  updatedAt     DateTime                         @default(now())
+
+  @@index([orderId])
+  @@index([transactionId])
+  @@index([type, status])
+}
+
+model paymentReconciliations {
+  id              String                        @id
+  reconcileNo     String                        @unique
+  reconcileDate   DateTime
+  totalCount      Int                           @default(0)
+  totalAmount     Float                         @default(0)
+  successCount    Int                           @default(0)
+  successAmount   Float                         @default(0)
+  failedCount     Int                           @default(0)
+  failedAmount    Float                         @default(0)
+  status          paymentReconciliations_status @default(PENDING)
+  errorMessage    String?
+  channelDataFile String?
+  systemDataFile  String?
+  reportFile      String?
+  extra           String?
+  createdAt       DateTime                      @default(now())
+  updatedAt       DateTime
+  completedAt     DateTime?
+
+  @@index([reconcileDate])
   @@index([status])
 }
 
-model payment_records {
-  id                     String                          @id
-  order_id               String?
-  payment_method         payment_records_payment_method
-  amount                 Float
-  status                 payment_records_status
-  paid_at                DateTime?
-  created_at             DateTime                        @default(now())
-  updated_at             DateTime
-  channel_order_id       String?
-  channel_transaction_id String?
-  client_ip              String?
-  currency               String                          @default("CNY")
-  description            String?
-  expired_at             DateTime?
-  extra                  String?
-  notified_at            DateTime?
-  notify_data            String?
-  payment_channel        payment_records_payment_channel
-  payment_no             String                          @unique
-  prepay_id              String?
-  subject                String?
-  user_agent             String?
-  user_id                String
-  payment_logs           payment_logs[]
-  orders                 orders?                         @relation(fields: [order_id], references: [id])
-  users                  users                           @relation(fields: [user_id], references: [id])
-  payment_refunds        payment_refunds[]
+model paymentRecords {
+  id                   String                        @id
+  orderId              String?
+  paymentMethod        paymentRecords_paymentMethod
+  amount               Float
+  status               paymentRecords_status
+  paidAt               DateTime?
+  createdAt            DateTime                      @default(now())
+  updatedAt            DateTime
+  channelOrderId       String?
+  channelTransactionId String?
+  clientIp             String?
+  currency             String                        @default("CNY")
+  description          String?
+  expiredAt            DateTime?
+  extra                String?
+  notifiedAt           DateTime?
+  notifyData           String?
+  paymentChannel       paymentRecords_paymentChannel
+  paymentNo            String                        @unique
+  prepayId             String?
+  subject              String?
+  userAgent            String?
+  userId               String
+  paymentLogs          paymentLogs[]
+  orders               orders?                       @relation(fields: [orderId], references: [id])
+  users                users                         @relation(fields: [userId], references: [id])
+  paymentRefunds       paymentRefunds[]
 
-  @@index([channel_order_id])
-  @@index([created_at])
-  @@index([order_id])
-  @@index([payment_channel])
+  @@index([channelOrderId])
+  @@index([createdAt])
+  @@index([orderId])
+  @@index([paymentChannel])
   @@index([status])
-  @@index([user_id])
+  @@index([userId])
 }
 
-model payment_refunds {
-  id                                           String                 @id
-  refund_no                                    String                 @unique
-  payment_id                                   String
-  refund_amount                                Float
-  refund_reason                                String?
-  apply_user_id                                String
-  approve_user_id                              String?
-  channel_refund_id                            String?
-  channel_transaction_id                       String?
-  status                                       payment_refunds_status @default(PENDING)
-  refunded_at                                  DateTime?
-  failed_reason                                String?
-  notify_data                                  String?
-  notified_at                                  DateTime?
-  extra                                        String?
-  created_at                                   DateTime               @default(now())
-  updated_at                                   DateTime
-  users_payment_refunds_apply_user_idTousers   users                  @relation("payment_refunds_apply_user_idTousers", fields: [apply_user_id], references: [id])
-  users_payment_refunds_approve_user_idTousers users?                 @relation("payment_refunds_approve_user_idTousers", fields: [approve_user_id], references: [id])
-  payment_records                              payment_records        @relation(fields: [payment_id], references: [id], onDelete: Cascade)
+model paymentRefunds {
+  id                                        String                @id
+  refundNo                                  String                @unique
+  paymentId                                 String
+  refundAmount                              Float
+  refundReason                              String?
+  applyUserId                               String
+  approveUserId                             String?
+  channelRefundId                           String?
+  channelTransactionId                      String?
+  status                                    paymentRefunds_status @default(PENDING)
+  refundedAt                                DateTime?
+  failedReason                              String?
+  notifyData                                String?
+  notifiedAt                                DateTime?
+  extra                                     String?
+  createdAt                                 DateTime              @default(now())
+  updatedAt                                 DateTime
+  users_paymentRefunds_applyUserIdTousers   users                 @relation("paymentRefunds_applyUserIdTousers", fields: [applyUserId], references: [id])
+  users_paymentRefunds_approveUserIdTousers users?                @relation("paymentRefunds_approveUserIdTousers", fields: [approveUserId], references: [id])
+  paymentRecords                            paymentRecords        @relation(fields: [paymentId], references: [id], onDelete: Cascade)
 
-  @@index([apply_user_id])
-  @@index([approve_user_id], map: "payment_refunds_approve_user_id_fkey")
-  @@index([payment_id])
+  @@index([approveUserId], map: "paymentRefundsApproveUserIdFkey")
+  @@index([applyUserId])
+  @@index([paymentId])
   @@index([status])
 }
 
-model performance_metrics {
-  id                  String                           @id
-  user_id             String
-  period              String
-  personal_sales      Float                            @default(0)
-  personal_orders     Int                              @default(0)
-  new_customers       Int                              @default(0)
-  repeat_rate         Float                            @default(0)
-  average_order_value Float                            @default(0)
-  team_sales          Float                            @default(0)
-  team_orders         Int                              @default(0)
-  new_members         Int                              @default(0)
-  active_rate         Float                            @default(0)
-  direct_referrals    Int                              @default(0)
-  referral_revenue    Float                            @default(0)
-  current_role        performance_metrics_current_role @default(MEMBER)
-  progress_percentage Float                            @default(0)
-  requirements_met    Json?
-  calculation_date    DateTime                         @default(now())
-  created_at          DateTime                         @default(now())
-  updated_at          DateTime
-  users               users                            @relation(fields: [user_id], references: [id], onDelete: Cascade)
+model performanceMetrics {
+  id                 String                         @id
+  userId             String
+  period             String
+  personalSales      Float                          @default(0)
+  personalOrders     Int                            @default(0)
+  newCustomers       Int                            @default(0)
+  repeatRate         Float                          @default(0)
+  averageOrderValue  Float                          @default(0)
+  teamSales          Float                          @default(0)
+  teamOrders         Int                            @default(0)
+  newMembers         Int                            @default(0)
+  activeRate         Float                          @default(0)
+  directReferrals    Int                            @default(0)
+  referralRevenue    Float                          @default(0)
+  currentRole        performanceMetrics_currentRole @default(MEMBER)
+  progressPercentage Float                          @default(0)
+  requirementsMet    Json?
+  calculationDate    DateTime                       @default(now())
+  createdAt          DateTime                       @default(now())
+  updatedAt          DateTime
+  users              users                          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([user_id, period])
+  @@unique([userId, period])
 }
 
-model points_transactions {
-  id                                            String                     @id
-  transaction_no                                String                     @unique
-  from_user_id                                  String?
-  to_user_id                                    String
-  amount                                        Float
-  type                                          points_transactions_type
-  related_order_id                              String?
-  description                                   String?
-  metadata                                      Json?
-  status                                        points_transactions_status @default(PENDING)
-  balance_before                                Float
-  balance_after                                 Float
-  created_at                                    DateTime                   @default(now())
-  completed_at                                  DateTime?
-  users_points_transactions_from_user_idTousers users?                     @relation("points_transactions_from_user_idTousers", fields: [from_user_id], references: [id])
-  users_points_transactions_to_user_idTousers   users                      @relation("points_transactions_to_user_idTousers", fields: [to_user_id], references: [id])
+model pointsTransactions {
+  id                                         String                    @id
+  transactionNo                              String                    @unique
+  fromUserId                                 String?
+  toUserId                                   String
+  amount                                     Float
+  type                                       pointsTransactions_type
+  relatedOrderId                             String?
+  description                                String?
+  metadata                                   Json?
+  status                                     pointsTransactions_status @default(PENDING)
+  balanceBefore                              Float
+  balanceAfter                               Float
+  createdAt                                  DateTime                  @default(now())
+  completedAt                                DateTime?
+  users_pointsTransactions_fromUserIdTousers users?                    @relation("pointsTransactions_fromUserIdTousers", fields: [fromUserId], references: [id])
+  users_pointsTransactions_toUserIdTousers   users                     @relation("pointsTransactions_toUserIdTousers", fields: [toUserId], references: [id])
 
-  @@index([from_user_id], map: "points_transactions_from_user_id_fkey")
-  @@index([to_user_id], map: "points_transactions_to_user_id_fkey")
+  @@index([fromUserId], map: "pointsTransactionsFromUserIdFkey")
+  @@index([toUserId], map: "pointsTransactionsToUserIdFkey")
+  @@index([fromUserId, toUserId], map: "idx_points_transactions_user")
+  @@index([fromUserId, createdAt], map: "idx_points_transactions_from_time")
+  @@index([toUserId, createdAt], map: "idx_points_transactions_to_time")
+  @@index([type, createdAt], map: "idx_points_transactions_type_time")
+  @@index([status, createdAt], map: "idx_points_transactions_status_time")
 }
 
-model product_categories {
-  id                       String               @id
-  name                     String
-  parent_id                String?
-  level                    Int                  @default(1)
-  sort                     Int                  @default(0)
-  icon                     String?
-  description              String?
-  is_active                Boolean              @default(true)
-  created_at               DateTime             @default(now())
-  updated_at               DateTime
-  product_categories       product_categories?  @relation("product_categoriesToproduct_categories", fields: [parent_id], references: [id])
-  other_product_categories product_categories[] @relation("product_categoriesToproduct_categories")
-  products                 products[]
+model productCategories {
+  id                      String              @id
+  name                    String
+  parentId                String?
+  level                   Int                 @default(1)
+  sort                    Int                 @default(0)
+  icon                    String?
+  description             String?
+  isActive                Boolean             @default(true)
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime
+  productCategories       productCategories?  @relation("productCategoriesToproductCategories", fields: [parentId], references: [id])
+  other_productCategories productCategories[] @relation("productCategoriesToproductCategories")
+  products                products[]
 
-  @@index([parent_id], map: "product_categories_parent_id_fkey")
+  @@index([parentId], map: "productCategoriesParentIdFkey")
+  @@index([isActive, level, sort], map: "idx_categories_level_sort")
+  @@index([isActive, parentId], map: "idx_categories_parent_active")
+  @@index([isActive, sort], map: "idx_categories_active_sort")
 }
 
-model product_pricings {
-  id            String                      @id
-  product_id    String
-  spec_id       String?
-  user_level    product_pricings_user_level
-  price         Float
-  created_at    DateTime                    @default(now())
-  updated_at    DateTime
-  products      products                    @relation(fields: [product_id], references: [id], onDelete: Cascade)
-  product_specs product_specs?              @relation(fields: [spec_id], references: [id])
+model productPricings {
+  id           String                    @id
+  productId    String
+  specId       String?
+  userLevel    productPricings_userLevel
+  price        Float
+  createdAt    DateTime                  @default(now())
+  updatedAt    DateTime
+  products     products                  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productSpecs productSpecs?             @relation(fields: [specId], references: [id])
 
-  @@unique([product_id, spec_id, user_level])
-  @@index([spec_id], map: "product_pricings_spec_id_fkey")
+  @@unique([productId, specId, userLevel])
+  @@index([specId], map: "productPricingsSpecIdFkey")
+  @@index([productId, userLevel], map: "idx_pricings_product_level")
 }
 
-model product_specs {
-  id               String             @id
-  product_id       String
-  name             String
-  sku              String             @unique
-  price            Float
-  stock            Int                @default(0)
-  minStock         Int                @default(10)
-  images           String?
-  is_active        Boolean            @default(true)
-  sort             Int                @default(0)
-  created_at       DateTime           @default(now())
-  updated_at       DateTime
-  inventory_alerts inventory_alerts[]
-  inventory_items  inventory_items[]
-  inventory_logs   inventory_logs[]
-  inventory_stocks inventory_stocks[]
-  order_items      order_items[]
-  product_pricings product_pricings[]
-  products         products           @relation(fields: [product_id], references: [id], onDelete: Cascade)
+model productSpecs {
+  id              String            @id
+  productId       String
+  name            String
+  sku             String            @unique
+  price           Float
+  stock           Int               @default(0)
+  minStock        Int               @default(10)
+  images          String?
+  isActive        Boolean           @default(true)
+  sort            Int               @default(0)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime
+  inventoryAlerts inventoryAlerts[]
+  inventoryItems  inventoryItems[]
+  inventoryLogs   inventoryLogs[]
+  inventoryStocks inventoryStocks[]
+  orderItems      orderItems[]
+  productPricings productPricings[]
+  products        products          @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  @@index([product_id], map: "product_specs_product_id_fkey")
+  @@index([productId], map: "productSpecsProductIdFkey")
+  @@index([productId, isActive, sort], map: "idx_specs_product_active_sort")
+  @@index([productId, name], map: "idx_specs_product_name")
+  @@index([isActive, sort], map: "idx_specs_active_sort")
 }
 
-model product_tag_links {
-  id           String       @id
-  product_id   String
-  tag_id       String
-  created_at   DateTime     @default(now())
-  products     products     @relation(fields: [product_id], references: [id], onDelete: Cascade)
-  product_tags product_tags @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+model productTagLinks {
+  id          String      @id
+  productId   String
+  tagId       String
+  createdAt   DateTime    @default(now())
+  products    products    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productTags productTags @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
-  @@unique([product_id, tag_id])
-  @@index([tag_id], map: "product_tag_links_tag_id_fkey")
+  @@unique([productId, tagId])
+  @@index([tagId], map: "productTagLinksTagIdFkey")
 }
 
-model product_tags {
-  id                String              @id
-  name              String              @unique
-  color             String?
-  description       String?
-  sort              Int                 @default(0)
-  created_at        DateTime            @default(now())
-  updated_at        DateTime
-  product_tag_links product_tag_links[]
+model productTags {
+  id              String            @id
+  name            String            @unique
+  color           String?
+  description     String?
+  sort            Int               @default(0)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime
+  productTagLinks productTagLinks[]
+
+  @@index([name, sort], map: "idx_tags_name_sort")
+  @@index([sort], map: "idx_tags_sort")
 }
 
 model products {
-  id                 String              @id
-  category_id        String
-  name               String
-  description        String?
-  code               String              @unique
-  sku                String              @unique
-  base_price         Float
-  total_stock        Int                 @default(0)
-  min_stock          Int                 @default(10)
-  images             String
-  video_url          String?
-  details            Json?
-  status             products_status     @default(ACTIVE)
-  is_featured        Boolean             @default(false)
-  sort               Int                 @default(0)
-  schedule_on_at     DateTime?
-  schedule_off_at    DateTime?
-  created_at         DateTime            @default(now())
-  updated_at         DateTime
-  shop_id            String?
-  gift_records       gift_records[]
-  inventory_alerts   inventory_alerts[]
-  inventory_items    inventory_items[]
-  inventory_logs     inventory_logs[]
-  inventory_stocks   inventory_stocks[]
-  order_items        order_items[]
-  product_pricings   product_pricings[]
-  product_specs      product_specs[]
-  product_tag_links  product_tag_links[]
-  product_categories product_categories  @relation(fields: [category_id], references: [id])
-  shops              shops?              @relation(fields: [shop_id], references: [id])
-  purchase_orders    purchase_orders[]
+  id                String            @id
+  categoryId        String
+  name              String
+  description       String?
+  code              String            @unique
+  sku               String            @unique
+  basePrice         Float
+  totalStock        Int               @default(0)
+  minStock          Int               @default(10)
+  images            String
+  videoUrl          String?
+  details           Json?
+  status            products_status   @default(ACTIVE)
+  isFeatured        Boolean           @default(false)
+  sort              Int               @default(0)
+  scheduleOnAt      DateTime?
+  scheduleOffAt     DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime
+  shopId            String?
+  giftRecords       giftRecords[]
+  inventoryAlerts   inventoryAlerts[]
+  inventoryItems    inventoryItems[]
+  inventoryLogs     inventoryLogs[]
+  inventoryStocks   inventoryStocks[]
+  orderItems        orderItems[]
+  productPricings   productPricings[]
+  productSpecs      productSpecs[]
+  productTagLinks   productTagLinks[]
+  productCategories productCategories @relation(fields: [categoryId], references: [id])
+  shops             shops?            @relation(fields: [shopId], references: [id])
+  purchaseOrders    purchaseOrders[]
 
-  @@index([category_id], map: "products_category_id_fkey")
-  @@index([shop_id], map: "products_shop_id_fkey")
+  @@index([categoryId], map: "productsCategoryIdFkey")
+  @@index([shopId], map: "productsShopIdFkey")
+  @@index([status, isFeatured, sort, createdAt], map: "idx_products_status_featured")
+  @@index([status, categoryId, sort], map: "idx_products_status_category")
+  @@index([status, sort, createdAt], map: "idx_products_status_sort")
+  @@index([name], map: "idx_products_name")
+  @@index([code], map: "idx_products_code")
+  @@index([sku], map: "idx_products_sku")
 }
 
-model purchase_orders {
-  id                                     String                 @id
-  order_no                               String                 @unique
-  buyer_id                               String
-  seller_id                              String
-  product_id                             String
-  quantity                               Int
-  unit_price                             Float
-  total_amount                           Float
-  purchase_path                          String
-  commission_details                     Json?
-  status                                 purchase_orders_status @default(PENDING)
-  created_at                             DateTime               @default(now())
-  updated_at                             DateTime
-  completed_at                           DateTime?
-  users_purchase_orders_buyer_idTousers  users                  @relation("purchase_orders_buyer_idTousers", fields: [buyer_id], references: [id])
-  products                               products               @relation(fields: [product_id], references: [id])
-  users_purchase_orders_seller_idTousers users                  @relation("purchase_orders_seller_idTousers", fields: [seller_id], references: [id])
+model purchaseOrders {
+  id                                   String                @id
+  orderNo                              String                @unique
+  buyerId                              String
+  sellerId                             String
+  productId                            String
+  quantity                             Int
+  unitPrice                            Float
+  totalAmount                          Float
+  purchasePath                         String
+  commissionDetails                    Json?
+  status                               purchaseOrders_status @default(PENDING)
+  createdAt                            DateTime              @default(now())
+  updatedAt                            DateTime
+  completedAt                          DateTime?
+  users_purchaseOrders_buyerIdTousers  users                 @relation("purchaseOrders_buyerIdTousers", fields: [buyerId], references: [id])
+  products                             products              @relation(fields: [productId], references: [id])
+  users_purchaseOrders_sellerIdTousers users                 @relation("purchaseOrders_sellerIdTousers", fields: [sellerId], references: [id])
 
-  @@index([buyer_id], map: "purchase_orders_buyer_id_fkey")
-  @@index([product_id], map: "purchase_orders_product_id_fkey")
-  @@index([seller_id], map: "purchase_orders_seller_id_fkey")
+  @@index([buyerId], map: "purchaseOrdersBuyerIdFkey")
+  @@index([productId], map: "purchaseOrdersProductIdFkey")
+  @@index([sellerId], map: "purchaseOrdersSellerIdFkey")
 }
 
-model referral_relationships {
-  id                  String                                  @id
-  referrer_id         String
-  referee_id          String
-  relationshipType    referral_relationships_relationshipType @default(DIRECT)
-  level               Int                                     @default(1)
-  path                String
-  referral_sales      Float                                   @default(0)
-  referral_commission Float                                   @default(0)
-  is_active           Boolean                                 @default(true)
-  established_date    DateTime                                @default(now())
-  last_active_date    DateTime?
-  created_at          DateTime                                @default(now())
-  updated_at          DateTime
+model referralRelationships {
+  id                 String                                 @id
+  referrerId         String
+  refereeId          String
+  relationshipType   referralRelationships_relationshipType @default(DIRECT)
+  level              Int                                    @default(1)
+  path               String
+  referralSales      Float                                  @default(0)
+  referralCommission Float                                  @default(0)
+  isActive           Boolean                                @default(true)
+  establishedDate    DateTime                               @default(now())
+  lastActiveDate     DateTime?
+  createdAt          DateTime                               @default(now())
+  updatedAt          DateTime
 }
 
 model shops {
-  id               String             @id
-  user_id          String
-  shopType         shops_shopType
-  shop_level       Int                @default(1)
-  shop_name        String?
-  shop_description String?
-  contact_name     String?
-  contact_phone    String?
-  address          String?
-  total_sales      Float              @default(0)
-  total_orders     Int                @default(0)
-  total_revenue    Float              @default(0)
-  status           shops_status       @default(PENDING)
-  created_at       DateTime           @default(now())
-  updated_at       DateTime
-  inventory_alerts inventory_alerts[]
-  inventory_items  inventory_items[]
-  inventory_logs   inventory_logs[]
-  inventory_stocks inventory_stocks[]
-  products         products[]
-  users            users              @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  id              String            @id
+  userId          String
+  shopType        shops_shopType
+  shopLevel       Int               @default(1)
+  shopName        String?
+  shopDescription String?
+  contactName     String?
+  contactPhone    String?
+  address         String?
+  totalSales      Float             @default(0)
+  totalOrders     Int               @default(0)
+  totalRevenue    Float             @default(0)
+  status          shops_status      @default(PENDING)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime
+  inventoryAlerts inventoryAlerts[]
+  inventoryItems  inventoryItems[]
+  inventoryLogs   inventoryLogs[]
+  inventoryStocks inventoryStocks[]
+  products        products[]
+  users           users             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([user_id], map: "shops_user_id_fkey")
+  @@index([userId], map: "shopsUserIdFkey")
 }
 
-model sms_verifications {
-  id        String                 @id
+model smsVerifications {
+  id        String                @id
   phone     String
   code      String
-  type      sms_verifications_type
-  attempts  Int                    @default(0)
-  isUsed    Boolean                @default(false)
+  type      smsVerifications_type
+  attempts  Int                   @default(0)
+  isUsed    Boolean               @default(false)
   expiresAt DateTime
-  createdAt DateTime               @default(now())
+  createdAt DateTime              @default(now())
 }
 
-model system_configs {
-  id               String              @id
-  key              String              @unique
-  value            String              @db.LongText
-  description      String?
-  category         String
-  type             system_configs_type
-  last_modified_by String?
-  created_at       DateTime            @default(now())
-  updated_at       DateTime
-  is_editable      Boolean             @default(true)
-  is_system        Boolean             @default(false)
+model systemConfigs {
+  id             String             @id
+  key            String             @unique
+  value          String             @db.LongText
+  description    String?
+  category       String
+  type           systemConfigs_type
+  lastModifiedBy String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime
+  isEditable     Boolean            @default(true)
+  isSystem       Boolean            @default(false)
 
   @@index([category])
   @@index([type])
 }
 
-model team_members {
-  id               String              @id
-  user_id          String              @unique
-  team_id          String
-  role             team_members_role   @default(MEMBER)
-  level            Int                 @default(1)
-  status           team_members_status @default(ACTIVE)
-  position         String?
-  referrer_id      String?
-  upline_id        String?
-  personal_sales   Float               @default(0)
-  team_sales       Float               @default(0)
-  direct_count     Int                 @default(0)
-  team_count       Int                 @default(0)
-  join_date        DateTime            @default(now())
-  promoted_date    DateTime?
-  last_active_date DateTime?
-  created_at       DateTime            @default(now())
-  updated_at       DateTime
-  teams            teams               @relation(fields: [team_id], references: [id], onDelete: Cascade)
-  users            users               @relation(fields: [user_id], references: [id], onDelete: Cascade)
+model teamMembers {
+  id             String             @id
+  userId         String             @unique
+  teamId         String
+  role           teamMembers_role   @default(MEMBER)
+  level          Int                @default(1)
+  status         teamMembers_status @default(ACTIVE)
+  position       String?
+  referrerId     String?
+  uplineId       String?
+  personalSales  Float              @default(0)
+  teamSales      Float              @default(0)
+  directCount    Int                @default(0)
+  teamCount      Int                @default(0)
+  joinDate       DateTime           @default(now())
+  promotedDate   DateTime?
+  lastActiveDate DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime
+  teams          teams              @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  users          users              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([team_id], map: "team_members_team_id_fkey")
+  @@index([teamId], map: "teamMembersTeamIdFkey")
 }
 
 model teams {
-  id               String         @id
-  name             String
-  description      String?
-  leader_id        String
-  total_members    Int            @default(0)
-  active_members   Int            @default(0)
-  total_levels     Int            @default(1)
-  total_sales      Float          @default(0)
-  status           teams_status   @default(ACTIVE)
-  established_date DateTime       @default(now())
-  created_at       DateTime       @default(now())
-  updated_at       DateTime
-  team_members     team_members[]
-  users            users          @relation(fields: [leader_id], references: [id])
+  id              String        @id
+  name            String
+  description     String?
+  leaderId        String
+  totalMembers    Int           @default(0)
+  activeMembers   Int           @default(0)
+  totalLevels     Int           @default(1)
+  totalSales      Float         @default(0)
+  status          teams_status  @default(ACTIVE)
+  establishedDate DateTime      @default(now())
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime
+  teamMembers     teamMembers[]
+  users           users         @relation(fields: [leaderId], references: [id])
 
-  @@index([leader_id], map: "teams_leader_id_fkey")
+  @@index([leaderId], map: "teamsLeaderIdFkey")
 }
 
 model users {
-  id                                                          String                    @id
-  openid                                                      String                    @unique
-  nickname                                                    String?
-  avatar_url                                                  String?
-  phone                                                       String?                   @unique
-  level                                                       users_level               @default(NORMAL)
-  status                                                      users_status              @default(ACTIVE)
-  parent_id                                                   String?
-  team_path                                                   String?
-  team_level                                                  Int                       @default(1)
-  total_sales                                                 Float                     @default(0)
-  total_bottles                                               Int                       @default(0)
-  direct_sales                                                Float                     @default(0)
-  team_sales                                                  Float                     @default(0)
-  direct_count                                                Int                       @default(0)
-  team_count                                                  Int                       @default(0)
-  cloud_shop_level                                            Int?
-  has_wutong_shop                                             Boolean                   @default(false)
-  points_balance                                              Float                     @default(0)
-  points_frozen                                               Float                     @default(0)
-  created_at                                                  DateTime                  @default(now())
-  updated_at                                                  DateTime                  @default(now())
-  last_login_at                                               DateTime?
-  referral_code                                               String?                   @unique
-  user_number                                                 String?                   @unique
-  commission_calculations                                     commission_calculations[]
-  gift_records                                                gift_records[]
-  inventory_alerts_inventory_alerts_resolved_byTousers        inventory_alerts[]        @relation("inventory_alerts_resolved_byTousers")
-  inventory_alerts_inventory_alerts_user_idTousers            inventory_alerts[]        @relation("inventory_alerts_user_idTousers")
-  inventory_items                                             inventory_items[]
-  inventory_logs_inventory_logs_operator_idTousers            inventory_logs[]          @relation("inventory_logs_operator_idTousers")
-  inventory_logs_inventory_logs_user_idTousers                inventory_logs[]          @relation("inventory_logs_user_idTousers")
-  inventory_stocks                                            inventory_stocks[]
-  level_upgrade_records                                       level_upgrade_records[]
-  logistics_shipments                                         logistics_shipments[]
-  notification_preferences                                    notification_preferences?
-  notifications                                               notifications[]
-  orders_orders_buyer_idTousers                               orders[]                  @relation("orders_buyer_idTousers")
-  orders_orders_seller_idTousers                              orders[]                  @relation("orders_seller_idTousers")
-  payment_logs                                                payment_logs[]
-  payment_records                                             payment_records[]
-  payment_refunds_payment_refunds_apply_user_idTousers        payment_refunds[]         @relation("payment_refunds_apply_user_idTousers")
-  payment_refunds_payment_refunds_approve_user_idTousers      payment_refunds[]         @relation("payment_refunds_approve_user_idTousers")
-  performance_metrics                                         performance_metrics[]
-  points_transactions_points_transactions_from_user_idTousers points_transactions[]     @relation("points_transactions_from_user_idTousers")
-  points_transactions_points_transactions_to_user_idTousers   points_transactions[]     @relation("points_transactions_to_user_idTousers")
-  purchase_orders_purchase_orders_buyer_idTousers             purchase_orders[]         @relation("purchase_orders_buyer_idTousers")
-  purchase_orders_purchase_orders_seller_idTousers            purchase_orders[]         @relation("purchase_orders_seller_idTousers")
-  shops                                                       shops[]
-  team_members                                                team_members?
-  teams                                                       teams[]
-  users                                                       users?                    @relation("usersTousers", fields: [parent_id], references: [id])
-  other_users                                                 users[]                   @relation("usersTousers")
+  id                                                      String                   @id
+  openid                                                  String                   @unique
+  nickname                                                String?
+  avatarUrl                                               String?
+  phone                                                   String?                  @unique
+  level                                                   users_level              @default(NORMAL)
+  status                                                  users_status             @default(ACTIVE)
+  parentId                                                String?
+  teamPath                                                String?
+  teamLevel                                               Int                      @default(1)
+  totalSales                                              Float                    @default(0)
+  totalBottles                                            Int                      @default(0)
+  directSales                                             Float                    @default(0)
+  teamSales                                               Float                    @default(0)
+  directCount                                             Int                      @default(0)
+  teamCount                                               Int                      @default(0)
+  cloudShopLevel                                          Int?
+  hasWutongShop                                           Boolean                  @default(false)
+  pointsBalance                                           Float                    @default(0)
+  pointsFrozen                                            Float                    @default(0)
+  createdAt                                               DateTime                 @default(now())
+  updatedAt                                               DateTime                 @default(now())
+  lastLoginAt                                             DateTime?
+  referralCode                                            String?                  @unique
+  userNumber                                              String?                  @unique
+  password                                                String?
+  commissionCalculations                                  commissionCalculations[]
+  giftRecords                                             giftRecords[]
+  inventoryAlerts_inventoryAlerts_resolvedByTousers       inventoryAlerts[]        @relation("inventoryAlerts_resolvedByTousers")
+  inventoryAlerts_inventoryAlerts_userIdTousers           inventoryAlerts[]        @relation("inventoryAlerts_userIdTousers")
+  inventoryItems                                          inventoryItems[]
+  inventoryLogs_inventoryLogs_operatorIdTousers           inventoryLogs[]          @relation("inventoryLogs_operatorIdTousers")
+  inventoryLogs_inventoryLogs_userIdTousers               inventoryLogs[]          @relation("inventoryLogs_userIdTousers")
+  inventoryStocks                                         inventoryStocks[]
+  levelUpgradeRecords                                     levelUpgradeRecords[]
+  logisticsShipments                                      logisticsShipments[]
+  notificationPreferences                                 notificationPreferences?
+  notifications                                           notifications[]
+  orders_orders_buyerIdTousers                            orders[]                 @relation("orders_buyerIdTousers")
+  orders_orders_sellerIdTousers                           orders[]                 @relation("orders_sellerIdTousers")
+  paymentLogs                                             paymentLogs[]
+  paymentRecords                                          paymentRecords[]
+  paymentRefunds_paymentRefunds_applyUserIdTousers        paymentRefunds[]         @relation("paymentRefunds_applyUserIdTousers")
+  paymentRefunds_paymentRefunds_approveUserIdTousers      paymentRefunds[]         @relation("paymentRefunds_approveUserIdTousers")
+  performanceMetrics                                      performanceMetrics[]
+  pointsTransactions_pointsTransactions_fromUserIdTousers pointsTransactions[]     @relation("pointsTransactions_fromUserIdTousers")
+  pointsTransactions_pointsTransactions_toUserIdTousers   pointsTransactions[]     @relation("pointsTransactions_toUserIdTousers")
+  purchaseOrders_purchaseOrders_buyerIdTousers            purchaseOrders[]         @relation("purchaseOrders_buyerIdTousers")
+  purchaseOrders_purchaseOrders_sellerIdTousers           purchaseOrders[]         @relation("purchaseOrders_sellerIdTousers")
+  shops                                                   shops[]
+  teamMembers                                             teamMembers?
+  teams                                                   teams[]
+  users                                                   users?                   @relation("usersTousers", fields: [parentId], references: [id])
+  other_users                                             users[]                  @relation("usersTousers")
 
-  @@index([parent_id], map: "users_parent_id_fkey")
+  @@index([phone, id], map: "idx_users_phone_id")
+  @@index([parentId], map: "usersParentIdFkey")
 }
 
-enum notification_channels_channel_type {
+enum notificationChannels_channelType {
   IN_APP
   SMS
   EMAIL
@@ -997,7 +1075,7 @@ enum notification_channels_channel_type {
   WEBHOOK
 }
 
-enum level_upgrade_records_previous_level {
+enum levelUpgradeRecords_previousLevel {
   NORMAL
   VIP
   STAR_1
@@ -1008,7 +1086,14 @@ enum level_upgrade_records_previous_level {
   DIRECTOR
 }
 
-enum notification_statistics_category {
+enum notifications_recipientType {
+  USER
+  ADMIN
+  SYSTEM
+  GROUP
+}
+
+enum notificationStatistics_category {
   SYSTEM
   ORDER
   PAYMENT
@@ -1024,14 +1109,7 @@ enum notification_statistics_category {
   ACTIVITY
 }
 
-enum notifications_recipient_type {
-  USER
-  ADMIN
-  SYSTEM
-  GROUP
-}
-
-enum payment_logs_action {
+enum paymentLogs_action {
   CREATE
   QUERY
   SUCCESS
@@ -1045,7 +1123,7 @@ enum payment_logs_action {
   REFUND_FAILED
 }
 
-enum payment_records_payment_method {
+enum paymentRecords_paymentMethod {
   WECHAT
   ALIPAY
   POINTS
@@ -1057,13 +1135,13 @@ enum shops_shopType {
   WUTONG
 }
 
-enum inventory_stocks_warehouseType {
+enum inventoryStocks_warehouseType {
   PLATFORM
   CLOUD
   LOCAL
 }
 
-enum level_upgrade_records_new_level {
+enum levelUpgradeRecords_newLevel {
   NORMAL
   VIP
   STAR_1
@@ -1074,7 +1152,7 @@ enum level_upgrade_records_new_level {
   DIRECTOR
 }
 
-enum notification_statistics_channel_type {
+enum notificationStatistics_channelType {
   IN_APP
   SMS
   EMAIL
@@ -1084,7 +1162,7 @@ enum notification_statistics_channel_type {
   WEBHOOK
 }
 
-enum notification_templates_category {
+enum notificationTemplates_category {
   SYSTEM
   ORDER
   PAYMENT
@@ -1100,7 +1178,7 @@ enum notification_templates_category {
   ACTIVITY
 }
 
-enum product_pricings_user_level {
+enum productPricings_userLevel {
   NORMAL
   VIP
   STAR_1
@@ -1111,20 +1189,20 @@ enum product_pricings_user_level {
   DIRECTOR
 }
 
-enum referral_relationships_relationshipType {
+enum referralRelationships_relationshipType {
   DIRECT
   INDIRECT
   NETWORK
 }
 
-enum sms_verifications_type {
+enum smsVerifications_type {
   BIND
   UNBIND
   LOGIN
   TRANSFER
 }
 
-enum team_members_role {
+enum teamMembers_role {
   MEMBER
   CAPTAIN
   MANAGER
@@ -1134,7 +1212,7 @@ enum team_members_role {
   AMBASSADOR
 }
 
-enum level_upgrade_records_upgrade_type {
+enum levelUpgradeRecords_upgradeType {
   AUTO
   MANUAL
   WUTONG_PRIVILEGE
@@ -1142,7 +1220,7 @@ enum level_upgrade_records_upgrade_type {
   SPECIAL_PROMOTION
 }
 
-enum logistics_info_status {
+enum logisticsInfo_status {
   NOT_SHIPPED
   SHIPPED
   IN_TRANSIT
@@ -1167,7 +1245,7 @@ enum notifications_category {
   ACTIVITY
 }
 
-enum payment_logs_before_status {
+enum paymentLogs_beforeStatus {
   UNPAID
   PAYING
   PAID
@@ -1176,7 +1254,7 @@ enum payment_logs_before_status {
   REFUNDED
 }
 
-enum payment_records_status {
+enum paymentRecords_status {
   UNPAID
   PAYING
   PAID
@@ -1185,20 +1263,20 @@ enum payment_records_status {
   REFUNDED
 }
 
-enum inventory_alerts_alert_type {
+enum inventoryAlerts_alertType {
   LOW_STOCK
   OUT_OF_STOCK
   EXCESS_STOCK
   EXPIRED
 }
 
-enum inventory_items_warehouse_type {
+enum inventoryItems_warehouseType {
   PLATFORM
   CLOUD
   LOCAL
 }
 
-enum inventory_logs_operation_type {
+enum inventoryLogs_operationType {
   MANUAL_IN
   MANUAL_OUT
   ORDER_OUT
@@ -1232,7 +1310,7 @@ enum orders_status {
   REFUNDED
 }
 
-enum payment_logs_after_status {
+enum paymentLogs_afterStatus {
   UNPAID
   PAYING
   PAID
@@ -1241,7 +1319,7 @@ enum payment_logs_after_status {
   REFUNDED
 }
 
-enum points_transactions_type {
+enum pointsTransactions_type {
   PURCHASE
   TRANSFER
   RECHARGE
@@ -1253,7 +1331,7 @@ enum points_transactions_type {
   UNFREEZE
 }
 
-enum system_configs_type {
+enum systemConfigs_type {
   JSON
   STRING
   NUMBER
@@ -1261,7 +1339,7 @@ enum system_configs_type {
   ARRAY
 }
 
-enum team_members_status {
+enum teamMembers_status {
   ACTIVE
   INACTIVE
   SUSPENDED
@@ -1279,7 +1357,7 @@ enum users_level {
   DIRECTOR
 }
 
-enum gift_records_type {
+enum giftRecords_type {
   BUY_TEN_GET_ONE
   PROMOTION_GIFT
   VIP_GIFT
@@ -1309,7 +1387,7 @@ enum admins_role {
   OPERATOR
 }
 
-enum gift_records_status {
+enum giftRecords_status {
   PENDING
   PROCESSING
   SHIPPED
@@ -1318,7 +1396,7 @@ enum gift_records_status {
   EXPIRED
 }
 
-enum logistics_companies_service_scope {
+enum logisticsCompanies_serviceScope {
   NATIONAL
   INTERNATIONAL
   LOCAL
@@ -1331,7 +1409,7 @@ enum admins_status {
   LOCKED
 }
 
-enum commission_calculations_status {
+enum commissionCalculations_status {
   PENDING
   CALCULATED
   APPROVED
@@ -1339,13 +1417,13 @@ enum commission_calculations_status {
   CANCELLED
 }
 
-enum inventory_alerts_warehouse_type {
+enum inventoryAlerts_warehouseType {
   PLATFORM
   CLOUD
   LOCAL
 }
 
-enum logistics_tracks_source {
+enum logisticsTracks_source {
   MANUAL
   API
   WEBHOOK
@@ -1359,13 +1437,13 @@ enum teams_status {
   TERMINATED
 }
 
-enum inventory_logs_warehouse_type {
+enum inventoryLogs_warehouseType {
   PLATFORM
   CLOUD
   LOCAL
 }
 
-enum payment_reconciliations_status {
+enum paymentReconciliations_status {
   PENDING
   PROCESSING
   SUCCESS
@@ -1373,7 +1451,7 @@ enum payment_reconciliations_status {
   CANCELLED
 }
 
-enum payment_refunds_status {
+enum paymentRefunds_status {
   PENDING
   PROCESSING
   SUCCESS
@@ -1381,7 +1459,7 @@ enum payment_refunds_status {
   CANCELLED
 }
 
-enum points_transactions_status {
+enum pointsTransactions_status {
   PENDING
   PROCESSING
   COMPLETED
@@ -1389,7 +1467,7 @@ enum points_transactions_status {
   CANCELLED
 }
 
-enum purchase_orders_status {
+enum purchaseOrders_status {
   PENDING
   APPROVED
   REJECTED
@@ -1397,7 +1475,7 @@ enum purchase_orders_status {
   CANCELLED
 }
 
-enum notification_templates_priority {
+enum notificationTemplates_priority {
   LOW
   NORMAL
   HIGH
@@ -1437,14 +1515,14 @@ enum notifications_priority {
   URGENT
 }
 
-enum inventory_logs_operator_type {
+enum inventoryLogs_operatorType {
   SYSTEM
   ADMIN
   USER
   SYSTEM_BATCH
 }
 
-enum performance_metrics_current_role {
+enum performanceMetrics_currentRole {
   MEMBER
   CAPTAIN
   MANAGER
@@ -1454,7 +1532,7 @@ enum performance_metrics_current_role {
   AMBASSADOR
 }
 
-enum payment_records_payment_channel {
+enum paymentRecords_paymentChannel {
   WECHAT
   ALIPAY
   POINTS
@@ -1475,7 +1553,7 @@ enum orders_type {
   EXCHANGE
 }
 
-enum logistics_shipments_delivery_type {
+enum logisticsShipments_deliveryType {
   STANDARD
   EXPRESS
   SAME_DAY
@@ -1483,7 +1561,7 @@ enum logistics_shipments_delivery_type {
   PICKUP
 }
 
-enum logistics_shipments_status {
+enum logisticsShipments_status {
   NOT_SHIPPED
   SHIPPED
   IN_TRANSIT
@@ -1492,9 +1570,126 @@ enum logistics_shipments_status {
   EXCEPTION
 }
 
-enum logistics_shipments_sync_status {
+enum logisticsShipments_syncStatus {
   PENDING
   SYNCING
   SUCCESS
   FAILED
+}
+
+// 审计日志表
+model auditLogs {
+  id          String           @id
+  adminId     String
+  adminName   String?
+  type        auditLogs_type
+  level       auditLogs_level
+  module      String
+  action      String
+  targetId    String?
+  targetType  String?
+  description String?
+  details     String?          @db.Text
+  ipAddress   String?
+  userAgent   String?          @db.Text
+  result      auditLogs_result @default(SUCCESS)
+  errorMessage String?         @db.Text
+  duration    Int?             // 操作耗时（毫秒）
+  createdAt   DateTime         @default(now())
+
+  @@index([adminId, createdAt])
+  @@index([module, action])
+  @@index([type, createdAt])
+  @@index([level, createdAt])
+  @@index([targetId, targetType])
+  @@index([createdAt])
+}
+
+enum auditLogs_type {
+  LOGIN
+  LOGOUT
+  CREATE
+  UPDATE
+  DELETE
+  VIEW
+  EXPORT
+  APPROVE
+  REJECT
+  SUSPEND
+  ACTIVATE
+  RESET_PASSWORD
+  CHANGE_ROLE
+  SENSITIVE_OPERATION
+  SYSTEM_CONFIG
+  DATA_IMPORT
+  BULK_OPERATION
+}
+
+enum auditLogs_level {
+  INFO
+  WARNING
+  ERROR
+  CRITICAL
+}
+
+enum auditLogs_result {
+  SUCCESS
+  FAILED
+}
+
+// 支付补偿类型
+enum paymentCompensations_type {
+  ROLLBACK_ORDER
+  REFUND_PAYMENT
+  ADJUST_INVENTORY
+  CANCEL_COMMISSION
+}
+
+// 支付补偿状态
+enum paymentCompensations_status {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+// 配置变更历史表
+model configChangeHistory {
+  id           String   @id
+  configId     String
+  configKey    String
+  oldValue     String   @db.Text
+  newValue     String   @db.Text
+  changedBy    String
+  changeReason String   @db.Text
+  createdAt    DateTime @default(now())
+
+  @@index([configId])
+  @@index([configKey])
+  @@index([changedBy])
+  @@index([createdAt])
+}
+
+// 安全日志表
+model securityLogs {
+  id         String            @id
+  adminId    String
+  type       securityLogs_type
+  ipAddress  String
+  userAgent  String?           @db.Text
+  details    String?           @db.Text
+  createdAt  DateTime          @default(now())
+
+  @@index([adminId])
+  @@index([type])
+  @@index([ipAddress])
+  @@index([createdAt])
+}
+
+enum securityLogs_type {
+  LOGIN_FAILED
+  IP_BLOCKED
+  SESSION_TIMEOUT
+  SUSPICIOUS_OPERATION
+  TOKEN_INVALID
 }

@@ -134,7 +134,7 @@ export const getChannelStatisticsController = async (req: Request, res: Response
     }
 
     // 获取渠道统计数据
-    const channelStats = await prisma.notificationStatistics.findMany({
+    const channelStats = await prisma.notificationsStatistics.findMany({
       where,
       orderBy: [
         { date: 'desc' },
@@ -213,7 +213,7 @@ export const getChannelStatisticsController = async (req: Request, res: Response
 async function getNotificationStats(where: any, period: string) {
   try {
     // 这里简化处理，实际应该使用更复杂的SQL来按周期分组
-    const notifications = await prisma.notification.findMany({
+    const notifications = await prisma.notifications.findMany({
       where,
       select: {
         category: true,
@@ -284,20 +284,20 @@ async function getNotificationStats(where: any, period: string) {
 async function getOverallStats(where: any) {
   try {
     const [total, success, failed, byStatus] = await Promise.all([
-      prisma.notification.count({ where }),
-      prisma.notification.count({
+      prisma.notifications.count({ where }),
+      prisma.notifications.count({
         where: {
           ...where,
           status: { in: ['SENT', 'COMPLETED', 'PARTIAL_SUCCESS'] }
         }
       }),
-      prisma.notification.count({
+      prisma.notifications.count({
         where: {
           ...where,
           status: 'FAILED'
         }
       }),
-      prisma.notification.groupBy({
+      prisma.notifications.groupBy({
         by: ['status'],
         where,
         _count: true
@@ -333,7 +333,7 @@ async function getOverallStats(where: any) {
  */
 async function getCategoryStats(where: any) {
   try {
-    const categoryStats = await prisma.notification.groupBy({
+    const categoryStats = await prisma.notifications.groupBy({
       by: ['category'],
       where,
       _count: true
@@ -354,7 +354,7 @@ async function getCategoryStats(where: any) {
  */
 async function getStatusStats(where: any) {
   try {
-    const statusStats = await prisma.notification.groupBy({
+    const statusStats = await prisma.notifications.groupBy({
       by: ['status'],
       where,
       _count: true

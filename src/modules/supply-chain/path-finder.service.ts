@@ -4,8 +4,8 @@
  * 包括BFS、DFS、Dijkstra、A*等算法的优化实现
  */
 
-import { logger } from '../../shared/utils/logger';
-import { prisma } from '../../shared/database/client';
+import { logger } from '@/shared/utils/logger';
+import { prisma } from '@/shared/database/client';
 import { UserLevel, userLevelService } from '../user/level.service';
 import { networkBuilderService } from './network-builder.service';
 import {
@@ -747,7 +747,7 @@ export class PathFinderService {
     const priceInfos = new Map<string, { price: number; userLevel: UserLevel }>();
 
     try {
-      const pricings = await prisma.productPricing.findMany({
+      const pricings = await prisma.productPricings.findMany({
         where: {
           productId,
           userLevel: { in: ['NORMAL', 'VIP', 'STAR_1', 'STAR_2', 'STAR_3', 'STAR_4', 'STAR_5', 'DIRECTOR'] as UserLevel[] }
@@ -788,7 +788,7 @@ export class PathFinderService {
     const stockInfos = new Map<string, { stock: number; warehouseType: string }>();
 
     try {
-      const stocks = await prisma.inventoryStock.findMany({
+      const stocks = await prisma.inventoryStocks.findMany({
         where: {
           productId,
           userId: { in: userIds }

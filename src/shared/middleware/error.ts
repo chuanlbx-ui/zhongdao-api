@@ -21,7 +21,13 @@ export const errorHandler = (
     userId: req.user?.id
   });
 
-  // 判断错误类型
+  // 处理自定义错误类
+  if (err instanceof AppError) {
+    const response = createErrorResponse(err.code, err.message, err.details, undefined, requestId);
+    return res.status(err.statusCode).json(response);
+  }
+
+  // 处理普通错误
   let errorCode = ErrorCode.INTERNAL_ERROR;
   let statusCode = 500;
   let message = '服务器内部错误';
@@ -91,6 +97,15 @@ export const asyncHandler = (
 ) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     Promise.resolve(fn(req, res, next)).catch(next);
+  };
+};
+
+// 支持两参数的asyncHandler重载
+export const asyncHandler2 = (
+  fn: (req: Request, res: Response) => Promise<void>
+) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    Promise.resolve(fn(req, res)).catch(next);
   };
 };
 

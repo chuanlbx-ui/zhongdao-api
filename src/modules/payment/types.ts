@@ -2,7 +2,24 @@
  * 支付模块通用类型定义
  */
 
-import { PaymentChannel, PaymentMethod, PaymentStatus, RefundStatus, PaymentLogAction, ReconciliationStatus } from '@prisma/client';
+import {
+  paymentRecords_paymentChannel as PaymentChannel,
+  paymentRecords_paymentMethod as PaymentMethod,
+  paymentRecords_status as PaymentStatus,
+  paymentRefunds_status as RefundStatus,
+  paymentLogs_action as PaymentLogAction,
+  paymentReconciliations_status as ReconciliationStatus
+} from '@prisma/client';
+
+// 重新导出枚举类型
+export {
+  PaymentChannel,
+  PaymentMethod,
+  PaymentStatus,
+  RefundStatus,
+  PaymentLogAction,
+  ReconciliationStatus
+};
 
 // 支付相关枚举扩展
 export enum PaymentTradeType {
@@ -416,7 +433,7 @@ export namespace PaymentUtils {
   }
 
   export function isPaymentFailed(status: PaymentStatus): boolean {
-    return status === PaymentStatus.FAILED || status === PaymentStatus.CANCELLED || status === PaymentStatus.EXPIRED;
+    return status === PaymentStatus.FAILED;
   }
 
   export function getChannelDisplayName(channel: PaymentChannel): string {
@@ -445,9 +462,8 @@ export namespace PaymentUtils {
       [PaymentStatus.PAYING]: '支付中',
       [PaymentStatus.PAID]: '已支付',
       [PaymentStatus.FAILED]: '支付失败',
-      [PaymentStatus.CANCELLED]: '已取消',
-      [PaymentStatus.REFUNDED]: '已退款',
-      [PaymentStatus.EXPIRED]: '已过期'
+      [PaymentStatus.REFUNDING]: '退款中',
+      [PaymentStatus.REFUNDED]: '已退款'
     };
     return statusNames[status] || status;
   }

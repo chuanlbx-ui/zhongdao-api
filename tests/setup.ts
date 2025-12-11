@@ -3,6 +3,19 @@
  * 集成认证、数据库管理、Mock服务等完整的测试环境
  */
 
+// 首先加载环境变量
+import dotenv from 'dotenv';
+import path from 'path';
+
+// 加载测试环境变量，覆盖之前的配置
+dotenv.config({ path: path.resolve(__dirname, '../.env.test'), override: true });
+
+// 强制设置测试环境标识
+process.env.NODE_ENV = 'test';
+process.env.VITEST = 'true';
+process.env.DISABLE_CSRF = 'true';
+process.env.DISABLE_RATE_LIMIT = 'true';
+
 import { Express } from 'express';
 import { PrismaClient } from '@prisma/client';
 import app from '../src/index';
@@ -16,7 +29,7 @@ import { testSecurityConfig, testSecurityMiddleware, testCsrfBypass } from './co
 // 导出Express应用实例供测试使用
 export { app };
 
-// 导出测试数据库实例
+// 导出测试数据库实例（需要在使用前先连接）
 export const testPrisma = testDb.getPrisma();
 
 // 导出测试辅助类
@@ -35,6 +48,9 @@ export async function setupTestDatabase() {
     // 设置测试环境变量
     process.env.NODE_ENV = 'test';
     process.env.VITEST = 'true';
+
+    // 确保JWT secret与开发环境一致
+    process.env.JWT_SECRET = '92f7087863c9e280a160ba4c2b5f9acc50925b5e64d8b9834c2a5a72c50e57972558a1d2104ccd54b3107785f47ada0582b158ac2cf23da093cb8a5da05bfb4a';
 
     // 连接测试数据库
     await connectTestDatabase();

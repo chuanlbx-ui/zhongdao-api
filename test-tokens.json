@@ -1,0 +1,72 @@
+{
+  "generatedAt": "2025-12-10T07:05:25.307Z",
+  "secret": "test-jwt-secret-key-for-development-only",
+  "tokens": {
+    "admin": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhaXdsbTNhemZyNnJ5YzJteDY0bXFvNmIiLCJwaG9uZSI6IjEzODAwMDAwMDAxIiwicm9sZSI6IkFETUlOIiwibGV2ZWwiOiJESVJFQ1RPUiIsIm5pY2tuYW1lIjoi57O757uf566h55CG5ZGYIiwic2NvcGUiOlsiYWN0aXZlIiwidXNlciJdLCJpYXQiOjE3NjUzNTAzMjUsImV4cCI6MTc2NTQzNjcyNSwiYXVkIjoiemhvbmdkYW8tbWFsbC11c2VycyIsImlzcyI6Inpob25nZGFvLW1hbGwiLCJqdGkiOiJ3eHUxYmtkN2FjOHczcTZsc2Z6dDI4In0.OTYAzjve9Xw0VQ_cd43vtsQPihkVDZdVGJh2MC-rAiQ",
+      "user": {
+        "id": "aiwlm3azfr6ryc2mx64mqo6b",
+        "phone": "13800000001",
+        "role": "ADMIN",
+        "level": "DIRECTOR",
+        "nickname": "系统管理员"
+      },
+      "expiresAt": "2025-12-11T07:05:25.000Z"
+    },
+    "director": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaXJfMTIzNDU2Nzg5MCIsInBob25lIjoiMTM4MDAwMDAwMDIiLCJyb2xlIjoiVVNFUiIsImxldmVsIjoiRElSRUNUT1IiLCJuaWNrbmFtZSI6IuaAu-ebkSIsInNjb3BlIjpbImFjdGl2ZSIsInVzZXIiXSwiaWF0IjoxNzY1MzUwMzI1LCJleHAiOjE3NjU0MzY3MjUsImF1ZCI6Inpob25nZGFvLW1hbGwtdXNlcnMiLCJpc3MiOiJ6aG9uZ2Rhby1tYWxsIiwianRpIjoicmZzaWZ6azY4N3ZzbzF5NHI4eXNtIn0.zUvrTUr_tAAx6yIGv2wRZdsI-B5IkIGY1HMVugbscqw",
+      "user": {
+        "id": "dir_1234567890",
+        "phone": "13800000002",
+        "role": "USER",
+        "level": "DIRECTOR",
+        "nickname": "总监"
+      },
+      "expiresAt": "2025-12-11T07:05:25.000Z"
+    },
+    "star5": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdGFyNV8xMjM0NTY3ODkwIiwicGhvbmUiOiIxMzgwMDAwMDAwMyIsInJvbGUiOiJVU0VSIiwibGV2ZWwiOiJTVEFSXzUiLCJuaWNrbmFtZSI6IuS6lOaYn-W6l-S4uyIsInNjb3BlIjpbImFjdGl2ZSIsInVzZXIiXSwiaWF0IjoxNzY1MzUwMzI1LCJleHAiOjE3NjU0MzY3MjUsImF1ZCI6Inpob25nZGFvLW1hbGwtdXNlcnMiLCJpc3MiOiJ6aG9uZ2Rhby1tYWxsIiwianRpIjoiMTE4aTljNDl2cHRxZGVzenZqNDIwY3UifQ.a67PLOLne2xkOLq9gnqZd4KCWAtBtEJB0QT45gE6Nxo",
+      "user": {
+        "id": "star5_1234567890",
+        "phone": "13800000003",
+        "role": "USER",
+        "level": "STAR_5",
+        "nickname": "五星店主"
+      },
+      "expiresAt": "2025-12-11T07:05:25.000Z"
+    },
+    "star3": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdGFyM18xMjM0NTY3ODkwIiwicGhvbmUiOiIxMzgwMDAwMDAwNCIsInJvbGUiOiJVU0VSIiwibGV2ZWwiOiJTVEFSXzMiLCJuaWNrbmFtZSI6IuS4ieaYn-W6l-S4uyIsInNjb3BlIjpbImFjdGl2ZSIsInVzZXIiXSwiaWF0IjoxNzY1MzUwMzI1LCJleHAiOjE3NjU0MzY3MjUsImF1ZCI6Inpob25nZGFvLW1hbGwtdXNlcnMiLCJpc3MiOiJ6aG9uZ2Rhby1tYWxsIiwianRpIjoiOWdiOXY3OHFrZHB0cXQ1NzB4M3kyIn0.roNWQZZrcs4JbeaY4J1bxNy9e2dCZF3kpPdcN-ut4To",
+      "user": {
+        "id": "star3_1234567890",
+        "phone": "13800000004",
+        "role": "USER",
+        "level": "STAR_3",
+        "nickname": "三星店主"
+      },
+      "expiresAt": "2025-12-11T07:05:25.000Z"
+    },
+    "vip": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ2aXBfMTIzNDU2Nzg5MCIsInBob25lIjoiMTM4MDAwMDAwMDUiLCJyb2xlIjoiVVNFUiIsImxldmVsIjoiVklQIiwibmlja25hbWUiOiJWSVDnlKjmiLciLCJzY29wZSI6WyJhY3RpdmUiLCJ1c2VyIl0sImlhdCI6MTc2NTM1MDMyNSwiZXhwIjoxNzY1NDM2NzI1LCJhdWQiOiJ6aG9uZ2Rhby1tYWxsLXVzZXJzIiwiaXNzIjoiemhvbmdkYW8tbWFsbCIsImp0aSI6ImtuY3B6ZGhuMHVsa3YxeTdieDc0eGgifQ.7AyWs8Qh2TNG8Ais-tyS2lrc03xZLAl8SQmURrlNEdg",
+      "user": {
+        "id": "vip_1234567890",
+        "phone": "13800000005",
+        "role": "USER",
+        "level": "VIP",
+        "nickname": "VIP用户"
+      },
+      "expiresAt": "2025-12-11T07:05:25.000Z"
+    },
+    "normal": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzEyMzQ1Njc4OTAiLCJwaG9uZSI6IjEzODAwMDAwMDA2Iiwicm9sZSI6IlVTRVIiLCJsZXZlbCI6Ik5PUk1BTCIsIm5pY2tuYW1lIjoi5pmu6YCa55So5oi3Iiwic2NvcGUiOlsiYWN0aXZlIiwidXNlciJdLCJpYXQiOjE3NjUzNTAzMjUsImV4cCI6MTc2NTQzNjcyNSwiYXVkIjoiemhvbmdkYW8tbWFsbC11c2VycyIsImlzcyI6Inpob25nZGFvLW1hbGwiLCJqdGkiOiJ5OW16Zm92a3Y3OXEwaWJ3OW0wYW4ifQ.dKHB-Yq4VV3EWVbgRbeoXvYFEQx1XOxh5YHSshK1rkE",
+      "user": {
+        "id": "user_1234567890",
+        "phone": "13800000006",
+        "role": "USER",
+        "level": "NORMAL",
+        "nickname": "普通用户"
+      },
+      "expiresAt": "2025-12-11T07:05:25.000Z"
+    }
+  }
+}

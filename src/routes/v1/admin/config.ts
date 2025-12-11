@@ -5,7 +5,7 @@
 
 import { Router, Request, Response } from 'express';
 import { body, query, param } from 'express-validator';
-import { asyncHandler } from '../../../shared/middleware/error';
+import { asyncHandler, asyncHandler2 } from '../../../shared/middleware/error';
 import { authenticate, requireMinLevel, requireRole } from '../../../shared/middleware/auth';
 import { validate } from '../../../shared/middleware/validation';
 import { createSuccessResponse, createErrorResponse } from '../../../shared/types/response';
@@ -39,7 +39,7 @@ router.get('/configs',
     query('search').optional().isString().withMessage('搜索关键词必须是字符串')
   ],
   validate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const {
         page = 1,
@@ -81,7 +81,7 @@ router.get('/configs/:key',
     param('key').notEmpty().withMessage('配置键名不能为空')
   ],
   validate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const { key } = req.params;
 
@@ -126,7 +126,7 @@ router.post('/configs',
     body('dataType').optional().isIn(['string', 'number', 'boolean', 'json']).withMessage('数据类型不正确'),
       ],
   validate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const {
         key,
@@ -209,7 +209,7 @@ router.put('/configs/:key',
     body('reason').optional().isString().withMessage('修改原因必须是字符串')
   ],
   validate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const { key } = req.params;
       const { value, description, reason } = req.body;
@@ -285,7 +285,7 @@ router.delete('/configs/:key',
     param('key').notEmpty().withMessage('配置键名不能为空')
   ],
   validate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const { key } = req.params;
 
@@ -329,7 +329,7 @@ router.delete('/configs/:key',
  * 获取配置分类列表
  */
 router.get('/categories',
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const categories = await configService.getCategories();
 
@@ -359,7 +359,7 @@ router.post('/configs/batch',
     body('configs.*.value').notEmpty().withMessage('配置值不能为空')
   ],
   validate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const { configs, reason } = req.body;
 
@@ -403,7 +403,7 @@ router.get('/configs/:key/history',
     query('perPage').optional().isInt({ min: 1, max: 50 }).withMessage('每页数量必须在1-50之间')
   ],
   validate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const { key } = req.params;
       const { page = 1, perPage = 20 } = req.query as any;
@@ -439,7 +439,7 @@ router.get('/configs/export',
     query('format').optional().isIn(['json', 'csv']).withMessage('格式必须是json或csv')
   ],
   validate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const { category, format = 'json' } = req.query as any;
 
@@ -488,7 +488,7 @@ router.post('/configs/import',
     body('overwrite').optional().isBoolean().withMessage('覆盖标志必须是布尔值')
   ],
   validate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const { configs, overwrite = false } = req.body;
 

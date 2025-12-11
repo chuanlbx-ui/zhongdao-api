@@ -1,4 +1,4 @@
-import { UserLevel } from '@prisma/client';
+import { users_level } from '@prisma/client';
 import { prisma } from '../database/client';
 import { SystemConfigService } from './systemConfigService';
 
@@ -6,7 +6,7 @@ import { SystemConfigService } from './systemConfigService';
  * 用户等级配置
  */
 export interface LevelConfig {
-  key: UserLevel;
+  key: users_level;
   name: string;
   order: number;
   discount: number; // 折扣比例 0-1
@@ -32,7 +32,7 @@ export interface LevelConfig {
 /**
  * 等级体系配置（保留为默认值，动态配置优先）
  */
-export const LEVEL_CONFIGS: Record<UserLevel, LevelConfig> = {
+export const LEVEL_CONFIGS: Record<users_level, LevelConfig> = {
   NORMAL: {
     key: 'NORMAL',
     name: '普通会员',
@@ -164,18 +164,18 @@ export const LEVEL_CONFIGS: Record<UserLevel, LevelConfig> = {
 /**
  * 等级体系服务
  */
-export class UserLevelService {
+export class users_levelService {
   /**
    * 不需要改动的有效配置缓存
    */
-  private static levelConfigCache: Record<UserLevel, LevelConfig> | null = null;
+  private static levelConfigCache: Record<users_level, LevelConfig> | null = null;
   private static levelConfigCacheTime = 0;
   private static CACHE_DURATION = 5 * 60 * 1000; // 5分钟缓存
 
   /**
    * 加载配置（优先步：数据库配置 > 默认配置）
    */
-  private static async loadLevelConfigs(): Promise<Record<UserLevel, LevelConfig>> {
+  private static async loadLevelConfigs(): Promise<Record<users_level, LevelConfig>> {
     // 检逓缓存
     if (
       this.levelConfigCache &&
@@ -188,13 +188,13 @@ export class UserLevelService {
       const dbConfigs = await SystemConfigService.getLevelConfig();
       if (dbConfigs && typeof dbConfigs === 'object') {
         // 使用数据库配置，需要验证并转换
-        const validatedConfigs: Record<UserLevel, LevelConfig> = {} as any;
+        const validatedConfigs: Record<users_level, LevelConfig> = {} as any;
         Object.entries(dbConfigs).forEach(([key, value]: any) => {
-          if (LEVEL_CONFIGS[key as UserLevel]) {
-            validatedConfigs[key as UserLevel] = {
-              ...LEVEL_CONFIGS[key as UserLevel],
+          if (LEVEL_CONFIGS[key as users_level]) {
+            validatedConfigs[key as users_level] = {
+              ...LEVEL_CONFIGS[key as users_level],
               ...value,
-              key: key as UserLevel
+              key: key as users_level
             };
           }
         });
@@ -223,7 +223,7 @@ export class UserLevelService {
   /**
    * 获取等级配置
    */
-  static async getLevelConfig(level: UserLevel): Promise<LevelConfig> {
+  static async getLevelConfig(level: users_level): Promise<LevelConfig> {
     const configs = await this.loadLevelConfigs();
     return configs[level];
   }
@@ -239,7 +239,7 @@ export class UserLevelService {
   /**
    * 获取下一级等级
    */
-  static async getNextLevel(currentLevel: UserLevel): Promise<LevelConfig | null> {
+  static async getNextLevel(currentLevel: users_level): Promise<LevelConfig | null> {
     const levels = await this.getAllLevels();
     const currentIndex = levels.findIndex((l) => l.key === currentLevel);
     return currentIndex < levels.length - 1 ? levels[currentIndex + 1] : null;
@@ -253,7 +253,7 @@ export class UserLevelService {
    * @param salesAmount 销售总额
    */
   static async canUpgrade(
-    currentLevel: UserLevel,
+    currentLevel: users_level,
     directCountOfSameLevel: number,
     salesAmount: number
   ): Promise<boolean> {
@@ -286,7 +286,7 @@ export class UserLevelService {
    * @param salesAmount 销售总额
    */
   static async calculateUpgradeProgress(
-    currentLevel: UserLevel,
+    currentLevel: users_level,
     directCountOfSameLevel: number,
     salesAmount: number
   ): Promise<{
@@ -357,7 +357,7 @@ export class UserLevelService {
    */
   static async upgradeLevel(
     userId: string,
-    targetLevel: UserLevel,
+    targetLevel: users_level,
     reason: string = '自动升级'
   ) {
     const user = await prisma.users.findUnique({
@@ -410,7 +410,7 @@ export class UserLevelService {
 
     for (const user of users) {
       try {
-        let currentLevel = user.level as UserLevel;
+        let currentLevel = user.level as users_level;
         let canContinueUpgrade = true;
 
         // 不断尝试升级直到无法升级
@@ -447,7 +447,7 @@ export class UserLevelService {
   /**
    * 获取用户等级权益
    */
-  static async getLevelBenefits(level: UserLevel) {
+  static async getLevelBenefits(level: users_level) {
     const config = await this.getLevelConfig(level);
     return {
       discount: config.discount,
@@ -460,7 +460,7 @@ export class UserLevelService {
   /**
    * 获取价格折扣后的价格
    */
-  static async getDiscountedPrice(originalPrice: number, level: UserLevel): Promise<number> {
+  static async getDiscountedPrice(originalPrice: number, level: users_level): Promise<number> {
     const config = await this.getLevelConfig(level);
     return Math.round(originalPrice * config.discount * 100) / 100;
   }
@@ -472,8 +472,8 @@ export class UserLevelService {
 export interface LevelUpgradeRecord {
   id: string;
   userId: string;
-  oldLevel: UserLevel;
-  newLevel: UserLevel;
+  oldLevel: users_level;
+  newLevel: users_level;
   reason: string;
   metadata?: Record<string, any>;
   createdAt: Date;

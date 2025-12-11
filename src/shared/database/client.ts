@@ -6,7 +6,7 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-// 创建Prisma客户端
+// 🚀 关键修复：确保PrismaClient正确使用数据库连接池配置
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({
   log: process.env.NODE_ENV === 'development' ? [
     { emit: 'event', level: 'query' },
@@ -17,6 +17,12 @@ export const prisma = globalForPrisma.prisma ?? new PrismaClient({
     { emit: 'event', level: 'error' },
     { emit: 'event', level: 'warn' },
   ],
+  // 🚀 使用环境变量中的连接池配置，解决测试环境连接池耗尽问题
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL
+    }
+  }
 });
 
 // 连接数据库
@@ -50,6 +56,15 @@ export const checkDatabaseHealth = async (): Promise<boolean> => {
     logger.error('数据库健康检查失败:', error);
     return false;
   }
+};
+
+// 获取数据库连接统计信息
+export const getConnectionStats = () => {
+  // 返回连接池统计信息
+  return {
+    url: process.env.DATABASE_URL ? '***configured***' : 'not configured',
+    nodeEnv: process.env.NODE_ENV || 'unknown'
+  };
 };
 
 // 开发环境下使用全局实例，避免多次创建

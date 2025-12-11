@@ -1,5 +1,5 @@
 import { UserLevel } from '@/modules/user/level.service';
-import { PurchaseStatus } from '@/modules/purchase/purchase.service';
+import { PurchaseStatus } from '@/modules/purchase';
 
 // 订单类型枚举
 export enum OrderType {

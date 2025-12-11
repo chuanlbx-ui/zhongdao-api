@@ -38,6 +38,19 @@ const getCSRFKey = (userId?: string, sessionId?: string): string => {
  */
 export const csrfProtection = (req: Request, res: Response, next: NextFunction): void => {
   try {
+    // 检查是否为测试环境或明确禁用CSRF
+    const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true';
+    const isCSRFDisabled = process.env.DISABLE_CSRF === 'true';
+
+    if (isTestEnv || isCSRFDisabled) {
+      logger.debug('跳过CSRF验证', {
+        method: req.method,
+        url: req.url,
+        reason: isTestEnv ? '测试环境' : 'CSRF已禁用'
+      });
+      return next();
+    }
+
     // 检查是否标记跳过CSRF验证
     if ((req as any).skipCSRF) {
       logger.debug('跳过CSRF验证（标记为skipCSRF）', {
@@ -47,14 +60,13 @@ export const csrfProtection = (req: Request, res: Response, next: NextFunction):
       return next();
     }
 
-    // 对于某些路由直接跳过CSRF验证（开发测试模式）
+    // 对于某些路由直接跳过CSRF验证（仅限必要的认证路由）
     const bypassPaths = [
       '/api/v1/users/register',      // 用户注册
       '/api/v1/auth/password-register', // 密码注册
       '/api/v1/auth/password-login',    // 密码登录
       '/api/v1/admin/auth/login',    // 管理员登录
       '/api/v1/admin/auth/logout',   // 管理员登出
-      '/api/v1/admin/seed',          // 种子数据（开发环境）
     ];
     if (bypassPaths.some(path => req.path.includes(path)) && req.method === 'POST') {
       logger.debug('跳过CSRF验证（路由白名单）', {

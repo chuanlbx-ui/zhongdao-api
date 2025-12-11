@@ -19,7 +19,7 @@ if (require('fs').existsSync(localEnvFile)) {
   result = dotenv.config({ path: envFile });
   // 在开发模式下显示简化的加载信息
   if (process.env.NODE_ENV === 'development') {
-    console.log(`✓ 环境配置已加载: ${path.basename(envFile)}`);
+// [DEBUG REMOVED]     console.log(`✓ 环境配置已加载: ${path.basename(envFile)}`);
   }
 } else {
   // 如果没有 .env.local，则根据 NODE_ENV 加载对应文件
@@ -28,7 +28,7 @@ if (require('fs').existsSync(localEnvFile)) {
   if (result.error) {
     console.warn(`⚠️ 无法加载环境配置文件`);
   } else if (process.env.NODE_ENV === 'development') {
-    console.log(`✓ 环境配置已加载: ${path.basename(envFile)}`);
+// [DEBUG REMOVED]     console.log(`✓ 环境配置已加载: ${path.basename(envFile)}`);
   }
 }
 

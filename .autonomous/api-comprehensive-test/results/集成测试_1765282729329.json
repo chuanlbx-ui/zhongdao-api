@@ -1,0 +1,10 @@
+{
+  "name": "集成测试",
+  "command": "npm run test:integration",
+  "startTime": "2025-12-09T12:18:49.165Z",
+  "status": "failed",
+  "output": "",
+  "error": "Command failed: npm run test:integration",
+  "endTime": "2025-12-09T12:18:49.329Z",
+  "duration": 164
+}

@@ -1,41 +1,41 @@
-export default [
+const js = require('@eslint/js');
+
+module.exports = [
+  js.configs.recommended,
   {
-    files: ['src/**/*.ts', 'tests/**/*.ts'],
+    files: ['**/*.ts'],
     languageOptions: {
-      ecmaVersion: 2022,
-      sourceType: 'module'
+      parser: require('@typescript-eslint/parser'),
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: 'module',
+        project: './tsconfig.json',
+        tsconfigRootDir: __dirname,
+      },
+    },
+    plugins: {
+      '@typescript-eslint': require('@typescript-eslint/eslint-plugin'),
+      import: require('eslint-plugin-import'),
     },
     rules: {
-      // General JavaScript rules (basic set)
-      'no-console': 'off', // Allow console logs in development
-      'no-debugger': 'error',
-      'no-unused-vars': 'off', // Let TypeScript handle this
-      'prefer-const': 'error',
-      'no-var': 'error',
-
-      // Code style
-      'indent': ['error', 2],
-      'quotes': ['error', 'single'],
-      'semi': ['error', 'always'],
-      'comma-dangle': ['error', 'never'],
-      'object-curly-spacing': ['error', 'always'],
-      'array-bracket-spacing': ['error', 'never'],
-
-      // Best practices
-      'eqeqeq': ['error', 'always'],
-      'curly': ['error', 'all'],
-      'dot-notation': 'error',
-      'no-throw-literal': 'error'
-    }
+      // 基础规则
+      'no-unused-vars': 'off',
+      'no-undef': 'off',
+    },
+    settings: {
+      'import/resolver': {
+        typescript: true,
+      },
+    },
   },
   {
     ignores: [
-      'node_modules/**',
-      'dist/**',
-      'coverage/**',
-      'prisma/**',
+      'dist/',
+      'node_modules/',
+      'coverage/',
       '*.js',
-      '*.d.ts'
-    ]
-  }
+      'prisma/migrations/',
+      '.husky/',
+    ],
+  },
 ];

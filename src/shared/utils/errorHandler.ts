@@ -305,7 +305,7 @@ export class ErrorHandler {
 
     // 控制台输出（开发环境）
     if (process.env.NODE_ENV === 'development') {
-      console.log(`🚨 [${errorConfig.type.toUpperCase()}] ${message}`);
+// [DEBUG REMOVED]       console.log(`🚨 [${errorConfig.type.toUpperCase()}] ${message}`);
     }
 
     // 在实际项目中，这里应该调用UI组件显示错误

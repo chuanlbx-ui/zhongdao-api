@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * 五通店API控制器
  * 提供五通店特殊业务逻辑的HTTP接口
@@ -6,7 +5,43 @@
 
 import { Request, Response } from 'express';
 import { wutongService, shopService } from './wutong.service';
-import { logger } from '../../shared/utils/logger';
+import { logger } from '@/shared/utils/logger';
+
+// 类型定义
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+    [key: string]: any;
+  };
+}
+
+interface CartItem {
+  productsId: string;
+  productsName: string;
+  quantity: number;
+  unitPrice: number;
+  [key: string]: any;
+}
+
+interface BenefitRequest {
+  cartItems: CartItem[];
+}
+
+interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  message: string;
+}
+
+interface OpenWutongRequest {
+  contactName: string;
+  contactPhone: string;
+  address?: string;
+}
+
+interface ShopParams {
+  shopId: string;
+}
 
 /**
  * 五通店控制器类
@@ -15,7 +50,7 @@ export class WutongController {
   /**
    * 验证用户五通店资格
    */
-  async validateQualification(req: Request, res: Response) {
+  async validateQualification(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
@@ -48,7 +83,7 @@ export class WutongController {
   /**
    * 计算买10赠1权益
    */
-  async calculateBenefit(req: Request, res: Response) {
+  async calculateBenefit(req: AuthenticatedRequest & { body: BenefitRequest }, res: Response): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
@@ -69,8 +104,8 @@ export class WutongController {
 
       // 验证购物车数据格式
       const validCartItems = cartItems.filter(item =>
-        item.productId &&
-        item.productName &&
+        item.productsId &&
+        item.productsName &&
         typeof item.quantity === 'number' &&
         typeof item.unitPrice === 'number' &&
         item.quantity > 0 &&
@@ -108,7 +143,7 @@ export class WutongController {
   /**
    * 开通五通店
    */
-  async openWutongShop(req: Request, res: Response) {
+  async openWutongShop(req: AuthenticatedRequest & { body: OpenWutongRequest }, res: Response): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
@@ -176,7 +211,7 @@ export class WutongController {
   /**
    * 获取五通店统计数据
    */
-  async getStatistics(req: Request, res: Response) {
+  async getStatistics(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
@@ -209,7 +244,7 @@ export class WutongController {
   /**
    * 获取五通店权益说明
    */
-  async getBenefitsInfo(req: Request, res: Response) {
+  async getBenefitsInfo(req: Request, res: Response): Promise<void> {
     try {
       const benefits = wutongService.getWutongBenefits();
 
@@ -239,7 +274,7 @@ export class WutongController {
   /**
    * 模拟支付确认（仅用于开发测试）
    */
-  async simulatePaymentConfirmation(req: Request, res: Response) {
+  async simulatePaymentConfirmation(req: Request & { params: ShopParams }, res: Response): Promise<void> {
     try {
       const { shopId } = req.params;
 

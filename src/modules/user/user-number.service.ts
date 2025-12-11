@@ -1,5 +1,5 @@
-import { prisma } from '../../shared/database/client';
-import { logger } from '../../shared/utils/logger';
+import { prisma } from '@/shared/database/client';
+import { logger } from '@/shared/utils/logger';
 
 /**
  * 用户编号服务

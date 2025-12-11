@@ -78,7 +78,7 @@ export class PaymentService {
         canTransferPoints: true,
         canReceivePoints: true,
         canRechargeWithWechat: ['五星店长', '董事', 'ADMIN'].includes(mockUserInfo.role),
-        canPurchaseFromCloud: mockUserInfo.level !== 'normal',
+        canPurchaseFromCloud: mockUserInfo.level !== 'NORMAL',
         dailyLimit: undefined,  // 无限制
         monthlyLimit: undefined, // 无限制
         transactionLimit: undefined // 无限制

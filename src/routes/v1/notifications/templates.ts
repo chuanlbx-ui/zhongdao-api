@@ -39,7 +39,7 @@ export const getNotificationTemplatesController = async (req: Request, res: Resp
 
     // 查询模板列表
     const [templates, total] = await Promise.all([
-      prisma.notificationTemplate.findMany({
+      prisma.notificationsTemplate.findMany({
         where,
         orderBy: [
           { isSystem: 'desc' },
@@ -66,7 +66,7 @@ export const getNotificationTemplatesController = async (req: Request, res: Resp
           updatedAt: true
         }
       }),
-      prisma.notificationTemplate.count({ where })
+      prisma.notificationsTemplate.count({ where })
     ]);
 
     // 转换数据格式
@@ -124,7 +124,7 @@ export const getNotificationTemplateByIdController = async (req: Request, res: R
   try {
     const { templateId } = req.params;
 
-    const template = await prisma.notificationTemplate.findUnique({
+    const template = await prisma.notificationsTemplate.findUnique({
       where: { id: templateId },
       include: {
         _count: {
@@ -222,7 +222,7 @@ export const createNotificationTemplateController = async (req: Request, res: Re
     }
 
     // 检查模板代码是否已存在
-    const existingTemplate = await prisma.notificationTemplate.findUnique({
+    const existingTemplate = await prisma.notificationsTemplate.findUnique({
       where: { code }
     });
 
@@ -238,7 +238,7 @@ export const createNotificationTemplateController = async (req: Request, res: Re
     }
 
     // 创建模板
-    const template = await prisma.notificationTemplate.create({
+    const template = await prisma.notificationsTemplate.create({
       data: {
         code,
         name,
@@ -304,7 +304,7 @@ export const updateNotificationTemplateController = async (req: Request, res: Re
     const updateData = req.body;
 
     // 检查模板是否存在
-    const existingTemplate = await prisma.notificationTemplate.findUnique({
+    const existingTemplate = await prisma.notificationsTemplate.findUnique({
       where: { id: templateId }
     });
 
@@ -321,7 +321,7 @@ export const updateNotificationTemplateController = async (req: Request, res: Re
 
     // 如果更新代码，检查是否与其他模板冲突
     if (updateData.code && updateData.code !== existingTemplate.code) {
-      const codeConflict = await prisma.notificationTemplate.findUnique({
+      const codeConflict = await prisma.notificationsTemplate.findUnique({
         where: { code: updateData.code }
       });
 
@@ -350,7 +350,7 @@ export const updateNotificationTemplateController = async (req: Request, res: Re
     }
 
     // 更新模板
-    const template = await prisma.notificationTemplate.update({
+    const template = await prisma.notificationsTemplate.update({
       where: { id: templateId },
       data: processedData
     });
@@ -403,7 +403,7 @@ export const deleteNotificationTemplateController = async (req: Request, res: Re
     const { templateId } = req.params;
 
     // 检查模板是否存在
-    const existingTemplate = await prisma.notificationTemplate.findUnique({
+    const existingTemplate = await prisma.notificationsTemplate.findUnique({
       where: { id: templateId }
     });
 
@@ -431,7 +431,7 @@ export const deleteNotificationTemplateController = async (req: Request, res: Re
     }
 
     // 检查模板是否被使用
-    const usageCount = await prisma.notification.count({
+    const usageCount = await prisma.notifications.count({
       where: { templateId }
     });
 
@@ -447,7 +447,7 @@ export const deleteNotificationTemplateController = async (req: Request, res: Re
     }
 
     // 删除模板
-    await prisma.notificationTemplate.delete({
+    await prisma.notificationsTemplate.delete({
       where: { id: templateId }
     });
 

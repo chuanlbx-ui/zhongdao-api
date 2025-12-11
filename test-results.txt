@@ -1,0 +1,7 @@
+测试产品API的基本连通性...
+1. 健康检查:
+{"success":true,"data":{"status":"ok","timestamp":"2025-12-06T02:55:05.387Z","version":"1.0.0","environment":"development","uptime":712.3743532},"timestamp":"2025-12-06T02:55:05.387Z"}
+2. 无token访问分类树:
+{"success":false,"error":{"code":"UNAUTHORIZED","message":"缺少认证Token","timestamp":"2025-12-06T02:55:05.469Z"},"timestamp":"2025-12-06T02:55:05.469Z","requestId":"ccc6bcf4-c572-4525-9201-09f4772eac89"}
+3. 无token访问标签列表:
+{"success":false,"error":{"code":"UNAUTHORIZED","message":"缺少认证Token","timestamp":"2025-12-06T02:55:05.559Z"},"timestamp":"2025-12-06T02:55:05.559Z","requestId":"4da2f075-8ab9-4871-9008-0cf18e29c152"}

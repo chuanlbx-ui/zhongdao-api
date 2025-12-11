@@ -40,7 +40,7 @@ export interface TeamMember {
   status: TeamStatus;
 
   // 推荐关系
-  referrerId?: string;         // 推荐人ID
+  parentId?: string;         // 推荐人ID
   referrerNickname?: string;   // 推荐人昵称
   uplineId?: string;           // 上级ID
   uplineNickname?: string;     // 上级昵称
@@ -100,7 +100,7 @@ export interface TeamStructure {
 
 export interface ReferralRelationship {
   id: string;
-  referrerId: string;          // 推荐人ID
+  parentId: string;          // 推荐人ID
   refereeId: string;           // 被推荐人ID
   relationshipType: RelationshipType;
 
@@ -226,7 +226,7 @@ export enum CommissionStatus {
 
 // API 接口参数类型
 export interface CreateReferralParams {
-  referrerId: string;
+  parentId: string;
   refereeId: string;
   relationshipType?: RelationshipType;
 }

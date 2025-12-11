@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { authenticate } from '../../../shared/middleware/auth';
-import { asyncHandler } from '../../../shared/middleware/error';
+import { asyncHandler, asyncHandler2 } from '../../../shared/middleware/error';
 import { createSuccessResponse } from '../../../shared/types/response';
 import { UserLevelService, LEVEL_CONFIGS } from '../../../shared/services/userLevelService';
 import { prisma } from '../../../shared/database/client';
@@ -12,8 +12,8 @@ const router = Router();
  */
 router.get('/system',
   asyncHandler(async (req, res) => {
-    const levels = UserLevelService.getAllLevels();
-    
+    const levels = await UserLevelService.getAllLevels();
+
     res.json(createSuccessResponse({
       levels: levels.map(level => ({
         key: level.key,
@@ -58,8 +58,8 @@ router.get('/me',
       });
     }
 
-    const currentLevelConfig = UserLevelService.getLevelConfig(user.level);
-    const upgradeProgress = UserLevelService.calculateUpgradeProgress(
+    const currentLevelConfig = await UserLevelService.getLevelConfig(user.level);
+    const upgradeProgress = await UserLevelService.calculateUpgradeProgress(
       user.level,
       user.directCount,
       user.teamSales
@@ -153,8 +153,8 @@ router.get('/:userId',
       });
     }
 
-    const currentLevelConfig = UserLevelService.getLevelConfig(user.level);
-    const upgradeProgress = UserLevelService.calculateUpgradeProgress(
+    const currentLevelConfig = await UserLevelService.getLevelConfig(user.level);
+    const upgradeProgress = await UserLevelService.calculateUpgradeProgress(
       user.level,
       user.directCount,
       user.teamSales
@@ -281,8 +281,8 @@ router.get('/benefits/:level',
       });
     }
 
-    const config = UserLevelService.getLevelConfig(level as any);
-    const benefits = UserLevelService.getLevelBenefits(level as any);
+    const config = await UserLevelService.getLevelConfig(level as any);
+    const benefits = await UserLevelService.getLevelBenefits(level as any);
 
     res.json(createSuccessResponse({
       level: level,

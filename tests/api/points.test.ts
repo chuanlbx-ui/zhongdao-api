@@ -5,7 +5,8 @@
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import request from 'supertest';
-import { app, setupTestDatabase, cleanupTestDatabase, generateTestData } from '../setup';
+import { app, setupTestDatabase, cleanupTestDatabase } from '../setup';
+import { TestAuthHelper, createTestUser } from '../helpers/auth.helper';
 
 const API_BASE = '/api/v1';
 
@@ -15,10 +16,22 @@ describe('积分系统API测试', () => {
   let userToken: string = '';
   let testUserId: string = '';
   let testTransactionId: string = '';
+  let adminUser: any;
+  let normalUser: any;
 
   beforeAll(async () => {
     console.log('开始积分系统API测试...');
     await setupTestDatabase();
+
+    // 创建测试用户并生成tokens
+    adminUser = await createTestUser('admin');
+    normalUser = await createTestUser('normal');
+
+    adminToken = adminUser.tokens.accessToken;
+    userToken = normalUser.tokens.accessToken;
+    testUserId = normalUser.id;
+
+    console.log('✅ 测试用户已创建，tokens已生成');
   });
 
   afterAll(async () => {
@@ -27,12 +40,9 @@ describe('积分系统API测试', () => {
 
   describe('GET /points/balance', () => {
     it('应该能够获取积分余额', async () => {
-      // 模拟用户token
-      const mockToken = 'mock_user_token_for_testing';
-
       const response = await request(app)
         .get(`${API_BASE}/points/balance`)
-        .set('Authorization', `Bearer ${mockToken}`)
+        .set('Authorization', `Bearer ${userToken}`)
         .expect(200);
 
       expect(response.body.success).toBe(true);
@@ -53,11 +63,9 @@ describe('积分系统API测试', () => {
   });
 
   describe('POST /points/transfer', () => {
-    const testData = generateTestData();
-
     it('应该能够进行积分转账', async () => {
       const transferData = {
-        to_user_id: 'test_recipient_user_12345',
+        toUserId: adminUser.id, // 使用真实的管理员用户ID
         amount: 100,
         description: '测试转账'
       };
@@ -77,7 +85,7 @@ describe('积分系统API测试', () => {
 
     it('应该拒绝负金额转账', async () => {
       const transferData = {
-        to_user_id: 'test_recipient_user_12345',
+        toUserId: 'test_recipient_user_12345',
         amount: -100,
         description: '无效转账'
       };
@@ -94,7 +102,7 @@ describe('积分系统API测试', () => {
 
     it('应该拒绝转账给自己', async () => {
       const transferData = {
-        to_user_id: testUserId,
+        toUserId: testUserId,
         amount: 100,
         description: '给自己转账'
       };
@@ -110,7 +118,7 @@ describe('积分系统API测试', () => {
 
     it('应该拒绝余额不足的转账', async () => {
       const transferData = {
-        to_user_id: 'test_recipient_user_12345',
+        toUserId: 'test_recipient_user_12345',
         amount: 999999999, // 超大金额
         description: '余额不足转账'
       };
@@ -227,7 +235,7 @@ describe('积分系统API测试', () => {
   describe('POST /points/recharge (管理员)', () => {
     it('应该能够为用户充值积分（管理员权限）', async () => {
       const rechargeData = {
-        user_id: testUserId,
+        userId: testUserId,
         amount: 500,
         description: '管理员测试充值'
       };
@@ -247,7 +255,7 @@ describe('积分系统API测试', () => {
 
     it('应该拒绝非管理员的充值请求', async () => {
       const rechargeData = {
-        user_id: testUserId,
+        userId: testUserId,
         amount: 500,
         description: '非法充值'
       };
@@ -264,7 +272,7 @@ describe('积分系统API测试', () => {
 
     it('应该拒绝负数充值', async () => {
       const rechargeData = {
-        user_id: testUserId,
+        userId: testUserId,
         amount: -100,
         description: '无效充值'
       };
@@ -282,7 +290,7 @@ describe('积分系统API测试', () => {
   describe('POST /points/freeze (管理员)', () => {
     it('应该能够冻结用户积分（管理员权限）', async () => {
       const freezeData = {
-        user_id: testUserId,
+        userId: testUserId,
         amount: 200,
         description: '违规操作冻结积分'
       };
@@ -300,7 +308,7 @@ describe('积分系统API测试', () => {
 
     it('应该能够解冻用户积分（管理员权限）', async () => {
       const freezeData = {
-        user_id: testUserId,
+        userId: testUserId,
         amount: -200, // 负数表示解冻
         description: '解冻积分'
       };
@@ -321,12 +329,12 @@ describe('积分系统API测试', () => {
       const batchRechargeData = {
         operations: [
           {
-            user_id: testUserId,
+            userId: testUserId,
             amount: 100,
             description: '批量充值1'
           },
           {
-            user_id: 'test_user_67890',
+            userId: 'test_user_67890',
             amount: 200,
             description: '批量充值2'
           }
@@ -350,12 +358,12 @@ describe('积分系统API测试', () => {
       const batchRechargeData = {
         operations: [
           {
-            user_id: testUserId,
+            userId: testUserId,
             amount: 100,
             description: '正常充值'
           },
           {
-            user_id: '', // 无效用户ID
+            userId: '', // 无效用户ID
             amount: 200,
             description: '无效充值'
           }
@@ -379,7 +387,7 @@ describe('积分系统API测试', () => {
       // 测试大额转账是否被限制
       const largeAmount = 50000; // 假设日限额是10000
       const transferData = {
-        to_user_id: 'test_recipient_user_12345',
+        toUserId: 'test_recipient_user_12345',
         amount: largeAmount,
         description: '大额转账测试'
       };
@@ -398,7 +406,7 @@ describe('积分系统API测试', () => {
 
     it('应该有转账频率限制', async () => {
       const transferData = {
-        to_user_id: 'test_recipient_user_12345',
+        toUserId: 'test_recipient_user_12345',
         amount: 10,
         description: '频率测试转账'
       };

@@ -1,0 +1,10 @@
+{
+  "name": "商城管理系统 - shops.test.ts",
+  "command": "npm test tests/api/shops.test.ts",
+  "startTime": "2025-12-09T09:45:23.968Z",
+  "status": "failed",
+  "output": "",
+  "error": "Command failed: npm test tests/api/shops.test.ts",
+  "endTime": "2025-12-09T09:45:24.058Z",
+  "duration": 90
+}

@@ -1,0 +1,10 @@
+{
+  "name": "佣金系统 - commission.test.ts",
+  "command": "npm test tests/api/commission.test.ts",
+  "startTime": "2025-12-09T09:45:24.576Z",
+  "status": "failed",
+  "output": "",
+  "error": "Command failed: npm test tests/api/commission.test.ts",
+  "endTime": "2025-12-09T09:45:24.672Z",
+  "duration": 96
+}

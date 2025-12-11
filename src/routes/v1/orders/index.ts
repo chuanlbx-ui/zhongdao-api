@@ -1,13 +1,16 @@
 import { Router, Request, Response } from 'express';
-import { body, query, param } from 'express-validator';
+import { OrdersService } from '../../../modules/orders';
+import * as expressValidator from 'express-validator';
+const { body, query, param  } = expressValidator;
 import { authenticate } from '../../../shared/middleware/auth';
-import { asyncHandler } from '../../../shared/middleware/error';
+import { asyncHandler, asyncHandler2 } from '../../../shared/middleware/error';
 import { validate } from '../../../shared/middleware/validation';
 import { createSuccessResponse, createErrorResponse, ErrorCode } from '../../../shared/types/response';
 import { logger } from '../../../shared/utils/logger';
 import { orderService } from '../../../shared/services/order';
 import { OrderType, OrderStatus, PaymentMethod } from '../../../shared/types/order';
 
+const ordersService = new OrdersService();
 const router = Router();
 
 // 创建订单
@@ -27,7 +30,7 @@ router.post('/',
     body('items')
       .isArray({ min: 1 })
       .withMessage('订单项不能为空'),
-    body('items.*.productId')
+    body('items.*.productsId')
       .isUUID()
       .withMessage('商品ID无效'),
     body('items.*.skuId')
@@ -399,7 +402,7 @@ router.post('/exchange',
     body('outItems')
       .isArray({ min: 1 })
       .withMessage('换出商品不能为空'),
-    body('outItems.*.productId')
+    body('outItems.*.productsId')
       .isUUID()
       .withMessage('换出商品ID无效'),
     body('outItems.*.skuId')
@@ -411,7 +414,7 @@ router.post('/exchange',
     body('inItems')
       .isArray({ min: 1 })
       .withMessage('换入商品不能为空'),
-    body('inItems.*.productId')
+    body('inItems.*.productsId')
       .isUUID()
       .withMessage('换入商品ID无效'),
     body('inItems.*.skuId')

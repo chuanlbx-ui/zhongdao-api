@@ -1,0 +1,10 @@
+{
+  "name": "管理系统",
+  "command": "npm run test:admin",
+  "startTime": "2025-12-09T12:18:48.793Z",
+  "status": "failed",
+  "output": "",
+  "error": "Command failed: npm run test:admin",
+  "endTime": "2025-12-09T12:18:48.900Z",
+  "duration": 107
+}

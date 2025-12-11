@@ -1,0 +1,2376 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>API测试报告 - 2025/12/9</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { background: #f0f0f0; padding: 20px; border-radius: 5px; }
+        .summary { display: flex; gap: 20px; margin: 20px 0; }
+        .metric { background: #fff; padding: 15px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }
+        .metric h3 { margin: 0; font-size: 24px; }
+        .passed { color: #28a745; }
+        .failed { color: #dc3545; }
+        .skipped { color: #ffc107; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background: #f8f9fa; }
+        .status-passed { background: #d4edda; }
+        .status-failed { background: #f8d7da; }
+        .issues { background: #fff3cd; padding: 15px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>中道商城系统 - API测试报告</h1>
+        <p>测试时间: 2025/12/9 20:19:56 - 2025/12/9 20:32:58</p>
+        <p>总耗时: 782.44 秒</p>
+    </div>
+
+    <div class="summary">
+        <div class="metric">
+            <h3 class="passed">1</h3>
+            <p>通过</p>
+        </div>
+        <div class="metric">
+            <h3 class="failed">12</h3>
+            <p>失败</p>
+        </div>
+        <div class="metric">
+            <h3>13</h3>
+            <p>总计</p>
+        </div>
+    </div>
+
+    <h2>测试详情</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>模块</th>
+                <th>状态</th>
+                <th>耗时(秒)</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+                <tr class="status-failed">
+                    <td>00-环境检查</td>
+                    <td>❌ 失败</td>
+                    <td>2.10</td>
+                </tr>
+            
+                <tr class="status-failed">
+                    <td>用户认证系统 - auth.test.ts</td>
+                    <td>❌ 失败</td>
+                    <td>5.19</td>
+                </tr>
+            
+                <tr class="status-failed">
+                    <td>用户管理系统 - users.test.ts</td>
+                    <td>❌ 失败</td>
+                    <td>276.56</td>
+                </tr>
+            
+                <tr class="status-failed">
+                    <td>商城管理系统 - shops.test.ts</td>
+                    <td>❌ 失败</td>
+                    <td>7.87</td>
+                </tr>
+            
+                <tr class="status-failed">
+                    <td>商品管理系统 - products.test.ts</td>
+                    <td>❌ 失败</td>
+                    <td>4.59</td>
+                </tr>
+            
+                <tr class="status-failed">
+                    <td>订单管理系统 - orders.test.ts</td>
+                    <td>❌ 失败</td>
+                    <td>4.69</td>
+                </tr>
+            
+                <tr class="status-failed">
+                    <td>积分系统 - points.test.ts</td>
+                    <td>❌ 失败</td>
+                    <td>454.96</td>
+                </tr>
+            
+                <tr class="status-passed">
+                    <td>支付系统 - payments.test.ts</td>
+                    <td>✅ 通过</td>
+                    <td>6.54</td>
+                </tr>
+            
+                <tr class="status-failed">
+                    <td>佣金系统 - commission.test.ts</td>
+                    <td>❌ 失败</td>
+                    <td>8.13</td>
+                </tr>
+            
+                <tr class="status-failed">
+                    <td>管理系统</td>
+                    <td>❌ 失败</td>
+                    <td>6.89</td>
+                </tr>
+            
+                <tr class="status-failed">
+                    <td>安全测试</td>
+                    <td>❌ 失败</td>
+                    <td>1.71</td>
+                </tr>
+            
+                <tr class="status-failed">
+                    <td>性能测试</td>
+                    <td>❌ 失败</td>
+                    <td>1.70</td>
+                </tr>
+            
+                <tr class="status-failed">
+                    <td>集成测试</td>
+                    <td>❌ 失败</td>
+                    <td>1.49</td>
+                </tr>
+            
+        </tbody>
+    </table>
+
+    
+        <div class="issues">
+            <h2>⚠️ 发现的问题</h2>
+            <ul>
+                
+                    <li>
+                        <strong>00-环境检查</strong>: Command failed: npm run db:validate
+D:\wwwroot\zhongdao-mall\src\scripts\test-data-manager.ts:173
+    const userHierarchy = await prisma.usersss.groupBy({
+                                               ^
+
+TypeError: Cannot read properties of undefined (reading 'groupBy')
+    at TestDataManager.validateData (D:\wwwroot\zhongdao-mall\src\scripts\test-data-manager.ts:173:48)
+    at async Command.<anonymous> (D:\wwwroot\zhongdao-mall\src\scripts\test-data-manager.ts:552:21)
+
+Node.js v22.21.1
+
+                        <br><em>建议: 查看详细错误日志，联系相关开发人员</em>
+                    </li>
+                
+                    <li>
+                        <strong>用户认证系统 - auth.test.ts</strong>: Command failed: npm test tests/api/auth.test.ts
+[90mstderr[2m | api/auth.test.ts[2m > [22m[2m认证API测试[2m > [22m[2mPOST /auth/refresh[2m > [22m[2m应该能够刷新访问令牌
+[22m[39m跳过token刷新测试 - 缺少refreshToken
+
+[90mstderr[2m | api/auth.test.ts[2m > [22m[2m认证API测试[2m > [22m[2mPOST /auth/logout[2m > [22m[2m应该能够成功登出
+[22m[39m跳过登出测试 - 缺少authToken
+
+[90mstderr[2m | api/auth.test.ts[2m > [22m[2m认证API测试[2m > [22m[2mGET /auth/me[2m > [22m[2m应该能够获取当前用户信息
+[22m[39m跳过用户信息测试 - 缺少authToken
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 5 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m api/auth.test.ts[2m > [22m认证API测试[2m > [22mPOST /auth/wechat-login[2m > [22m应该能够使用微信登录码登录
+[31m[1mAssertionError[22m: expected { …(2) } to have property "token"[39m
+[36m [2m❯[22m api/auth.test.ts:[2m39:34[22m[39m
+    [90m 37| [39m
+    [90m 38| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m 39| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39mdata)[33m.[39m[34mtoHaveProperty[39m([32m'token'[39m)[33m;[39m
+    [90m   | [39m                                 [31m^[39m
+    [90m 40| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39mdata)[33m.[39m[34mtoHaveProperty[39m([32m'refreshToken'[39m)[33m;[39m
+    [90m 41| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39mdata)[33m.[39m[34mtoHaveProperty[39m([32m'user'[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/auth.test.ts[2m > [22m认证API测试[2m > [22mPOST /auth/wechat-login[2m > [22m应该拒绝无效的登录码
+[31m[1mError[22m: expected 400 "Bad Request", got 200 "OK"[39m
+[36m [2m❯[22m api/auth.test.ts:[2m58:10[22m[39m
+    [90m 56| [39m        [33m.[39m[34mpost[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/auth/wechat-login`[39m)
+    [90m 57| [39m        [33m.[39m[34msend[39m(loginData)
+    [90m 58| [39m        [33m.[39m[34mexpect[39m([34m400[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m 59| [39m
+    [90m 60| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/auth.test.ts[2m > [22m认证API测试[2m > [22mPOST /auth/wechat-login[2m > [22m应该拒绝缺少必要参数的登录请求
+[31m[1mError[22m: expected 400 "Bad Request", got 200 "OK"[39m
+[36m [2m❯[22m api/auth.test.ts:[2m68:10[22m[39m
+    [90m 66| [39m        [33m.[39m[34mpost[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/auth/wechat-login`[39m)
+    [90m 67| [39m        [33m.[39m[34msend[39m({})
+    [90m 68| [39m        [33m.[39m[34mexpect[39m([34m400[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m 69| [39m
+    [90m 70| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/auth.test.ts[2m > [22m认证API测试[2m > [22mPOST /auth/refresh[2m > [22m应该拒绝无效的refreshToken
+[31m[1mError[22m: expected 401 "Unauthorized", got 200 "OK"[39m
+[36m [2m❯[22m api/auth.test.ts:[2m99:10[22m[39m
+    [90m 97| [39m        [33m.[39m[34mpost[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/auth/refresh`[39m)
+    [90m 98| [39m        [33m.[39m[34msend[39m({ refreshToken[33m:[39m [32m'invalid_refresh_token'[39m })
+    [90m 99| [39m        [33m.[39m[34mexpect[39m([34m401[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m100| [39m
+    [90m101| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/auth.test.ts[2m > [22m认证API测试[2m > [22mPOST /auth/logout[2m > [22m应该拒绝未授权的登出请求
+[31m[1mError[22m: expected 401 "Unauthorized", got 415 "Unsupported Media Type"[39m
+[36m [2m❯[22m api/auth.test.ts:[2m124:10[22m[39m
+    [90m122| [39m      [35mconst[39m response [33m=[39m [35mawait[39m [34mrequest[39m(app)
+    [90m123| [39m        [33m.[39m[34mpost[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/auth/logout`[39m)
+    [90m124| [39m        [33m.[39m[34mexpect[39m([34m401[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m125| [39m
+    [90m126| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯[22m[39m
+
+
+                        <br><em>建议: 查看详细错误日志，联系相关开发人员</em>
+                    </li>
+                
+                    <li>
+                        <strong>用户管理系统 - users.test.ts</strong>: Command failed: npm test tests/api/users.test.ts
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 30 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mGET /users/profile[2m > [22m普通用户应该能够获取个人信息
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/users.test.ts:[2m105:10[22m[39m
+    [90m103| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/users/profile`[39m)
+    [90m104| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mnormalUserToken[36m}[39m[32m`[39m)
+    [90m105| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m106| [39m
+    [90m107| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mGET /users/profile[2m > [22mVIP用户应该显示VIP等级标识
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/users.test.ts:[2m118:10[22m[39m
+    [90m116| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/users/profile`[39m)
+    [90m117| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mvipUserToken[36m}[39m[32m`[39m)
+    [90m118| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m119| [39m
+    [90m120| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mGET /users/profile[2m > [22m星店长应该显示店铺管理权限
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/users.test.ts:[2m128:10[22m[39m
+    [90m126| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/users/profile`[39m)
+    [90m127| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mstarUserToken[36m}[39m[32m`[39m)
+    [90m128| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m129| [39m
+    [90m130| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mGET /users/profile[2m > [22m管理员应该显示管理员标识
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/users.test.ts:[2m138:10[22m[39m
+    [90m136| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/users/profile`[39m)
+    [90m137| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39madminToken[36m}[39m[32m`[39m)
+    [90m138| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m139| [39m
+    [90m140| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mPUT /users/profile[2m > [22m应该能够更新用户基本信息
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/users.test.ts:[2m167:10[22m[39m
+    [90m165| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mnormalUserToken[36m}[39m[32m`[39m)
+    [90m166| [39m        [33m.[39m[34msend[39m(updateData)
+    [90m167| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m168| [39m
+    [90m169| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mGET /users/:id[2m > [22m管理员应该能够查看任意用户信息
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/users.test.ts:[2m224:10[22m[39m
+    [90m222| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/users/[39m[36m${[39mtestUserId[36m}[39m[32m`[39m)
+    [90m223| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39madminToken[36m}[39m[32m`[39m)
+    [90m224| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m225| [39m
+    [90m226| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mGET /users/:id[2m > [22m用户应该能够查看自己的信息
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/users.test.ts:[2m238:10[22m[39m
+    [90m236| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/users/[39m[36m${[39mcurrentUserId[36m}[39m[32m`[39m)
+    [90m237| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mnormalUserToken[36m}[39m[32m`[39m)
+    [90m238| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m239| [39m
+    [90m240| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mGET /users/:id[2m > [22m不存在的用户ID应返回404
+[31m[1mError[22m: expected 404 "Not Found", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/users.test.ts:[2m264:10[22m[39m
+    [90m262| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/users/[39m[36m${[39mfakeId[36m}[39m[32m`[39m)
+    [90m263| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39madminToken[36m}[39m[32m`[39m)
+    [90m264| [39m        [33m.[39m[34mexpect[39m([34m404[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m265| [39m
+    [90m266| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mGET /users/team[2m > [22m星店长应该能够查看自己的团队
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/users.test.ts:[2m275:10[22m[39m
+    [90m273| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/users/team`[39m)
+    [90m274| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mstarUserToken[36m}[39m[32m`[39m)
+    [90m275| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m276| [39m
+    [90m277| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mGET /users/team[2m > [22m管理员应该能够查看所有团队
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/users.test.ts:[2m287:10[22m[39m
+    [90m285| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/users/team`[39m)
+    [90m286| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39madminToken[36m}[39m[32m`[39m)
+    [90m287| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m288| [39m
+    [90m289| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mGET /users/team[2m > [22m团队数据应包含层级关系
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/users.test.ts:[2m306:10[22m[39m
+    [90m304| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/users/team`[39m)
+    [90m305| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mstarUserToken[36m}[39m[32m`[39m)
+    [90m306| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m307| [39m
+    [90m308| [39m      if (response.body.data.members && response.body.data.members.len…
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mGET /users/statistics[2m > [22m用户应该能够查看个人统计
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/users.test.ts:[2m321:10[22m[39m
+    [90m319| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/users/statistics`[39m)
+    [90m320| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mnormalUserToken[36m}[39m[32m`[39m)
+    [90m321| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m322| [39m
+    [90m323| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mGET /users/statistics[2m > [22m星店长应该有团队业绩统计
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/users.test.ts:[2m333:10[22m[39m
+    [90m331| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/users/statistics`[39m)
+    [90m332| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mstarUserToken[36m}[39m[32m`[39m)
+    [90m333| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m334| [39m
+    [90m335| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mGET /users/statistics[2m > [22m管理员应该有全局统计
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/users.test.ts:[2m344:10[22m[39m
+    [90m342| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/users/statistics`[39m)
+    [90m343| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39madminToken[36m}[39m[32m`[39m)
+    [90m344| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m345| [39m
+    [90m346| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mPOST /users/upload-avatar[2m > [22m应该能够上传头像
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mPOST /users/upload-avatar[2m > [22m应该验证文件类型
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mPOST /users/upload-avatar[2m > [22m未认证用户不能上传头像
+[31m[1mError[22m: Aborted[39m
+[90m [2m❯[22m Test.<anonymous> ../node_modules/superagent/lib/request-base.js:[2m258:23[22m[39m
+[90m [2m❯[22m Test.RequestBase.abort ../node_modules/superagent/lib/request-base.js:[2m447:8[22m[39m
+[90m [2m❯[22m FormData.<anonymous> ../node_modules/superagent/lib/node/index.js:[2m286:12[22m[39m
+[90m [2m❯[22m FormData.CombinedStream._emitError ../node_modules/combined-stream/lib/combined_stream.js:[2m207:8[22m[39m
+[90m [2m❯[22m DelayedStream.<anonymous> ../node_modules/combined-stream/lib/combined_stream.js:[2m133:10[22m[39m
+[90m [2m❯[22m DelayedStream._handleEmit ../node_modules/delayed-stream/lib/delayed_stream.js:[2m82:15[22m[39m
+[90m [2m❯[22m ReadStream.source.emit ../node_modules/delayed-stream/lib/delayed_stream.js:[2m29:19[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mPOST /users/bind-phone[2m > [22m应该能够绑定手机号
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/users.test.ts:[2m397:5[22m[39m
+    [90m395| [39m
+    [90m396| [39m  [34mdescribe[39m([32m'POST /users/bind-phone'[39m[33m,[39m () [33m=>[39m {
+    [90m397| [39m    [34mit[39m([32m'应该能够绑定手机号'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m398| [39m      [35mconst[39m phoneData [33m=[39m {
+    [90m399| [39m        phone[33m:[39m [32m'13800138002'[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mPOST /users/bind-phone[2m > [22m应该验证验证码
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/users.test.ts:[2m412:5[22m[39m
+    [90m410| [39m    })[33m;[39m
+    [90m411| [39m
+    [90m412| [39m    [34mit[39m([32m'应该验证验证码'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m413| [39m      [35mconst[39m phoneData [33m=[39m {
+    [90m414| [39m        phone[33m:[39m [32m'13800138003'[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mPOST /users/bind-phone[2m > [22m重复绑定应该返回错误
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/users.test.ts:[2m428:5[22m[39m
+    [90m426| [39m    })[33m;[39m
+    [90m427| [39m
+    [90m428| [39m    [34mit[39m([32m'重复绑定应该返回错误'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m429| [39m      [90m// 先绑定一次[39m
+    [90m430| [39m      [35mconst[39m phoneData [33m=[39m {
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mGET /users/referrals[2m > [22m用户应该查看自己的推荐记录
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/users.test.ts:[2m457:10[22m[39m
+    [90m455| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/users/referrals`[39m)
+    [90m456| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mnormalUserToken[36m}[39m[32m`[39m)
+    [90m457| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m458| [39m
+    [90m459| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mGET /users/referrals[2m > [22m管理员应该查看所有推荐记录
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/users.test.ts:[2m468:10[22m[39m
+    [90m466| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/users/referrals`[39m)
+    [90m467| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39madminToken[36m}[39m[32m`[39m)
+    [90m468| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m469| [39m
+    [90m470| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mGET /users/notifications[2m > [22m用户应该能够获取通知列表
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/users.test.ts:[2m476:5[22m[39m
+    [90m474| [39m
+    [90m475| [39m  [34mdescribe[39m([32m'GET /users/notifications'[39m[33m,[39m () [33m=>[39m {
+    [90m476| [39m    [34mit[39m([32m'用户应该能够获取通知列表'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m477| [39m      [35mconst[39m response [33m=[39m [35mawait[39m [34mrequest[39m(app)
+    [90m478| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/users/notifications`[39m)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mGET /users/notifications[2m > [22m应该支持按已读状态筛选
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/users.test.ts:[2m489:5[22m[39m
+    [90m487| [39m    })[33m;[39m
+    [90m488| [39m
+    [90m489| [39m    [34mit[39m([32m'应该支持按已读状态筛选'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m490| [39m      [35mconst[39m response [33m=[39m [35mawait[39m [34mrequest[39m(app)
+    [90m491| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/users/notifications`[39m)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mGET /users/notifications[2m > [22m应该支持按通知类型筛选
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/users.test.ts:[2m499:5[22m[39m
+    [90m497| [39m    })[33m;[39m
+    [90m498| [39m
+    [90m499| [39m    [34mit[39m([32m'应该支持按通知类型筛选'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m500| [39m      [35mconst[39m response [33m=[39m [35mawait[39m [34mrequest[39m(app)
+    [90m501| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/users/notifications`[39m)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mPUT /users/notifications/:id/read[2m > [22m应该能够标记通知为已读
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/users.test.ts:[2m547:10[22m[39m
+    [90m545| [39m        [33m.[39m[35mset[39m([32m'Content-Type'[39m[33m,[39m [32m'application/json'[39m)
+    [90m546| [39m        [33m.[39m[34msend[39m({})
+    [90m547| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m548| [39m
+    [90m549| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mPUT /users/notifications/:id/read[2m > [22m不存在的通知ID应返回404
+[31m[1mError[22m: expected 404 "Not Found", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/users.test.ts:[2m560:10[22m[39m
+    [90m558| [39m        [33m.[39m[35mset[39m([32m'Content-Type'[39m[33m,[39m [32m'application/json'[39m)
+    [90m559| [39m        [33m.[39m[34msend[39m({})
+    [90m560| [39m        [33m.[39m[34mexpect[39m([34m404[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m561| [39m
+    [90m562| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mPOST /users/verify-kyc[2m > [22m应该能够提交KYC申请
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/users.test.ts:[2m567:5[22m[39m
+    [90m565| [39m
+    [90m566| [39m  [34mdescribe[39m([32m'POST /users/verify-kyc'[39m[33m,[39m () [33m=>[39m {
+    [90m567| [39m    [34mit[39m([32m'应该能够提交KYC申请'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m568| [39m      [35mconst[39m kycData [33m=[39m {
+    [90m569| [39m        realName[33m:[39m [32m'测试用户'[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mPOST /users/verify-kyc[2m > [22m应该验证必填字段
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/users.test.ts:[2m586:5[22m[39m
+    [90m584| [39m    })[33m;[39m
+    [90m585| [39m
+    [90m586| [39m    [34mit[39m([32m'应该验证必填字段'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m587| [39m      [35mconst[39m kycData [33m=[39m {
+    [90m588| [39m        realName[33m:[39m [32m''[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/users.test.ts[2m > [22m用户管理API测试[2m > [22mPOST /users/verify-kyc[2m > [22m已通过KYC的用户不能重复申请
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/users.test.ts:[2m604:5[22m[39m
+    [90m602| [39m    })[33m;[39m
+    [90m603| [39m
+    [90m604| [39m    [34mit[39m([32m'已通过KYC的用户不能重复申请'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m605| [39m      [90m// 先通过KYC[39m
+    [90m606| [39m      [35mconst[39m kycData [33m=[39m {
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/30]⎯[22m[39m
+
+
+                        <br><em>建议: 查看详细错误日志，联系相关开发人员</em>
+                    </li>
+                
+                    <li>
+                        <strong>商城管理系统 - shops.test.ts</strong>: Command failed: npm test tests/api/shops.test.ts
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 14 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m api/shops.test.ts[2m > [22m店铺管理API测试[2m > [22mPOST /shops[2m > [22mVIP用户应该能够创建云店
+[31m[1mError[22m: expected 201 "Created", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/shops.test.ts:[2m81:10[22m[39m
+    [90m 79| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mvipUserToken[36m}[39m[32m`[39m)
+    [90m 80| [39m        [33m.[39m[34msend[39m(shopData)
+    [90m 81| [39m        [33m.[39m[34mexpect[39m([34m201[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m 82| [39m
+    [90m 83| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/shops.test.ts[2m > [22m店铺管理API测试[2m > [22mPOST /shops[2m > [22m普通用户不能创建云店
+[31m[1mError[22m: expected 403 "Forbidden", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/shops.test.ts:[2m101:10[22m[39m
+    [90m 99| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mnormalUserToken[36m}[39m[32m`[39m)
+    [90m100| [39m        [33m.[39m[34msend[39m(shopData)
+    [90m101| [39m        [33m.[39m[34mexpect[39m([34m403[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m102| [39m
+    [90m103| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/shops.test.ts[2m > [22m店铺管理API测试[2m > [22mPOST /shops[2m > [22m二星店长应该能够创建五通店
+[31m[1mError[22m: expected 201 "Created", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/shops.test.ts:[2m122:10[22m[39m
+    [90m120| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mstar2User[33m.[39mtokens[33m.[39maccessToken[36m}[39m[32m`[39m)
+    [90m121| [39m        [33m.[39m[34msend[39m(shopData)
+    [90m122| [39m        [33m.[39m[34mexpect[39m([34m201[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m123| [39m
+    [90m124| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/shops.test.ts[2m > [22m店铺管理API测试[2m > [22mGET /shops[2m > [22m应该能够获取店铺列表
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/shops.test.ts:[2m146:10[22m[39m
+    [90m144| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mvipUserToken[36m}[39m[32m`[39m)
+    [90m145| [39m        [33m.[39m[34mquery[39m({ page[33m:[39m [34m1[39m[33m,[39m perPage[33m:[39m [34m10[39m })
+    [90m146| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m147| [39m
+    [90m148| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/shops.test.ts[2m > [22m店铺管理API测试[2m > [22mGET /shops[2m > [22m应该支持按店铺类型筛选
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/shops.test.ts:[2m163:10[22m[39m
+    [90m161| [39m          shopType[33m:[39m [32m'CLOUD'[39m
+    [90m162| [39m        })
+    [90m163| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m164| [39m
+    [90m165| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/shops.test.ts[2m > [22m店铺管理API测试[2m > [22mGET /shops[2m > [22m应该支持按状态筛选
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/shops.test.ts:[2m182:10[22m[39m
+    [90m180| [39m          status[33m:[39m [32m'ACTIVE'[39m
+    [90m181| [39m        })
+    [90m182| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m183| [39m
+    [90m184| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/shops.test.ts[2m > [22m店铺管理API测试[2m > [22mGET /shops[2m > [22m应该支持搜索店铺名称
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/shops.test.ts:[2m196:10[22m[39m
+    [90m194| [39m          search[33m:[39m [32m'测试'[39m
+    [90m195| [39m        })
+    [90m196| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m197| [39m
+    [90m198| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/shops.test.ts[2m > [22m店铺管理API测试[2m > [22mGET /shops/:id[2m > [22m不存在的店铺ID应返回404
+[31m[1mError[22m: expected 404 "Not Found", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/shops.test.ts:[2m224:10[22m[39m
+    [90m222| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/shops/[39m[36m${[39mfakeId[36m}[39m[32m`[39m)
+    [90m223| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mvipUserToken[36m}[39m[32m`[39m)
+    [90m224| [39m        [33m.[39m[34mexpect[39m([34m404[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m225| [39m
+    [90m226| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/shops.test.ts[2m > [22m店铺管理API测试[2m > [22mPOST /shops/:id/upgrade[2m > [22m应该能够申请店铺升级
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'id')[39m
+[36m [2m❯[22m api/shops.test.ts:[2m297:45[22m[39m
+    [90m295| [39m        })[33m;[39m
+    [90m296| [39m
+    [90m297| [39m      [35mconst[39m shopId [33m=[39m shopResponse[33m.[39mbody[33m.[39mdata[33m.[39mid[33m;[39m
+    [90m   | [39m                                            [31m^[39m
+    [90m298| [39m
+    [90m299| [39m      [35mconst[39m upgradeData [33m=[39m {
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/shops.test.ts[2m > [22m店铺管理API测试[2m > [22mPOST /shops/:id/upgrade[2m > [22m应该验证升级条件
+[31m[1mError[22m: expected 400 "Bad Request", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/shops.test.ts:[2m325:10[22m[39m
+    [90m323| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mvipUserToken[36m}[39m[32m`[39m)
+    [90m324| [39m        [33m.[39m[34msend[39m(upgradeData)
+    [90m325| [39m        [33m.[39m[34mexpect[39m([34m400[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m326| [39m
+    [90m327| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/shops.test.ts[2m > [22m店铺管理API测试[2m > [22mPOST /shops/wutong/claim-gift[2m > [22m五通店用户应该能够申请赠品
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/shops.test.ts:[2m418:10[22m[39m
+    [90m416| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mstar2User[33m.[39mtokens[33m.[39maccessToken[36m}[39m[32m`[39m)
+    [90m417| [39m        [33m.[39m[34msend[39m(orderData)
+    [90m418| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m419| [39m
+    [90m420| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/shops.test.ts[2m > [22m店铺管理API测试[2m > [22mPOST /shops/wutong/claim-gift[2m > [22m应该验证赠品申请条件
+[31m[1mError[22m: expected 403 "Forbidden", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/shops.test.ts:[2m434:10[22m[39m
+    [90m432| [39m          ]
+    [90m433| [39m        })
+    [90m434| [39m        [33m.[39m[34mexpect[39m([34m403[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m435| [39m
+    [90m436| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/shops.test.ts[2m > [22m店铺管理API测试[2m > [22mGET /shops/my[2m > [22m用户应该能够查看自己的店铺
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/shops.test.ts:[2m504:10[22m[39m
+    [90m502| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/shops/my`[39m)
+    [90m503| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mvipUserToken[36m}[39m[32m`[39m)
+    [90m504| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m505| [39m
+    [90m506| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/shops.test.ts[2m > [22m店铺管理API测试[2m > [22mGET /shops/my[2m > [22m没有店铺的用户应该返回空列表
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/shops.test.ts:[2m517:10[22m[39m
+    [90m515| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/shops/my`[39m)
+    [90m516| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mnewUser[33m.[39mtokens[33m.[39maccessToken[36m}[39m[32m`[39m)
+    [90m517| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m518| [39m
+    [90m519| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/14]⎯[22m[39m
+
+
+                        <br><em>建议: 查看详细错误日志，联系相关开发人员</em>
+                    </li>
+                
+                    <li>
+                        <strong>商品管理系统 - products.test.ts</strong>: Command failed: npm test tests/api/products.test.ts
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 9 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m api/products.test.ts[2m > [22m商品管理API测试 - 简化版[2m > [22m商品分类API[2m > [22m应该能够获取商品分类树
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/products.test.ts:[2m35:10[22m[39m
+    [90m 33| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/products/categories/tree`[39m)
+    [90m 34| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mnormalUserToken[36m}[39m[32m`[39m)
+    [90m 35| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m 36| [39m
+    [90m 37| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/products.test.ts[2m > [22m商品管理API测试 - 简化版[2m > [22m商品分类API[2m > [22m应该能够获取商品分类列表
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/products.test.ts:[2m47:10[22m[39m
+    [90m 45| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mnormalUserToken[36m}[39m[32m`[39m)
+    [90m 46| [39m        [33m.[39m[34mquery[39m({ page[33m:[39m [34m1[39m[33m,[39m perPage[33m:[39m [34m10[39m })
+    [90m 47| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m 48| [39m
+    [90m 49| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/products.test.ts[2m > [22m商品管理API测试 - 简化版[2m > [22m商品分类API[2m > [22m应该能够按级别筛选商品分类
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/products.test.ts:[2m56:10[22m[39m
+    [90m 54| [39m    [34mit[39m([32m'应该能够按级别筛选商品分类'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m 55| [39m      const response = await makeAuthenticatedRequest('GET', `${API_BA…
+    [90m 56| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m 57| [39m
+    [90m 58| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/products.test.ts[2m > [22m商品管理API测试 - 简化版[2m > [22m商品标签API[2m > [22m应该能够获取商品标签列表
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/products.test.ts:[2m66:10[22m[39m
+    [90m 64| [39m    [34mit[39m([32m'应该能够获取商品标签列表'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m 65| [39m      const response = await makeAuthenticatedRequest('GET', `${API_BA…
+    [90m 66| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m 67| [39m
+    [90m 68| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/products.test.ts[2m > [22m商品管理API测试 - 简化版[2m > [22m商品标签API[2m > [22m应该能够获取所有商品标签
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/products.test.ts:[2m75:10[22m[39m
+    [90m 73| [39m    [34mit[39m([32m'应该能够获取所有商品标签'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m 74| [39m      const response = await makeAuthenticatedRequest('GET', `${API_BA…
+    [90m 75| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m 76| [39m
+    [90m 77| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/products.test.ts[2m > [22m商品管理API测试 - 简化版[2m > [22m商品标签API[2m > [22m应该能够创建新的商品标签
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/products.test.ts:[2m90:10[22m[39m
+    [90m 88| [39m      const response = await makeAdminRequest('POST', `${API_BASE}/pro…
+    [90m 89| [39m        [33m.[39m[34msend[39m(tagData)
+    [90m 90| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m 91| [39m
+    [90m 92| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/products.test.ts[2m > [22m商品管理API测试 - 简化版[2m > [22m商品列表API[2m > [22m应该能够获取商品列表
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/products.test.ts:[2m100:10[22m[39m
+    [90m 98| [39m    [34mit[39m([32m'应该能够获取商品列表'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m 99| [39m      const response = await makeAuthenticatedRequest('GET', `${API_BA…
+    [90m100| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m101| [39m
+    [90m102| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/products.test.ts[2m > [22m商品管理API测试 - 简化版[2m > [22m商品列表API[2m > [22m应该能够按状态筛选商品
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/products.test.ts:[2m109:10[22m[39m
+    [90m107| [39m    [34mit[39m([32m'应该能够按状态筛选商品'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m108| [39m      const response = await makeAuthenticatedRequest('GET', `${API_BA…
+    [90m109| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m110| [39m
+    [90m111| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/products.test.ts[2m > [22m商品管理API测试 - 简化版[2m > [22m商品规格API[2m > [22m应该能够获取商品规格列表
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/products.test.ts:[2m118:10[22m[39m
+    [90m116| [39m    [34mit[39m([32m'应该能够获取商品规格列表'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m117| [39m      const response = await makeAuthenticatedRequest('GET', `${API_BA…
+    [90m118| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m119| [39m
+    [90m120| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯[22m[39m
+
+
+                        <br><em>建议: 查看详细错误日志，联系相关开发人员</em>
+                    </li>
+                
+                    <li>
+                        <strong>订单管理系统 - orders.test.ts</strong>: Command failed: npm test tests/api/orders.test.ts
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 20 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m api/orders.test.ts[2m > [22m订单管理API测试[2m > [22mGET /orders[2m > [22m应该能够获取订单模块信息
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/orders.test.ts:[2m31:10[22m[39m
+    [90m 29| [39m      [35mconst[39m response [33m=[39m [35mawait[39m [34mrequest[39m(app)
+    [90m 30| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/orders`[39m)
+    [90m 31| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m 32| [39m
+    [90m 33| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/20]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/orders.test.ts[2m > [22m订单管理API测试[2m > [22mGET /orders[2m > [22m应该能够获取订单列表
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/orders.test.ts:[2m46:10[22m[39m
+    [90m 44| [39m          perPage[33m:[39m [34m10[39m
+    [90m 45| [39m        })
+    [90m 46| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m 47| [39m
+    [90m 48| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/20]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/orders.test.ts[2m > [22m订单管理API测试[2m > [22mGET /orders[2m > [22m应该能够按状态筛选订单
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/orders.test.ts:[2m65:10[22m[39m
+    [90m 63| [39m          status[33m:[39m [32m'PENDING'[39m
+    [90m 64| [39m        })
+    [90m 65| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m 66| [39m
+    [90m 67| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/20]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/orders.test.ts[2m > [22m订单管理API测试[2m > [22mGET /orders[2m > [22m应该能够按支付状态筛选订单
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/orders.test.ts:[2m84:10[22m[39m
+    [90m 82| [39m          paymentStatus[33m:[39m [32m'UNPAID'[39m
+    [90m 83| [39m        })
+    [90m 84| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m 85| [39m
+    [90m 86| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/20]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/orders.test.ts[2m > [22m订单管理API测试[2m > [22mGET /orders[2m > [22m应该能够按时间范围筛选订单
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/orders.test.ts:[2m103:10[22m[39m
+    [90m101| [39m          endDate[33m:[39m endDate[33m.[39m[34mtoISOString[39m()
+    [90m102| [39m        })
+    [90m103| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m104| [39m
+    [90m105| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/20]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/orders.test.ts[2m > [22m订单管理API测试[2m > [22mPOST /orders[2m > [22m应该能够创建新订单
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/orders.test.ts:[2m128:10[22m[39m
+    [90m126| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39muserToken[36m}[39m[32m`[39m)
+    [90m127| [39m        [33m.[39m[34msend[39m(orderData)
+    [90m128| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m129| [39m
+    [90m130| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/20]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/orders.test.ts[2m > [22m订单管理API测试[2m > [22mPOST /orders[2m > [22m应该拒绝空的订单项
+[31m[1mError[22m: expected 400 "Bad Request", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/orders.test.ts:[2m152:10[22m[39m
+    [90m150| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39muserToken[36m}[39m[32m`[39m)
+    [90m151| [39m        [33m.[39m[34msend[39m(orderData)
+    [90m152| [39m        [33m.[39m[34mexpect[39m([34m400[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m153| [39m
+    [90m154| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/20]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/orders.test.ts[2m > [22m订单管理API测试[2m > [22mPOST /orders[2m > [22m应该拒绝无效的支付方式
+[31m[1mError[22m: expected 400 "Bad Request", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/orders.test.ts:[2m175:10[22m[39m
+    [90m173| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39muserToken[36m}[39m[32m`[39m)
+    [90m174| [39m        [33m.[39m[34msend[39m(orderData)
+    [90m175| [39m        [33m.[39m[34mexpect[39m([34m400[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m176| [39m
+    [90m177| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/20]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/orders.test.ts[2m > [22m订单管理API测试[2m > [22mPOST /orders[2m > [22m应该拒绝数量为0的商品
+[31m[1mError[22m: expected 400 "Bad Request", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/orders.test.ts:[2m197:10[22m[39m
+    [90m195| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39muserToken[36m}[39m[32m`[39m)
+    [90m196| [39m        [33m.[39m[34msend[39m(orderData)
+    [90m197| [39m        [33m.[39m[34mexpect[39m([34m400[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m198| [39m
+    [90m199| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/20]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/orders.test.ts[2m > [22m订单管理API测试[2m > [22mGET /orders/:orderId[2m > [22m应该返回404当订单不存在
+[31m[1mError[22m: expected 404 "Not Found", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/orders.test.ts:[2m230:10[22m[39m
+    [90m228| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/orders/[39m[36m${[39mfakeOrderId[36m}[39m[32m`[39m)
+    [90m229| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39muserToken[36m}[39m[32m`[39m)
+    [90m230| [39m        [33m.[39m[34mexpect[39m([34m404[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m231| [39m
+    [90m232| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/20]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/orders.test.ts[2m > [22m订单管理API测试[2m > [22mPUT /orders/:orderId/confirm[2m > [22m应该拒绝确认已取消的订单
+[31m[1mError[22m: expected 400 "Bad Request", got 415 "Unsupported Media Type"[39m
+[36m [2m❯[22m api/orders.test.ts:[2m273:10[22m[39m
+    [90m271| [39m        [33m.[39m[34mput[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/orders/[39m[36m${[39mcancelledOrderId[36m}[39m[32m/confirm`[39m)
+    [90m272| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39muserToken[36m}[39m[32m`[39m)
+    [90m273| [39m        [33m.[39m[34mexpect[39m([34m400[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m274| [39m
+    [90m275| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/20]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/orders.test.ts[2m > [22m订单管理API测试[2m > [22mPUT /orders/:orderId/cancel[2m > [22m应该能够取消订单
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/orders.test.ts:[2m299:10[22m[39m
+    [90m297| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39muserToken[36m}[39m[32m`[39m)
+    [90m298| [39m        [33m.[39m[34msend[39m(orderData)
+    [90m299| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m300| [39m
+    [90m301| [39m      [35mconst[39m cancelResponse [33m=[39m [35mawait[39m [34mrequest[39m(app)
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/20]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/orders.test.ts[2m > [22m订单管理API测试[2m > [22mPUT /orders/:orderId/cancel[2m > [22m应该拒绝取消已完成的订单
+[31m[1mError[22m: expected 400 "Bad Request", got 415 "Unsupported Media Type"[39m
+[36m [2m❯[22m api/orders.test.ts:[2m316:10[22m[39m
+    [90m314| [39m        [33m.[39m[34mput[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/orders/[39m[36m${[39mcompletedOrderId[36m}[39m[32m/cancel`[39m)
+    [90m315| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39muserToken[36m}[39m[32m`[39m)
+    [90m316| [39m        [33m.[39m[34mexpect[39m([34m400[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m317| [39m
+    [90m318| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/20]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/orders.test.ts[2m > [22m订单管理API测试[2m > [22mPUT /orders/:orderId/cancel[2m > [22m应该提供取消原因
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/orders.test.ts:[2m339:10[22m[39m
+    [90m337| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39muserToken[36m}[39m[32m`[39m)
+    [90m338| [39m        [33m.[39m[34msend[39m(orderData)
+    [90m339| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m340| [39m
+    [90m341| [39m      [35mconst[39m cancelResponse [33m=[39m [35mawait[39m [34mrequest[39m(app)
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/20]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/orders.test.ts[2m > [22m订单管理API测试[2m > [22m订单统计API[2m > [22m应该能够获取订单统计信息
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/orders.test.ts:[2m358:10[22m[39m
+    [90m356| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/orders/statistics`[39m)
+    [90m357| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39muserToken[36m}[39m[32m`[39m)
+    [90m358| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m359| [39m
+    [90m360| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/20]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/orders.test.ts[2m > [22m订单管理API测试[2m > [22m订单统计API[2m > [22m应该能够获取订单统计概览
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/orders.test.ts:[2m374:10[22m[39m
+    [90m372| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/orders/statistics/overview`[39m)
+    [90m373| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39muserToken[36m}[39m[32m`[39m)
+    [90m374| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m375| [39m
+    [90m376| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/20]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/orders.test.ts[2m > [22m订单管理API测试[2m > [22m订单统计API[2m > [22m应该能够按时间范围获取统计
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/orders.test.ts:[2m391:10[22m[39m
+    [90m389| [39m          endDate[33m:[39m [35mnew[39m [33mDate[39m()[33m.[39m[34mtoISOString[39m()
+    [90m390| [39m        })
+    [90m391| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m392| [39m
+    [90m393| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/20]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/orders.test.ts[2m > [22m订单管理API测试[2m > [22m换货申请 API[2m > [22m应该拒绝无效的换货申请
+[31m[1mError[22m: expected 400 "Bad Request", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/orders.test.ts:[2m439:10[22m[39m
+    [90m437| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39muserToken[36m}[39m[32m`[39m)
+    [90m438| [39m        [33m.[39m[34msend[39m(exchangeData)
+    [90m439| [39m        [33m.[39m[34mexpect[39m([34m400[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m440| [39m
+    [90m441| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/20]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/orders.test.ts[2m > [22m订单管理API测试[2m > [22m订单权限和安全测试[2m > [22m应该阻止用户访问其他用户的订单
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/orders.test.ts:[2m464:10[22m[39m
+    [90m462| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39muserToken[36m}[39m[32m`[39m)
+    [90m463| [39m        [33m.[39m[34msend[39m(orderData)
+    [90m464| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m465| [39m
+    [90m466| [39m      [90m// 使用不同的token尝试访问[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/20]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/orders.test.ts[2m > [22m订单管理API测试[2m > [22m订单权限和安全测试[2m > [22m应该验证订单金额的正确性
+[31m[1mError[22m: expected 200 "OK", got 401 "Unauthorized"[39m
+[36m [2m❯[22m api/orders.test.ts:[2m500:10[22m[39m
+    [90m498| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39muserToken[36m}[39m[32m`[39m)
+    [90m499| [39m        [33m.[39m[34msend[39m(orderData)
+    [90m500| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m501| [39m
+    [90m502| [39m      [35mconst[39m expectedTotal [33m=[39m ([34m2[39m [33m*[39m [34m100.00[39m) [33m+[39m ([34m3[39m [33m*[39m [34m50.00[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/20]⎯[22m[39m
+
+
+                        <br><em>建议: 查看详细错误日志，联系相关开发人员</em>
+                    </li>
+                
+                    <li>
+                        <strong>积分系统 - points.test.ts</strong>: Command failed: npm test tests/api/points.test.ts
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 18 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m api/points.test.ts[2m > [22m积分系统API测试[2m > [22mGET /points/balance[2m > [22m应该能够获取积分余额
+[31m[1mError[22m: expected 200 "OK", got 400 "Bad Request"[39m
+[36m [2m❯[22m api/points.test.ts:[2m46:10[22m[39m
+    [90m 44| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/points/balance`[39m)
+    [90m 45| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39muserToken[36m}[39m[32m`[39m)
+    [90m 46| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m 47| [39m
+    [90m 48| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/points.test.ts[2m > [22m积分系统API测试[2m > [22mPOST /points/transfer[2m > [22m应该能够进行积分转账
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/points.test.ts:[2m66:5[22m[39m
+    [90m 64| [39m
+    [90m 65| [39m  [34mdescribe[39m([32m'POST /points/transfer'[39m[33m,[39m () [33m=>[39m {
+    [90m 66| [39m    [34mit[39m([32m'应该能够进行积分转账'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m 67| [39m      [35mconst[39m transferData [33m=[39m {
+    [90m 68| [39m        toUserId[33m:[39m adminUser[33m.[39mid[33m,[39m [90m// 使用真实的管理员用户ID[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/points.test.ts[2m > [22m积分系统API测试[2m > [22mPOST /points/transfer[2m > [22m应该拒绝负金额转账
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/points.test.ts:[2m86:5[22m[39m
+    [90m 84| [39m    })[33m;[39m
+    [90m 85| [39m
+    [90m 86| [39m    [34mit[39m([32m'应该拒绝负金额转账'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m 87| [39m      [35mconst[39m transferData [33m=[39m {
+    [90m 88| [39m        toUserId[33m:[39m [32m'test_recipient_user_12345'[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/points.test.ts[2m > [22m积分系统API测试[2m > [22mPOST /points/transfer[2m > [22m应该拒绝转账给自己
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/points.test.ts:[2m103:5[22m[39m
+    [90m101| [39m    })[33m;[39m
+    [90m102| [39m
+    [90m103| [39m    [34mit[39m([32m'应该拒绝转账给自己'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m104| [39m      [35mconst[39m transferData [33m=[39m {
+    [90m105| [39m        toUserId[33m:[39m testUserId[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/points.test.ts[2m > [22m积分系统API测试[2m > [22mPOST /points/transfer[2m > [22m应该拒绝余额不足的转账
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/points.test.ts:[2m119:5[22m[39m
+    [90m117| [39m    })[33m;[39m
+    [90m118| [39m
+    [90m119| [39m    [34mit[39m([32m'应该拒绝余额不足的转账'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m120| [39m      [35mconst[39m transferData [33m=[39m {
+    [90m121| [39m        toUserId[33m:[39m [32m'test_recipient_user_12345'[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/points.test.ts[2m > [22m积分系统API测试[2m > [22mGET /points/transactions[2m > [22m应该能够获取积分流水记录
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/points.test.ts:[2m138:5[22m[39m
+    [90m136| [39m
+    [90m137| [39m  [34mdescribe[39m([32m'GET /points/transactions'[39m[33m,[39m () [33m=>[39m {
+    [90m138| [39m    [34mit[39m([32m'应该能够获取积分流水记录'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m139| [39m      [35mconst[39m response [33m=[39m [35mawait[39m [34mrequest[39m(app)
+    [90m140| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/points/transactions`[39m)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/points.test.ts[2m > [22m积分系统API测试[2m > [22mGET /points/transactions[2m > [22m应该能够按交易类型筛选流水记录
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/points.test.ts:[2m166:5[22m[39m
+    [90m164| [39m    })[33m;[39m
+    [90m165| [39m
+    [90m166| [39m    [34mit[39m([32m'应该能够按交易类型筛选流水记录'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m167| [39m      [35mconst[39m response [33m=[39m [35mawait[39m [34mrequest[39m(app)
+    [90m168| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/points/transactions`[39m)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/points.test.ts[2m > [22m积分系统API测试[2m > [22mGET /points/transactions[2m > [22m应该能够按时间范围筛选流水记录
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/points.test.ts:[2m185:5[22m[39m
+    [90m183| [39m    })[33m;[39m
+    [90m184| [39m
+    [90m185| [39m    [34mit[39m([32m'应该能够按时间范围筛选流水记录'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m186| [39m      [35mconst[39m endDate [33m=[39m [35mnew[39m [33mDate[39m()[33m;[39m
+    [90m187| [39m      [35mconst[39m startDate [33m=[39m [35mnew[39m [33mDate[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/points.test.ts[2m > [22m积分系统API测试[2m > [22mGET /points/statistics[2m > [22m应该能够获取积分统计信息
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/points.test.ts:[2m210:10[22m[39m
+    [90m208| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/points/statistics`[39m)
+    [90m209| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39muserToken[36m}[39m[32m`[39m)
+    [90m210| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m211| [39m
+    [90m212| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/points.test.ts[2m > [22m积分系统API测试[2m > [22mGET /points/statistics[2m > [22m应该能够获取指定时间范围的统计
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/points.test.ts:[2m229:10[22m[39m
+    [90m227| [39m          period[33m:[39m [32m'month'[39m [90m// 最近一个月[39m
+    [90m228| [39m        })
+    [90m229| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m230| [39m
+    [90m231| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/points.test.ts[2m > [22m积分系统API测试[2m > [22mPOST /points/recharge (管理员)[2m > [22m应该能够为用户充值积分（管理员权限）
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/points.test.ts:[2m236:5[22m[39m
+    [90m234| [39m
+    [90m235| [39m  [34mdescribe[39m([32m'POST /points/recharge (管理员)'[39m[33m,[39m () [33m=>[39m {
+    [90m236| [39m    [34mit[39m([32m'应该能够为用户充值积分（管理员权限）'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m237| [39m      [35mconst[39m rechargeData [33m=[39m {
+    [90m238| [39m        userId[33m:[39m testUserId[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/points.test.ts[2m > [22m积分系统API测试[2m > [22mPOST /points/recharge (管理员)[2m > [22m应该拒绝负数充值
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/points.test.ts:[2m273:5[22m[39m
+    [90m271| [39m    })[33m;[39m
+    [90m272| [39m
+    [90m273| [39m    [34mit[39m([32m'应该拒绝负数充值'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m274| [39m      [35mconst[39m rechargeData [33m=[39m {
+    [90m275| [39m        userId[33m:[39m testUserId[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/points.test.ts[2m > [22m积分系统API测试[2m > [22mPOST /points/freeze (管理员)[2m > [22m应该能够冻结用户积分（管理员权限）
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/points.test.ts:[2m291:5[22m[39m
+    [90m289| [39m
+    [90m290| [39m  [34mdescribe[39m([32m'POST /points/freeze (管理员)'[39m[33m,[39m () [33m=>[39m {
+    [90m291| [39m    [34mit[39m([32m'应该能够冻结用户积分（管理员权限）'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m292| [39m      [35mconst[39m freezeData [33m=[39m {
+    [90m293| [39m        userId[33m:[39m testUserId[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/points.test.ts[2m > [22m积分系统API测试[2m > [22mPOST /points/freeze (管理员)[2m > [22m应该能够解冻用户积分（管理员权限）
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/points.test.ts:[2m309:5[22m[39m
+    [90m307| [39m    })[33m;[39m
+    [90m308| [39m
+    [90m309| [39m    [34mit[39m([32m'应该能够解冻用户积分（管理员权限）'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m310| [39m      [35mconst[39m freezeData [33m=[39m {
+    [90m311| [39m        userId[33m:[39m testUserId[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/points.test.ts[2m > [22m积分系统API测试[2m > [22mPOST /points/batch-recharge (管理员)[2m > [22m应该能够批量充值积分（管理员权限）
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/points.test.ts:[2m328:5[22m[39m
+    [90m326| [39m
+    [90m327| [39m  [34mdescribe[39m([32m'POST /points/batch-recharge (管理员)'[39m[33m,[39m () [33m=>[39m {
+    [90m328| [39m    [34mit[39m([32m'应该能够批量充值积分（管理员权限）'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m329| [39m      [35mconst[39m batchRechargeData [33m=[39m {
+    [90m330| [39m        operations[33m:[39m [
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/points.test.ts[2m > [22m积分系统API测试[2m > [22mPOST /points/batch-recharge (管理员)[2m > [22m应该处理批量充值中的部分失败
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/points.test.ts:[2m357:5[22m[39m
+    [90m355| [39m    })[33m;[39m
+    [90m356| [39m
+    [90m357| [39m    [34mit[39m([32m'应该处理批量充值中的部分失败'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m358| [39m      [35mconst[39m batchRechargeData [33m=[39m {
+    [90m359| [39m        operations[33m:[39m [
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/points.test.ts[2m > [22m积分系统API测试[2m > [22m积分转账限制和安全测试[2m > [22m应该有单日转账金额限制
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/points.test.ts:[2m386:5[22m[39m
+    [90m384| [39m
+    [90m385| [39m  [34mdescribe[39m([32m'积分转账限制和安全测试'[39m[33m,[39m () [33m=>[39m {
+    [90m386| [39m    [34mit[39m([32m'应该有单日转账金额限制'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m387| [39m      [90m// 测试大额转账是否被限制[39m
+    [90m388| [39m      [35mconst[39m largeAmount [33m=[39m [34m50000[39m[33m;[39m [90m// 假设日限额是10000[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/points.test.ts[2m > [22m积分系统API测试[2m > [22m积分转账限制和安全测试[2m > [22m应该有转账频率限制
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m api/points.test.ts:[2m407:5[22m[39m
+    [90m405| [39m    })[33m;[39m
+    [90m406| [39m
+    [90m407| [39m    [34mit[39m([32m'应该有转账频率限制'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m408| [39m      [35mconst[39m transferData [33m=[39m {
+    [90m409| [39m        toUserId[33m:[39m [32m'test_recipient_user_12345'[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/18]⎯[22m[39m
+
+
+                        <br><em>建议: 查看详细错误日志，联系相关开发人员</em>
+                    </li>
+                
+                    <li>
+                        <strong>佣金系统 - commission.test.ts</strong>: Command failed: npm test tests/api/commission.test.ts
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 30 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mGET /commission[2m > [22m用户应该能够查看自己的佣金记录
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m90:10[22m[39m
+    [90m 88| [39m          perPage[33m:[39m [34m10[39m
+    [90m 89| [39m        })
+    [90m 90| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m 91| [39m
+    [90m 92| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mGET /commission[2m > [22m应该支持按状态筛选
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m108:10[22m[39m
+    [90m106| [39m          status[33m:[39m [32m'PENDING'[39m
+    [90m107| [39m        })
+    [90m108| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m109| [39m
+    [90m110| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mGET /commission[2m > [22m应该支持按日期范围筛选
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m126:10[22m[39m
+    [90m124| [39m          endDate[33m:[39m today[33m.[39m[34mtoISOString[39m()
+    [90m125| [39m        })
+    [90m126| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m127| [39m
+    [90m128| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mGET /commission[2m > [22m管理员应该能查看所有佣金记录
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m140:10[22m[39m
+    [90m138| [39m          allUsers[33m:[39m [35mtrue[39m
+    [90m139| [39m        })
+    [90m140| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m141| [39m
+    [90m142| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mGET /commission/summary[2m > [22m应该能够获取佣金汇总
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m151:10[22m[39m
+    [90m149| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/commission/summary`[39m)
+    [90m150| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mstarUserToken[36m}[39m[32m`[39m)
+    [90m151| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m152| [39m
+    [90m153| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mGET /commission/summary[2m > [22m应该包含佣金统计图表数据
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m169:10[22m[39m
+    [90m167| [39m          chart[33m:[39m [35mtrue[39m
+    [90m168| [39m        })
+    [90m169| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m170| [39m
+    [90m171| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mGET /commission/:id[2m > [22m应该能够获取指定佣金详情
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m183:10[22m[39m
+    [90m181| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/commission/[39m[36m${[39mtestCommissionId[36m}[39m[32m`[39m)
+    [90m182| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mstarUserToken[36m}[39m[32m`[39m)
+    [90m183| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m184| [39m
+    [90m185| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mGET /commission/:id[2m > [22m不存在的佣金ID应返回404
+[31m[1mError[22m: expected 404 "Not Found", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m197:10[22m[39m
+    [90m195| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/commission/[39m[36m${[39mfakeId[36m}[39m[32m`[39m)
+    [90m196| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mstarUserToken[36m}[39m[32m`[39m)
+    [90m197| [39m        [33m.[39m[34mexpect[39m([34m404[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m198| [39m
+    [90m199| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mGET /commission/:id[2m > [22m不能查看他人的佣金详情
+[31m[1mError[22m: expected 403 "Forbidden", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m206:10[22m[39m
+    [90m204| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/commission/[39m[36m${[39mtestCommissionId[36m}[39m[32m`[39m)
+    [90m205| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mnormalUserToken[36m}[39m[32m`[39m)
+    [90m206| [39m        [33m.[39m[34mexpect[39m([34m403[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m207| [39m
+    [90m208| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mPOST /commission/calculate[2m > [22m应该能够计算订单佣金
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m236:10[22m[39m
+    [90m234| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mdirectorToken[36m}[39m[32m`[39m)
+    [90m235| [39m        [33m.[39m[34msend[39m(calculateData)
+    [90m236| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m237| [39m
+    [90m238| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mPOST /commission/calculate[2m > [22m应该验证订单数据
+[31m[1mError[22m: expected 400 "Bad Request", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m254:10[22m[39m
+    [90m252| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mdirectorToken[36m}[39m[32m`[39m)
+    [90m253| [39m        [33m.[39m[34msend[39m(calculateData)
+    [90m254| [39m        [33m.[39m[34mexpect[39m([34m400[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m255| [39m
+    [90m256| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mPOST /commission/calculate[2m > [22m普通用户不能计算佣金
+[31m[1mError[22m: expected 403 "Forbidden", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m269:10[22m[39m
+    [90m267| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mnormalUserToken[36m}[39m[32m`[39m)
+    [90m268| [39m        [33m.[39m[34msend[39m(calculateData)
+    [90m269| [39m        [33m.[39m[34mexpect[39m([34m403[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m270| [39m
+    [90m271| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mPOST /commission/settle[2m > [22m应该能够结算佣金
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m303:10[22m[39m
+    [90m301| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mdirectorToken[36m}[39m[32m`[39m)
+    [90m302| [39m        [33m.[39m[34msend[39m(settleData)
+    [90m303| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m304| [39m
+    [90m305| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mPOST /commission/settle[2m > [22m应该验证结算条件
+[31m[1mError[22m: expected 400 "Bad Request", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m320:10[22m[39m
+    [90m318| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mdirectorToken[36m}[39m[32m`[39m)
+    [90m319| [39m        [33m.[39m[34msend[39m(settleData)
+    [90m320| [39m        [33m.[39m[34mexpect[39m([34m400[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m321| [39m
+    [90m322| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mPOST /commission/settle[2m > [22m普通用户不能结算佣金
+[31m[1mError[22m: expected 403 "Forbidden", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m332:10[22m[39m
+    [90m330| [39m          commissionIds[33m:[39m [testCommissionId]
+    [90m331| [39m        })
+    [90m332| [39m        [33m.[39m[34mexpect[39m([34m403[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m333| [39m
+    [90m334| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mPOST /commission/withdraw[2m > [22m应该能够申请佣金提现
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m372:10[22m[39m
+    [90m370| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mstarUser[33m.[39mtokens[33m.[39maccessToken[36m}[39m[32m`[39m)
+    [90m371| [39m        [33m.[39m[34msend[39m(withdrawData)
+    [90m372| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m373| [39m
+    [90m374| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mPOST /commission/withdraw[2m > [22m应该验证提现金额
+[31m[1mError[22m: expected 400 "Bad Request", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m390:10[22m[39m
+    [90m388| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mstarUserToken[36m}[39m[32m`[39m)
+    [90m389| [39m        [33m.[39m[34msend[39m(withdrawData)
+    [90m390| [39m        [33m.[39m[34mexpect[39m([34m400[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m391| [39m
+    [90m392| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mPOST /commission/withdraw[2m > [22m应该验证提现方式
+[31m[1mError[22m: expected 400 "Bad Request", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m406:10[22m[39m
+    [90m404| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mstarUserToken[36m}[39m[32m`[39m)
+    [90m405| [39m        [33m.[39m[34msend[39m(withdrawData)
+    [90m406| [39m        [33m.[39m[34mexpect[39m([34m400[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m407| [39m
+    [90m408| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mGET /commission/withdrawals[2m > [22m应该能够获取提现记录
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m421:10[22m[39m
+    [90m419| [39m          perPage[33m:[39m [34m10[39m
+    [90m420| [39m        })
+    [90m421| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m422| [39m
+    [90m423| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mGET /commission/withdrawals[2m > [22m管理员应该能查看所有提现记录
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m443:10[22m[39m
+    [90m441| [39m          allUsers[33m:[39m [35mtrue[39m
+    [90m442| [39m        })
+    [90m443| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m444| [39m
+    [90m445| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mGET /commission/withdrawals[2m > [22m应该支持按状态筛选
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m457:10[22m[39m
+    [90m455| [39m          status[33m:[39m [32m'PENDING'[39m
+    [90m456| [39m        })
+    [90m457| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m458| [39m
+    [90m459| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mPOST /commission/withdrawals/:id/approve[2m > [22m管理员应该能够批准提现
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'withdrawId')[39m
+[36m [2m❯[22m api/commission.test.ts:[2m492:53[22m[39m
+    [90m490| [39m        })[33m;[39m
+    [90m491| [39m
+    [90m492| [39m      [35mconst[39m withdrawId [33m=[39m withdrawResponse[33m.[39mbody[33m.[39mdata[33m.[39mwithdrawId[33m;[39m
+    [90m   | [39m                                                    [31m^[39m
+    [90m493| [39m
+    [90m494| [39m      [90m// 批准提现[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mPOST /commission/withdrawals/:id/approve[2m > [22m普通用户不能批准提现
+[31m[1mError[22m: expected 403 "Forbidden", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m515:10[22m[39m
+    [90m513| [39m          remark[33m:[39m [32m'我批准'[39m
+    [90m514| [39m        })
+    [90m515| [39m        [33m.[39m[34mexpect[39m([34m403[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m516| [39m
+    [90m517| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mPOST /commission/withdrawals/:id/reject[2m > [22m管理员应该能够拒绝提现
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'withdrawId')[39m
+[36m [2m❯[22m api/commission.test.ts:[2m550:53[22m[39m
+    [90m548| [39m        })[33m;[39m
+    [90m549| [39m
+    [90m550| [39m      [35mconst[39m withdrawId [33m=[39m withdrawResponse[33m.[39mbody[33m.[39mdata[33m.[39mwithdrawId[33m;[39m
+    [90m   | [39m                                                    [31m^[39m
+    [90m551| [39m
+    [90m552| [39m      [90m// 拒绝提现[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mGET /commission/rules[2m > [22m应该能够获取佣金规则
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m571:10[22m[39m
+    [90m569| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/commission/rules`[39m)
+    [90m570| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mstarUserToken[36m}[39m[32m`[39m)
+    [90m571| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m572| [39m
+    [90m573| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mGET /commission/rules[2m > [22m应该包含不同层级的佣金规则
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m590:10[22m[39m
+    [90m588| [39m          includeInactive[33m:[39m [35mtrue[39m
+    [90m589| [39m        })
+    [90m590| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m591| [39m
+    [90m592| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mGET /commission/rates[2m > [22m应该能够获取当前佣金费率
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m601:10[22m[39m
+    [90m599| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/commission/rates`[39m)
+    [90m600| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mnormalUserToken[36m}[39m[32m`[39m)
+    [90m601| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m602| [39m
+    [90m603| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mGET /commission/rates[2m > [22m不同用户级别应该有不同的费率
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m612:10[22m[39m
+    [90m610| [39m        [33m.[39m[35mget[39m([32m`[39m[36m${[39m[33mAPI_BASE[39m[36m}[39m[32m/commission/rates`[39m)
+    [90m611| [39m        [33m.[39m[35mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer [39m[36m${[39mnormalUserToken[36m}[39m[32m`[39m)
+    [90m612| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m613| [39m
+    [90m614| [39m      [35mconst[39m starResponse [33m=[39m [35mawait[39m [34mrequest[39m(app)
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mGET /commission/statistics[2m > [22m应该能够获取佣金统计
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m632:10[22m[39m
+    [90m630| [39m          period[33m:[39m [32m'month'[39m
+    [90m631| [39m        })
+    [90m632| [39m        [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m633| [39m
+    [90m634| [39m      [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m api/commission.test.ts[2m > [22m佣金管理API测试[2m > [22mGET /commission/statistics[2m > [22m应该支持不同时间周期
+[31m[1mError[22m: expected 200 "OK", got 500 "Internal Server Error"[39m
+[36m [2m❯[22m api/commission.test.ts:[2m650:12[22m[39m
+    [90m648| [39m            period[33m:[39m period
+    [90m649| [39m          })
+    [90m650| [39m          [33m.[39m[34mexpect[39m([34m200[39m)[33m;[39m
+    [90m   | [39m           [31m^[39m
+    [90m651| [39m
+    [90m652| [39m        [34mexpect[39m(response[33m.[39mbody[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+[90m [2m❯[22m Test._assertStatus ../node_modules/supertest/lib/test.js:[2m309:14[22m[39m
+[90m [2m❯[22m ../node_modules/supertest/lib/test.js:[2m365:13[22m[39m
+[90m [2m❯[22m Test._assertFunction ../node_modules/supertest/lib/test.js:[2m342:13[22m[39m
+[90m [2m❯[22m Test.assert ../node_modules/supertest/lib/test.js:[2m195:23[22m[39m
+[90m [2m❯[22m localAssert ../node_modules/supertest/lib/test.js:[2m138:14[22m[39m
+[90m [2m❯[22m Server.<anonymous> ../node_modules/supertest/lib/test.js:[2m152:11[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/30]⎯[22m[39m
+
+
+                        <br><em>建议: 查看详细错误日志，联系相关开发人员</em>
+                    </li>
+                
+                    <li>
+                        <strong>管理系统</strong>: Command failed: npm run test:admin
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m api/admin.test.ts[2m > [22mAdmin基础功能测试
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ADMIN')[39m
+[36m [2m❯[22m api/admin.test.ts:[2m15:57[22m[39m
+    [90m 13| [39m
+    [90m 14| [39m    [90m// 创建Admin用户[39m
+    [90m 15| [39m    [35mconst[39m adminUser [33m=[39m [35mawait[39m [34mcreateTestUser[39m([33mTestUserType[39m[33m.[39m[33mADMIN[39m)[33m;[39m
+    [90m   | [39m                                                        [31m^[39m
+    [90m 16| [39m    adminHeaders [33m=[39m [34mgetAuthHeaders[39m(adminUser[33m.[39mtoken)[33m;[39m
+    [90m 17| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+                        <br><em>建议: 查看详细错误日志，联系相关开发人员</em>
+                    </li>
+                
+                    <li>
+                        <strong>安全测试</strong>: Command failed: npm run test:security
+[31mNo test files found, exiting with code 1
+[39m
+[2mfilter: [22m[33mtests/security/*.test.ts[39m
+[2minclude: [22m[33m**/*.test.ts[39m
+[2mexclude:  [22m[33mnode_modules[2m, [22mdist[39m
+
+
+                        <br><em>建议: 查看详细错误日志，联系相关开发人员</em>
+                    </li>
+                
+                    <li>
+                        <strong>性能测试</strong>: Command failed: npm run test:performance
+[31mNo test files found, exiting with code 1
+[39m
+[2mfilter: [22m[33mtests/performance/*.test.ts[39m
+[2minclude: [22m[33m**/*.test.ts[39m
+[2mexclude:  [22m[33mnode_modules[2m, [22mdist[39m
+
+
+                        <br><em>建议: 查看详细错误日志，联系相关开发人员</em>
+                    </li>
+                
+                    <li>
+                        <strong>集成测试</strong>: Command failed: npm run test:integration
+[31mNo test files found, exiting with code 1
+[39m
+[2mfilter: [22m[33mtests/integration/*.test.ts[39m
+[2minclude: [22m[33m**/*.test.ts[39m
+[2mexclude:  [22m[33mnode_modules[2m, [22mdist[39m
+
+
+                        <br><em>建议: 查看详细错误日志，联系相关开发人员</em>
+                    </li>
+                
+            </ul>
+        </div>
+    
+</body>
+</html>
+    

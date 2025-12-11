@@ -18,7 +18,7 @@ export class PaymentCallbackHandler {
       // 使用数据库事务确保数据一致性
       await prisma.$transaction(async (tx) => {
         // 1. 查询订单信息
-        const order = await tx.order.findUnique({
+        const order = await tx.orders.findUnique({
           where: { id: orderId },
           include: {
             items: true,
@@ -47,7 +47,7 @@ export class PaymentCallbackHandler {
         }
 
         // 4. 创建支付交易记录
-        const paymentTransaction = await tx.paymentTransaction.create({
+        const paymentTransaction = await tx.paymentTransactions.create({
           data: {
             orderId,
             providerOrderId: providerOrderId || '',
@@ -62,7 +62,7 @@ export class PaymentCallbackHandler {
         });
 
         // 5. 更新订单状态
-        await tx.order.update({
+        await tx.orders.update({
           where: { id: orderId },
           data: {
             status: 'PAID',
@@ -108,7 +108,7 @@ export class PaymentCallbackHandler {
     try {
       await prisma.$transaction(async (tx) => {
         // 1. 查询订单信息
-        const order = await tx.order.findUnique({
+        const order = await tx.orders.findUnique({
           where: { id: orderId },
           include: {
             paymentTransactions: true
@@ -120,7 +120,7 @@ export class PaymentCallbackHandler {
         }
 
         // 2. 创建失败交易记录
-        await tx.paymentTransaction.create({
+        await tx.paymentTransactions.create({
           data: {
             orderId,
             providerOrderId: providerOrderId || '',
@@ -135,7 +135,7 @@ export class PaymentCallbackHandler {
         });
 
         // 3. 更新订单状态
-        await tx.order.update({
+        await tx.orders.update({
           where: { id: orderId },
           data: {
             status: 'FAILED',
@@ -172,7 +172,7 @@ export class PaymentCallbackHandler {
     try {
       await prisma.$transaction(async (tx) => {
         // 1. 查询退款记录
-        const refundRecord = await tx.refundRecord.findFirst({
+        const refundRecord = await tx.paymentRefunds.findFirst({
           where: {
             orderId,
             providerRefundId: providerOrderId
@@ -184,7 +184,7 @@ export class PaymentCallbackHandler {
         }
 
         // 2. 更新退款状态
-        await tx.refundRecord.update({
+        await tx.paymentRefunds.update({
           where: { id: refundRecord.id },
           data: {
             status: 'SUCCESS',
@@ -194,7 +194,7 @@ export class PaymentCallbackHandler {
         });
 
         // 3. 创建退款交易记录
-        await tx.paymentTransaction.create({
+        await tx.paymentTransactions.create({
           data: {
             orderId,
             providerOrderId: providerOrderId || '',
@@ -238,7 +238,7 @@ export class PaymentCallbackHandler {
    */
   private static async handleInventoryReduction(tx: any, order: any): Promise<void> {
     try {
-      for (const item of order.items) {
+      for (const item of orderItems) {
         // 确定仓库类型和用户ID
         let warehouseType: any = 'PLATFORM';
         let userId = '';
@@ -264,7 +264,7 @@ export class PaymentCallbackHandler {
         // 使用优化的库存服务确认扣减预留库存
         const result = await inventoryService.confirmReservedInventory(
           userId,
-          item.productId,
+          item.productsId,
           item.skuId || '',
           item.quantity,
           warehouseType,
@@ -277,7 +277,7 @@ export class PaymentCallbackHandler {
 
         logger.info('支付成功库存扣减完成', {
           orderId: order.id,
-          productId: item.productId,
+          productId: item.productsId,
           quantity: item.quantity,
           warehouseType
         });
@@ -309,8 +309,8 @@ export class PaymentCallbackHandler {
         // 恢复库存
         await tx.inventoryItem.updateMany({
           where: {
-            productId: log.productId,
-            specId: log.specId,
+            productId: log.productsId,
+            specId: log.specsId,
             warehouseType: log.warehouseType
           },
           data: {
@@ -326,8 +326,8 @@ export class PaymentCallbackHandler {
         // 记录库存恢复流水
         await tx.inventoryLog.create({
           data: {
-            productId: log.productId,
-            specId: log.specId,
+            productId: log.productsId,
+            specId: log.specsId,
             warehouseType: log.warehouseType,
             changeType: 'IN',
             quantity: log.quantity,
@@ -359,7 +359,7 @@ export class PaymentCallbackHandler {
         buyerId: order.buyerId,
         sellerId: order.sellerId,
         orderAmount: order.finalAmount,
-        productCount: order.items?.length || 0,
+        productCount: orderItems?.length || 0,
         orderType: order.type,
         commissionDetails: order.commissionDetails
       };

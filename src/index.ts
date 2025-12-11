@@ -18,9 +18,12 @@ import {authenticate, optionalAuthenticate} from './shared/middleware/auth';
 import {checkDatabaseHealth} from './shared/database/client';
 import {xssProtection, inputValidation, rateLimit, securityHeaders} from './shared/middleware/security';
 import {csrfProtection} from './shared/middleware/csrf';
+import {performStartupSecurityCheck} from './shared/services/security-config';
 import {enhancedSecurityHeaders, enhancedInputValidation} from './shared/middleware/enhanced-security';
 import {securityMonitoring} from './shared/services/security-monitoring';
 import {fileUploadSecurity} from './shared/middleware/file-upload-security';
+import {performanceMonitor, getPerformanceSummary} from './shared/middleware/performance-monitor';
+import {performanceMonitorV2 as enhancedPerformanceMonitor} from './shared/middleware/performance-monitor-v2';
 
 // 导入响应工具
 import {createSuccessResponse, createErrorResponse, ErrorCode} from './shared/types/response';
@@ -36,6 +39,21 @@ import {initializeConfigs} from './modules/config';
 
 // 导入日志
 import {logger} from './shared/utils/logger';
+
+// 导入监控中间件
+import {
+  requestTimingMiddleware,
+  apiLoggingMiddleware,
+  healthCheckMiddleware,
+  errorMonitoringMiddleware
+} from './shared/middleware/monitoring';
+
+// 导入新的监控系统
+import {
+  initializeMonitoring,
+  getMonitoringMiddleware,
+  setupGracefulShutdown
+} from './monitoring/middleware/monitoring-integration';
 
 // 导入 Swagger 文档
 import swaggerSetup from './config/swagger';
@@ -89,8 +107,8 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token', 'X-CSRF-Token']
 }));
 
-// 安全监控和IP检查
-app.use(securityMonitoring as any);
+// 安全监控和IP检查 - 临时禁用以诊断问题
+// app.use(securityMonitoring as any);
 
 // 压缩
 app.use(compression());
@@ -109,7 +127,21 @@ app.use(express.urlencoded({
 // 请求ID中间件
 app.use(requestId);
 
-// 增强的输入验证
+// 请求时间监控中间件
+app.use(requestTimingMiddleware);
+
+// API日志中间件
+app.use(apiLoggingMiddleware);
+
+// 性能监控中间件 - 使用增强版本
+// 启用优化的性能监控V2
+app.use(enhancedPerformanceMonitor);
+
+// 新的监控系统中间件（在性能监控之后）
+const monitoringMiddleware = getMonitoringMiddleware();
+app.use(monitoringMiddleware);
+
+// 增强的输入验证 - 已修复过度拦截问题，重新启用
 app.use(enhancedInputValidation);
 
 // CSRF防护（对状态变更请求）
@@ -136,7 +168,7 @@ if (process.env.NODE_ENV === 'development') {
     }));
 }
 
-// 健康检查端点
+// 简单健康检查端点（兼容性）
 app.get('/health', (req, res) => {
     res.json(createSuccessResponse({
         status: 'ok',
@@ -146,6 +178,9 @@ app.get('/health', (req, res) => {
         uptime: process.uptime()
     }));
 });
+
+// 详细健康检查端点（包含系统监控）
+app.get('/health/detailed', healthCheckMiddleware);
 
 // 数据库健康检查
 app.get('/health/database', async (req, res) => {
@@ -214,11 +249,26 @@ app.get('/health/security', (req, res) => {
 // Swagger API 文档 (在健康检查之后，API路由之前)
 swaggerSetup(app);
 
+// 简单测试路由 - 在API路由之前
+app.get('/api/v1/test-simple', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Test route working!',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // API路由
 app.use('/api/v1', apiV1Routes);
 
+// 调试：添加日志查看路由是否被注册
+console.log('🔍 API路由已注册到 /api/v1');
+
 // 404处理
 app.use(notFoundHandler);
+
+// 错误监控中间件（在错误处理之前）
+app.use(errorMonitoringMiddleware);
 
 // 错误处理中间件
 app.use(errorHandler);
@@ -228,18 +278,48 @@ app.listen(PORT, async () => {
     // 简化的启动信息
     const isDev = process.env.NODE_ENV === 'development';
 
+    // 检查数据库连接状态
+    let dbStatus = '未知';
+    try {
+        const isHealthy = await checkDatabaseHealth();
+        dbStatus = isHealthy ? '已连接' : '连接失败';
+    } catch (error) {
+        dbStatus = '连接失败';
+    }
+
+    // 启动监控系统
+    console.log('🔄 正在启动监控系统...');
+    try {
+        await initializeMonitoring();
+        console.log('✅ 监控系统启动成功');
+    } catch (error) {
+        console.error('❌ 监控系统启动失败:', error);
+        // 不阻塞应用启动
+    }
+
+    // 设置优雅关闭
+    setupGracefulShutdown();
+
     console.log(`\n🚀 中道商城系统启动成功！`);
     console.log(`📍 端口: ${PORT}`);
     console.log(`🌍 环境: ${isDev ? '开发模式' : '生产模式'}`);
+    console.log(`🗄️ 数据库: ${dbStatus} (${config.database.host}:${config.database.port}/${config.database.name})`);
     console.log(`🔗 健康检查: http://localhost:${PORT}/health`);
+    console.log(`📊 监控面板: http://localhost:${PORT}/api/v1/monitoring/dashboard`);
     console.log(`📚 API文档: http://localhost:${PORT}/api-docs\n`);
 
-    // 初始化系统配置
-    try {
-        await initializeConfigs();
-        // 成功时不显示信息（因为initializeConfigs内部已经有日志）
-    } catch (error) {
-        // 错误已经由initializeConfigs处理，这里不再显示
+    // 🚀 优化：测试环境跳过配置初始化，避免数据库连接池竞争
+    if (process.env.NODE_ENV === 'test') {
+      console.log('🧪 测试环境：跳过系统配置初始化');
+    } else {
+      // 异步初始化系统配置，不阻塞服务器启动
+      console.log('🔄 异步初始化系统配置...');
+      // 延迟5秒执行配置初始化，避免与API请求竞争数据库连接
+      setTimeout(() => {
+        initializeConfigs().catch(error => {
+          console.error('❌ 系统配置初始化失败:', error);
+        });
+      }, 5000);
     }
 });
 

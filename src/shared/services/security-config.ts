@@ -430,26 +430,26 @@ export const performStartupSecurityCheck = (): void => {
 
   // 在开发环境中输出详细报告
   if (process.env.NODE_ENV === 'development') {
-    console.log('\n=== 安全配置报告 ===');
-    console.log(`安全评分: ${report.overallScore}/100`);
-    console.log(`安全等级: ${report.securityLevel}`);
-    console.log(`检查时间: ${report.timestamp.toISOString()}`);
+// [DEBUG REMOVED]     console.log('\n=== 安全配置报告 ===');
+// [DEBUG REMOVED]     console.log(`安全评分: ${report.overallScore}/100`);
+// [DEBUG REMOVED]     console.log(`安全等级: ${report.securityLevel}`);
+// [DEBUG REMOVED]     console.log(`检查时间: ${report.timestamp.toISOString()}`);
 
     if (report.validationResults.errors.length > 0) {
-      console.log('\n严重错误:');
-      report.validationResults.errors.forEach(error => console.log(`  ❌ ${error}`));
+// [DEBUG REMOVED]       console.log('\n严重错误:');
+// [DEBUG REMOVED]       report.validationResults.errors.forEach(error => console.log(`  ❌ ${error}`));
     }
 
     if (report.validationResults.warnings.length > 0) {
-      console.log('\n警告:');
-      report.validationResults.warnings.forEach(warning => console.log(`  ⚠️  ${warning}`));
+// [DEBUG REMOVED]       console.log('\n警告:');
+// [DEBUG REMOVED]       report.validationResults.warnings.forEach(warning => console.log(`  ⚠️  ${warning}`));
     }
 
     if (report.recommendations.length > 0) {
-      console.log('\n建议:');
-      report.recommendations.forEach(rec => console.log(`  💡 ${rec}`));
+// [DEBUG REMOVED]       console.log('\n建议:');
+// [DEBUG REMOVED]       report.recommendations.forEach(rec => console.log(`  💡 ${rec}`));
     }
-    console.log('===================\n');
+// [DEBUG REMOVED]     console.log('===================\n');
   }
 
   // 如果安全评分过低，记录严重警告

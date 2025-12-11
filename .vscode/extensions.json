@@ -1,0 +1,56 @@
+{
+  "recommendations": [
+    // TypeScript and JavaScript
+    "ms-vscode.vscode-typescript-next",
+    "bradlc.vscode-tailwindcss",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "ms-vscode.vscode-json",
+
+    // Code Quality
+    "sonarsource.sonarlint-vscode",
+    "gruntfuggly.todo-tree",
+    "streetsidesoftware.code-spell-checker",
+    "wayou.vscode-todo-highlight",
+
+    // Git and Version Control
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+    "donjayamanne.githistory",
+
+    // Development Tools
+    "ms-vscode.vscode-node-azure-pack",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    "ms-vscode.vscode-npm-scripts",
+    "christian-kohler.npm-intellisense",
+
+    // Debugging
+    "ms-vscode.js-debug",
+    "ms-vscode.vscode-node-debug2",
+    "wallabyjs.console-ninja",
+
+    // Testing
+    "ms-vscode.vscode-test-explorer",
+    "vitest.explorer",
+    "ms-vscode.test-adapter-converter",
+
+    // Prisma
+    "prisma.prisma",
+
+    // Docker
+    "ms-vscode.vscode-docker",
+    "ms-vscode-remote.remote-containers",
+
+    // Environment
+    "mikestead.dotenv",
+
+    // API Development
+    "humao.rest-client",
+    "rangav.vscode-thunder-client"
+  ],
+  "unwantedRecommendations": [
+    "ms-vscode.vscode-typescript",
+    "hookyqr.beautify"
+  ]
+}

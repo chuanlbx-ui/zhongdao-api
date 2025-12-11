@@ -1,0 +1,22 @@
+# 积分API测试环境变量配置示例
+# 复制此文件为 .test-env 并填入真实的测试数据
+
+# API基础URL
+API_BASE_URL=http://localhost:3000
+
+# 测试用户Token（从登录API获取或使用现有的测试token）
+ADMIN_TOKEN=your_admin_token_here
+DIRECTOR_TOKEN=your_director_token_here
+VIP_TOKEN=your_vip_token_here
+NORMAL_TOKEN=your_normal_user_token_here
+
+# 测试用户ID（25位字符）
+ADMIN_USER_ID=admin_user_id_25_characters
+DIRECTOR_USER_ID=director_user_id_25_characters
+VIP_USER_ID=vip_user_id_25_characters
+NORMAL_USER_ID=normal_user_id_25_characters
+
+# 使用方法:
+# 1. 复制此文件: cp scripts/test-env.example scripts/.test-env
+# 2. 编辑 scripts/.test-env，填入真实的测试数据
+# 3. 运行测试: source scripts/.test-env && npm run test:points

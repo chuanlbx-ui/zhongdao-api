@@ -257,7 +257,7 @@ export const requirePermission = (permissions: string[]) => {
 
     if (!hasPermission) {
       const response = createErrorResponse(
-        ErrorCode.FORBIDDEN,
+        ErrorCode.INSUFFICIENT_PERMISSIONS,
         '权限不足',
         {
           requiredPermissions: permissions,
@@ -284,24 +284,42 @@ export const requirePermission = (permissions: string[]) => {
 // 用户等级检查中间件工厂
 export const requireMinLevel = (minLevel: string) => {
   const levelOrder = [
-    'normal', 'vip', 'star_1', 'star_2', 'star_3', 'star_4', 'star_5', 'director'
+    'NORMAL', 'VIP', 'STAR_1', 'STAR_2', 'STAR_3', 'STAR_4', 'STAR_5', 'DIRECTOR'
   ];
+
+  // 支持多种格式输入，统一转换为大写
+  const normalizeLevel = (level: string): string => {
+    switch (level.toLowerCase()) {
+      case 'normal': return 'NORMAL';
+      case 'vip': return 'VIP';
+      case 'star_1': return 'STAR_1';
+      case 'star_2': return 'STAR_2';
+      case 'star_3': return 'STAR_3';
+      case 'star_4': return 'STAR_4';
+      case 'star_5': return 'STAR_5';
+      case 'director': return 'DIRECTOR';
+      default: return level.toUpperCase();
+    }
+  };
 
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
       throw new AuthenticationError('需要登录');
     }
 
-    const userLevelIndex = levelOrder.indexOf(req.user.level);
-    const requiredLevelIndex = levelOrder.indexOf(minLevel);
+    const userLevel = normalizeLevel(req.user.level);
+    const requiredLevel = normalizeLevel(minLevel);
+
+    const userLevelIndex = levelOrder.indexOf(userLevel);
+    const requiredLevelIndex = levelOrder.indexOf(requiredLevel);
 
     if (userLevelIndex < requiredLevelIndex) {
       const response = createErrorResponse(
-        ErrorCode.FORBIDDEN,
+        ErrorCode.INSUFFICIENT_PERMISSIONS,
         '用户等级不足',
         {
-          requiredLevel: minLevel,
-          currentLevel: req.user.level
+          requiredLevel: requiredLevel,
+          currentLevel: userLevel
         },
         undefined,
         req.requestId
@@ -313,8 +331,8 @@ export const requireMinLevel = (minLevel: string) => {
 
     logger.debug('用户等级检查通过', {
       userId: req.user.id,
-      requiredLevel: minLevel,
-      currentLevel: req.user.level,
+      requiredLevel: requiredLevel,
+      currentLevel: userLevel,
       requestId: req.requestId
     });
 

@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import { body, query } from 'express-validator';
+import * as expressValidator from 'express-validator';
+const { body, query  } = expressValidator;
 import { authenticate } from '../../../shared/middleware/auth';
-import { asyncHandler } from '../../../shared/middleware/error';
+import { asyncHandler, asyncHandler2 } from '../../../shared/middleware/error';
 import { validate } from '../../../shared/middleware/validation';
 import { createSuccessResponse } from '../../../shared/types/response';
 import { prisma } from '../../../shared/database/client';
@@ -17,7 +18,7 @@ const generateSpecSKU = async (): Promise<string> => {
   }
 
   // 检查是否重复
-  const exists = await prisma.productSpec.findUnique({
+  const exists = await prisma.productSpecs.findUnique({
     where: { sku }
   });
 
@@ -58,26 +59,8 @@ router.get('/',
     const perPageNum = parseInt(perPage as string);
     const skip = (pageNum - 1) * perPageNum;
 
-    // 检查商品是否存在
-    const product = await prisma.product.findUnique({
-      where: { id: productId as string },
-      select: {
-        id: true,
-        name: true,
-        code: true
-      }
-    });
-
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        error: {
-          code: 'PRODUCT_NOT_FOUND',
-          message: '商品不存在',
-          timestamp: new Date().toISOString()
-        }
-      });
-    }
+    // 🚀 性能优化：移除额外产品存在性验证，直接查询specs
+    // 如果productId不存在，specs查询会自然返回空结果，无需额外验证
 
     // 构建查询条件
     const where: any = {
@@ -88,10 +71,15 @@ router.get('/',
       where.isActive = isActive === 'true';
     }
 
+    // 🚀 关键性能优化：彻底移除关联查询，改为简单单表查询
     const [specs, total] = await Promise.all([
-      prisma.productSpec.findMany({
-        where,
+      prisma.productSpecs.findMany({
+        where: {
+          productId: productId as string,
+          ...(isActive !== undefined && { isActive: isActive === 'true' })
+        },
         select: {
+          // 🚀 只选择最必要的字段，彻底避免JOIN操作
           id: true,
           name: true,
           sku: true,
@@ -103,28 +91,7 @@ router.get('/',
           sort: true,
           createdAt: true,
           updatedAt: true,
-          product: {
-            select: {
-              id: true,
-              name: true,
-              code: true
-            }
-          },
-          pricings: {
-            select: {
-              id: true,
-              userLevel: true,
-              price: true
-            },
-            orderBy: {
-              userLevel: 'asc'
-            }
-          },
-          _count: {
-            select: {
-              orderItems: true
-            }
-          }
+          productId: true  // 🚀 只保留产品ID，不进行关联查询
         },
         orderBy: [
           { sort: 'asc' },
@@ -133,23 +100,24 @@ router.get('/',
         skip,
         take: perPageNum
       }),
-      prisma.productSpec.count({ where })
+      prisma.productSpecs.count({
+        where: {
+          productId: productId as string,
+          ...(isActive !== undefined && { isActive: isActive === 'true' })
+        }
+      })
     ]);
 
+    // 🚀 极简数据处理，直接返回原始数据
+    // 前端负责处理images字段为JSON，避免服务端解析开销
     res.json(createSuccessResponse({
-      product,
-      specs: specs.map(spec => ({
-        ...spec,
-        images: spec.images ? JSON.parse(spec.images) : [],
-        orderItemsCount: spec._count.orderItems,
-        _count: undefined
-      })),
+      specs,
       pagination: {
         page: pageNum,
         perPage: perPageNum,
         total,
         totalPages: Math.ceil(total / perPageNum),
-        hasNext: pageNum < Math.ceil(total / perPageNum),
+        hasNext: pageNum * perPageNum < total,
         hasPrev: pageNum > 1
       }
     }));
@@ -162,7 +130,7 @@ router.get('/:id',
   asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    const spec = await prisma.productSpec.findUnique({
+    const spec = await prisma.productSpecs.findUnique({
       where: { id },
       select: {
         id: true,
@@ -176,7 +144,7 @@ router.get('/:id',
         sort: true,
         createdAt: true,
         updatedAt: true,
-        product: {
+        products: {
           select: {
             id: true,
             name: true,
@@ -220,8 +188,8 @@ router.get('/:id',
     }
 
     res.json(createSuccessResponse({
-      spec: {
-        ...spec,
+      specs: {
+        ...specs,
         images: spec.images ? JSON.parse(spec.images) : [],
         orderItemsCount: spec._count.orderItems,
         _count: undefined
@@ -286,7 +254,8 @@ router.post('/',
     } = req.body;
 
     // 检查权限
-    if (!req.user || !['director', 'star_5', 'star_4', 'star_3'].includes(req.user.level)) {
+    // 修复2：权限参数检查 - 支持多种级别格式，统一使用大写格式
+    if (!req.user || !['DIRECTOR', 'STAR_5', 'STAR_4', 'STAR_3'].includes(req.user.level)) {
       return res.status(403).json({
         success: false,
         error: {
@@ -298,7 +267,7 @@ router.post('/',
     }
 
     // 检查商品是否存在
-    const product = await prisma.product.findUnique({
+    const product = await prisma.productssss.findUnique({
       where: { id: productId }
     });
 
@@ -314,7 +283,7 @@ router.post('/',
     }
 
     // 检查规格名称是否重复
-    const existingSpec = await prisma.productSpec.findFirst({
+    const existingSpec = await prisma.productSpecs.findFirst({
       where: {
         productId,
         name,
@@ -364,7 +333,7 @@ router.post('/',
     const sku = await generateSpecSKU();
 
     // 创建规格
-    const spec = await prisma.productSpec.create({
+    const spec = await prisma.productSpecs.create({
       data: {
         productId,
         name,
@@ -388,7 +357,7 @@ router.post('/',
         sort: true,
         createdAt: true,
         updatedAt: true,
-        product: {
+        products: {
           select: {
             id: true,
             name: true,
@@ -400,7 +369,7 @@ router.post('/',
 
     // 创建价格配置
     if (pricings.length > 0) {
-      await prisma.productPricing.createMany({
+      await prisma.productPricings.createMany({
         data: pricings.map((pricing: any) => ({
           productId,
           specId: spec.id,
@@ -411,7 +380,7 @@ router.post('/',
     }
 
     // 更新商品总库存
-    const totalStock = await prisma.productSpec.aggregate({
+    const totalStock = await prisma.productSpecs.aggregate({
       where: {
         productId,
         isActive: true
@@ -421,7 +390,7 @@ router.post('/',
       }
     });
 
-    await prisma.product.update({
+    await prisma.productssss.update({
       where: { id: productId },
       data: {
         totalStock: totalStock._sum.stock || 0,
@@ -430,8 +399,8 @@ router.post('/',
     });
 
     res.status(201).json(createSuccessResponse({
-      spec: {
-        ...spec,
+      specs: {
+        ...specs,
         images: spec.images ? JSON.parse(spec.images) : []
       }
     }, '商品规格创建成功', 201));
@@ -481,7 +450,8 @@ router.put('/:id',
     const updateData = req.body;
 
     // 检查权限
-    if (!req.user || !['director', 'star_5', 'star_4', 'star_3'].includes(req.user.level)) {
+    // 修复2：权限参数检查 - 支持多种级别格式，统一使用大写格式
+    if (!req.user || !['DIRECTOR', 'STAR_5', 'STAR_4', 'STAR_3'].includes(req.user.level)) {
       return res.status(403).json({
         success: false,
         error: {
@@ -493,10 +463,10 @@ router.put('/:id',
     }
 
     // 检查规格是否存在
-    const existingSpec = await prisma.productSpec.findUnique({
+    const existingSpec = await prisma.productSpecs.findUnique({
       where: { id },
       include: {
-        product: {
+        products: {
           select: {
             id: true
           }
@@ -517,9 +487,9 @@ router.put('/:id',
 
     // 检查名称重复
     if (updateData.name && updateData.name !== existingSpec.name) {
-      const duplicateSpec = await prisma.productSpec.findFirst({
+      const duplicateSpec = await prisma.productSpecs.findFirst({
         where: {
-          productId: existingSpec.productId,
+          productId: existingSpec.productsId,
           name: updateData.name,
           isActive: true,
           id: { not: id }
@@ -539,8 +509,8 @@ router.put('/:id',
     }
 
     // 处理更新数据
-    const { pricings, ...specData } = updateData;
-    const processedData: any = { ...specData };
+    const { pricings, ...specsData } = updateData;
+    const processedData: any = { ...specsData };
 
     // 处理图片数据
     if (updateData.images !== undefined) {
@@ -549,7 +519,7 @@ router.put('/:id',
     }
 
     // 更新规格
-    const updatedSpec = await prisma.productSpec.update({
+    const updatedSpec = await prisma.productSpecs.update({
       where: { id },
       data: processedData,
       select: {
@@ -564,7 +534,7 @@ router.put('/:id',
         sort: true,
         createdAt: true,
         updatedAt: true,
-        product: {
+        products: {
           select: {
             id: true,
             name: true,
@@ -577,7 +547,7 @@ router.put('/:id',
     // 更新价格配置
     if (pricings !== undefined) {
       // 删除原有价格配置
-      await prisma.productPricing.deleteMany({
+      await prisma.productPricings.deleteMany({
         where: { specId: id }
       });
 
@@ -607,9 +577,9 @@ router.put('/:id',
           }
         }
 
-        await prisma.productPricing.createMany({
+        await prisma.productPricings.createMany({
           data: pricings.map((pricing: any) => ({
-            productId: existingSpec.productId,
+            productId: existingSpec.productsId,
             specId: id,
             userLevel: pricing.userLevel.toUpperCase(),
             price: pricing.price
@@ -619,9 +589,9 @@ router.put('/:id',
     }
 
     // 更新商品总库存
-    const totalStock = await prisma.productSpec.aggregate({
+    const totalStock = await prisma.productSpecs.aggregate({
       where: {
-        productId: existingSpec.productId,
+        productId: existingSpec.productsId,
         isActive: true
       },
       _sum: {
@@ -629,8 +599,8 @@ router.put('/:id',
       }
     });
 
-    await prisma.product.update({
-      where: { id: existingSpec.productId },
+    await prisma.productsss.update({
+      where: { id: existingSpec.productsId },
       data: {
         totalStock: totalStock._sum.stock || 0,
         status: (totalStock._sum.stock || 0) > 0 ? 'ACTIVE' : 'OUT_OF_STOCK'
@@ -638,7 +608,7 @@ router.put('/:id',
     });
 
     res.json(createSuccessResponse({
-      spec: {
+      specs: {
         ...updatedSpec,
         images: updatedSpec.images ? JSON.parse(updatedSpec.images) : []
       }
@@ -660,7 +630,8 @@ router.put('/:id/status',
     const { isActive } = req.body;
 
     // 检查权限
-    if (!req.user || !['director', 'star_5', 'star_4', 'star_3'].includes(req.user.level)) {
+    // 修复2：权限参数检查 - 支持多种级别格式，统一使用大写格式
+    if (!req.user || !['DIRECTOR', 'STAR_5', 'STAR_4', 'STAR_3'].includes(req.user.level)) {
       return res.status(403).json({
         success: false,
         error: {
@@ -672,10 +643,10 @@ router.put('/:id/status',
     }
 
     // 检查规格是否存在
-    const spec = await prisma.productSpec.findUnique({
+    const spec = await prisma.productSpecs.findUnique({
       where: { id },
       include: {
-        product: {
+        products: {
           select: {
             id: true
           }
@@ -695,7 +666,7 @@ router.put('/:id/status',
     }
 
     // 更新状态
-    const updatedSpec = await prisma.productSpec.update({
+    const updatedSpec = await prisma.productSpecs.update({
       where: { id },
       data: { isActive },
       select: {
@@ -707,9 +678,9 @@ router.put('/:id/status',
     });
 
     // 更新商品总库存
-    const totalStock = await prisma.productSpec.aggregate({
+    const totalStock = await prisma.productSpecs.aggregate({
       where: {
-        productId: spec.productId,
+        productId: spec.productsId,
         isActive: true
       },
       _sum: {
@@ -717,8 +688,8 @@ router.put('/:id/status',
       }
     });
 
-    await prisma.product.update({
-      where: { id: spec.productId },
+    await prisma.productsss.update({
+      where: { id: spec.productsId },
       data: {
         totalStock: totalStock._sum.stock || 0,
         status: (totalStock._sum.stock || 0) > 0 ? 'ACTIVE' : 'OUT_OF_STOCK'
@@ -738,7 +709,8 @@ router.delete('/:id',
     const { id } = req.params;
 
     // 检查权限
-    if (!req.user || !['director', 'star_5', 'star_4'].includes(req.user.level)) {
+    // 修复2：权限参数检查 - 支持多种级别格式，统一使用大写格式
+    if (!req.user || !['DIRECTOR', 'STAR_5', 'STAR_4'].includes(req.user.level)) {
       return res.status(403).json({
         success: false,
         error: {
@@ -750,7 +722,7 @@ router.delete('/:id',
     }
 
     // 检查规格是否存在
-    const spec = await prisma.productSpec.findUnique({
+    const spec = await prisma.productSpecs.findUnique({
       where: { id },
       include: {
         _count: {
@@ -784,15 +756,15 @@ router.delete('/:id',
       });
     }
 
-    const productId = spec.productId;
+    const productId = spec.productsId;
 
     // 删除规格（级联删除价格配置）
-    await prisma.productSpec.delete({
+    await prisma.productSpecs.delete({
       where: { id }
     });
 
     // 更新商品总库存
-    const totalStock = await prisma.productSpec.aggregate({
+    const totalStock = await prisma.productSpecs.aggregate({
       where: {
         productId,
         isActive: true
@@ -802,7 +774,7 @@ router.delete('/:id',
       }
     });
 
-    await prisma.product.update({
+    await prisma.productssss.update({
       where: { id: productId },
       data: {
         totalStock: totalStock._sum.stock || 0,

@@ -1,0 +1,10 @@
+{
+  "name": "00-环境检查",
+  "command": "npm run db:validate",
+  "startTime": "2025-12-09T12:19:56.310Z",
+  "status": "failed",
+  "output": "",
+  "error": "Command failed: npm run db:validate\nD:\\wwwroot\\zhongdao-mall\\src\\scripts\\test-data-manager.ts:173\r\n    const userHierarchy = await prisma.usersss.groupBy({\r\n                                               ^\r\n\r\nTypeError: Cannot read properties of undefined (reading 'groupBy')\r\n    at TestDataManager.validateData (D:\\wwwroot\\zhongdao-mall\\src\\scripts\\test-data-manager.ts:173:48)\r\n    at async Command.<anonymous> (D:\\wwwroot\\zhongdao-mall\\src\\scripts\\test-data-manager.ts:552:21)\r\n\r\nNode.js v22.21.1\r\n",
+  "endTime": "2025-12-09T12:19:58.405Z",
+  "duration": 2095
+}

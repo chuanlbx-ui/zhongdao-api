@@ -162,7 +162,7 @@ export class SMSNotificationService {
 
       // 这里应该调用阿里云短信API
       // 由于需要SDK和签名，这里先返回模拟结果
-      console.log('阿里云短信发送参数:', params);
+// [DEBUG REMOVED]       console.log('阿里云短信发送参数:', params);
 
       // 模拟API调用
       const mockResponse = {
@@ -219,7 +219,7 @@ export class SMSNotificationService {
       };
 
       // 这里应该调用腾讯云短信API
-      console.log('腾讯云短信发送参数:', params);
+// [DEBUG REMOVED]       console.log('腾讯云短信发送参数:', params);
 
       // 模拟API调用
       const mockResponse = {
@@ -275,7 +275,7 @@ export class SMSNotificationService {
       // 模拟发送延迟
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      console.log('模拟短信发送:', {
+// [DEBUG REMOVED]       console.log('模拟短信发送:', {
         phone,
         signName: this.signName,
         template: content.templateCode,

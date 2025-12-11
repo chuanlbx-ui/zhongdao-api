@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * 五通店API路由
  * 定义五通店相关的HTTP端点
@@ -6,7 +5,7 @@
 
 import { Router } from 'express';
 import { wutongController } from './wutong.controller';
-import { authenticate } from '../../shared/middleware/auth';
+import { authenticate } from '@/shared/middleware/auth';
 
 const router = Router();
 
@@ -15,16 +14,16 @@ const router = Router();
  */
 
 // 验证用户五通店资格
-router.get('/qualification', authenticateToken, wutongController.validateQualification);
+router.get('/qualification', authenticate, wutongController.validateQualification);
 
 // 计算买10赠1权益
-router.post('/calculate-benefit', authenticateToken, wutongController.calculateBenefit);
+router.post('/calculate-benefit', authenticate, wutongController.calculateBenefit);
 
 // 开通五通店
-router.post('/open-shop', authenticateToken, wutongController.openWutongShop);
+router.post('/open-shop', authenticate, wutongController.openWutongShop);
 
 // 获取五通店统计数据
-router.get('/statistics', authenticateToken, wutongController.getStatistics);
+router.get('/statistics', authenticate, wutongController.getStatistics);
 
 // 获取五通店权益说明（无需登录）
 router.get('/benefits', wutongController.getBenefitsInfo);

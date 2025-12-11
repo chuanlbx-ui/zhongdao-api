@@ -52,7 +52,7 @@ export const getNotificationsController = async (req: Request, res: Response) =>
 
     // 查询通知列表
     const [notifications, total] = await Promise.all([
-      prisma.notification.findMany({
+      prisma.notifications.findMany({
         where,
         orderBy: [
           { priority: 'desc' },
@@ -70,7 +70,7 @@ export const getNotificationsController = async (req: Request, res: Response) =>
           }
         }
       }),
-      prisma.notification.count({ where })
+      prisma.notifications.count({ where })
     ]);
 
     // 转换数据格式
@@ -133,7 +133,7 @@ export const getNotificationByIdController = async (req: Request, res: Response)
     const { id } = req.params;
     const userId = req.user?.id;
 
-    const notification = await prisma.notification.findFirst({
+    const notification = await prisma.notifications.findFirst({
       where: {
         id,
         recipientId: userId,
@@ -242,7 +242,7 @@ export const sendNotificationController = async (req: Request, res: Response) =>
     // 如果使用模板，获取模板信息
     let templateContent = { title, content };
     if (templateId) {
-      const template = await prisma.notificationTemplate.findUnique({
+      const template = await prisma.notificationsTemplate.findUnique({
         where: { id: templateId, isActive: true }
       });
 
@@ -274,7 +274,7 @@ export const sendNotificationController = async (req: Request, res: Response) =>
     // 批量创建通知
     const notifications = await Promise.all(
       recipientIds.map(async (recipientId: string) => {
-        return await prisma.notification.create({
+        return await prisma.notifications.create({
           data: {
             recipientId,
             recipientType,
@@ -303,7 +303,7 @@ export const sendNotificationController = async (req: Request, res: Response) =>
       // 暂时标记为已发送
       await Promise.all(
         notifications.map(async (notification) => {
-          await prisma.notification.update({
+          await prisma.notifications.update({
             where: { id: notification.id },
             data: {
               status: 'SENT',
@@ -348,7 +348,7 @@ export const markAsReadController = async (req: Request, res: Response) => {
     const { id } = req.params;
     const userId = req.user?.id;
 
-    const notification = await prisma.notification.findFirst({
+    const notification = await prisma.notifications.findFirst({
       where: {
         id,
         recipientId: userId,
@@ -378,7 +378,7 @@ export const markAsReadController = async (req: Request, res: Response) => {
       });
     }
 
-    await prisma.notification.update({
+    await prisma.notifications.update({
       where: { id },
       data: {
         isRead: true,
@@ -424,7 +424,7 @@ export const markAllAsReadController = async (req: Request, res: Response) => {
     if (category) where.category = category;
     if (type) where.type = type;
 
-    const result = await prisma.notification.updateMany({
+    const result = await prisma.notifications.updateMany({
       where,
       data: {
         isRead: true,
@@ -463,7 +463,7 @@ export const deleteNotificationController = async (req: Request, res: Response) 
     const { id } = req.params;
     const userId = req.user?.id;
 
-    const notification = await prisma.notification.findFirst({
+    const notification = await prisma.notifications.findFirst({
       where: {
         id,
         recipientId: userId,
@@ -482,7 +482,7 @@ export const deleteNotificationController = async (req: Request, res: Response) 
       });
     }
 
-    await prisma.notification.delete({
+    await prisma.notifications.delete({
       where: { id }
     });
 

@@ -1,0 +1,10 @@
+{
+  "name": "性能测试",
+  "command": "npm run test:performance",
+  "startTime": "2025-12-09T09:28:40.371Z",
+  "status": "failed",
+  "output": "",
+  "error": "Command failed: npm run test:performance\nnpm error Missing script: \"test:performance\"\nnpm error\nnpm error To see a list of scripts, run:\nnpm error   npm run\nnpm error A complete log of this run can be found in: C:\\Users\\yc\\AppData\\Local\\npm-cache\\_logs\\2025-12-09T09_28_40_903Z-debug-0.log\n",
+  "endTime": "2025-12-09T09:28:41.020Z",
+  "duration": 649
+}

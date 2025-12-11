@@ -132,7 +132,7 @@ router.post('/batch-calculate', async (req: Request, res: Response) => {
 
     // 验证商品列表
     for (const item of items) {
-      if (!item.productId) {
+      if (!item.productsId) {
         return res.status(400).json({
           success: false,
           error: {
@@ -346,7 +346,7 @@ router.post('/batch-update', validateUser, async (req: Request, res: Response) =
 
     // 验证更新项
     for (const update of updates) {
-      if (!update.productId) {
+      if (!update.productsId) {
         return res.status(400).json({
           success: false,
           error: {

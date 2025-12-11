@@ -11,13 +11,13 @@ export const getNotificationPreferencesController = async (req: Request, res: Re
   try {
     const userId = req.user?.id;
 
-    let preferences = await prisma.notificationPreference.findUnique({
+    let preferences = await prisma.notificationsPreference.findUnique({
       where: { userId }
     });
 
     // 如果用户没有设置偏好，创建默认设置
     if (!preferences) {
-      preferences = await prisma.notificationPreference.create({
+      preferences = await prisma.notificationsPreference.create({
         data: {
           userId,
           isEnabled: true,
@@ -138,7 +138,7 @@ export const updateNotificationPreferencesController = async (req: Request, res:
     }
 
     // 更新偏好设置
-    const preferences = await prisma.notificationPreference.upsert({
+    const preferences = await prisma.notificationsPreference.upsert({
       where: { userId },
       update: updateData,
       create: {

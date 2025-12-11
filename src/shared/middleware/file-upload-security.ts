@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response, NextFunction } from 'express';
 import { createErrorResponse, ErrorCode } from '../types/response';
 import { logger } from '../utils/logger';
@@ -6,10 +5,34 @@ import path from 'path';
 import fs from 'fs/promises';
 import crypto from 'crypto';
 
-// @ts-nocheck
+// 类型定义
+interface FileUploadConfig {
+  allowedMimeTypes: string[];
+  allowedExtensions: string[];
+  maxFileSize: number;
+  maxFileNameLength: number;
+  uploadDir: string;
+  tempDir: string;
+  enableVirusScan: boolean;
+  enableContentValidation: boolean;
+}
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+    [key: string]: any;
+  };
+}
+
+interface FileValidationResult {
+  isValid: boolean;
+  error?: string;
+  errorCode?: ErrorCode;
+  details?: any;
+}
 
 // 文件上传安全配置
-export const FILE_UPLOAD_CONFIG = {
+export const FILE_UPLOAD_CONFIG: FileUploadConfig = {
   // 允许的文件类型
   allowedMimeTypes: [
     'image/jpeg',
@@ -166,7 +189,7 @@ const validateFileContent = async (filePath: string, mimeType: string): Promise<
 /**
  * 文件上传安全中间件
  */
-export const fileUploadSecurity = (options: Partial<typeof FILE_UPLOAD_CONFIG> = {}) => {
+export const fileUploadSecurity = (options: Partial<FileUploadConfig> = {}) => {
   const config = { ...FILE_UPLOAD_CONFIG, ...options };
 
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -200,9 +223,8 @@ export const fileUploadSecurity = (options: Partial<typeof FILE_UPLOAD_CONFIG> =
           } catch {}
 
           return res.status(400).json(createErrorResponse(
-            ErrorCode.BAD_REQUEST,
-            validationResult.error || '文件验证失败',
-            validationResult.details
+            validationResult.errorCode || ErrorCode.BAD_REQUEST,
+            validationResult.error || '文件验证失败'
           ));
         }
 
@@ -225,9 +247,8 @@ export const fileUploadSecurity = (options: Partial<typeof FILE_UPLOAD_CONFIG> =
             }
 
             return res.status(400).json(createErrorResponse(
-              ErrorCode.BAD_REQUEST,
-              `文件 ${file.originalname} 验证失败: ${validationResult.error}`,
-              validationResult.details
+              validationResult.errorCode || ErrorCode.BAD_REQUEST,
+              `文件 ${file.originalname} 验证失败: ${validationResult.error}`
             ));
           }
         }
@@ -256,9 +277,9 @@ export const fileUploadSecurity = (options: Partial<typeof FILE_UPLOAD_CONFIG> =
  */
 const validateSingleFile = async (
   file: Express.Multer.File,
-  config: typeof FILE_UPLOAD_CONFIG,
+  config: FileUploadConfig,
   userId?: string
-): Promise<{ isValid: boolean; error?: string; details?: any }> => {
+): Promise<FileValidationResult> => {
   try {
     // 1. 检查文件名长度
     if (file.originalname.length > config.maxFileNameLength) {
@@ -313,6 +334,8 @@ const validateSingleFile = async (
     const safeFilePath = path.join(config.uploadDir, safeFileName);
 
     try {
+      // 确保上传目录存在
+      await fs.mkdir(path.dirname(safeFilePath), { recursive: true });
       await fs.rename(file.path, safeFilePath);
       // 更新文件信息
       file.filename = safeFileName;
@@ -359,12 +382,12 @@ const validateSingleFile = async (
  */
 export const cleanupTempFiles = async (): Promise<void> => {
   try {
-    const files = await fs.readdir(config.tempDir);
+    const files = await fs.readdir(FILE_UPLOAD_CONFIG.tempDir);
     const now = Date.now();
     const maxAge = 24 * 60 * 60 * 1000; // 24小时
 
     for (const file of files) {
-      const filePath = path.join(config.tempDir, file);
+      const filePath = path.join(FILE_UPLOAD_CONFIG.tempDir, file);
       const stats = await fs.stat(filePath);
 
       if (now - stats.mtime.getTime() > maxAge) {

@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import { body, query } from 'express-validator';
+import * as expressValidator from 'express-validator';
+const { body, query  } = expressValidator;
 import { authenticate } from '../../../shared/middleware/auth';
-import { asyncHandler } from '../../../shared/middleware/error';
+import { asyncHandler, asyncHandler2 } from '../../../shared/middleware/error';
 import { validate } from '../../../shared/middleware/validation';
 import { createSuccessResponse } from '../../../shared/types/response';
 import { prisma } from '../../../shared/database/client';
@@ -35,10 +36,9 @@ router.get('/',
     const skip = (pageNum - 1) * perPageNum;
 
     // 构建查询条件
-    const where: any = {};
-
+    const whereCondition: any = {};
     if (search) {
-      where.OR = [
+      whereCondition.OR = [
         {
           name: {
             contains: search as string,
@@ -54,9 +54,10 @@ router.get('/',
       ];
     }
 
+    // 使用Prisma ORM查询
     const [tags, total] = await Promise.all([
-      prisma.productTag.findMany({
-        where,
+      prisma.productTags.findMany({
+        where: whereCondition,
         select: {
           id: true,
           name: true,
@@ -64,12 +65,7 @@ router.get('/',
           description: true,
           sort: true,
           createdAt: true,
-          updatedAt: true,
-          _count: {
-            select: {
-              products: true
-            }
-          }
+          updatedAt: true
         },
         orderBy: [
           { sort: 'asc' },
@@ -78,21 +74,25 @@ router.get('/',
         skip,
         take: perPageNum
       }),
-      prisma.productTag.count({ where })
+      prisma.productTags.count({ where: whereCondition })
     ]);
 
     res.json(createSuccessResponse({
       tags: tags.map(tag => ({
-        ...tag,
-        productsCount: tag._count.products,
-        _count: undefined
+        id: tag.id,
+        name: tag.name,
+        color: tag.color,
+        description: tag.description,
+        sort: tag.sort,
+        createdAt: tag.createdAt,
+        updatedAt: tag.updatedAt
       })),
       pagination: {
         page: pageNum,
         perPage: perPageNum,
         total,
-        totalPages: Math.ceil(total / perPageNum),
-        hasNext: pageNum < Math.ceil(total / perPageNum),
+        totalPages: total > 0 ? Math.ceil(total / perPageNum) : 0,
+        hasNext: pageNum * perPageNum < total,
         hasPrev: pageNum > 1
       }
     }));
@@ -103,7 +103,7 @@ router.get('/',
 router.get('/all',
   authenticate,
   asyncHandler(async (req, res) => {
-    const tags = await prisma.productTag.findMany({
+    const tags = await prisma.productTags.findMany({
       select: {
         id: true,
         name: true,
@@ -149,7 +149,7 @@ router.post('/',
     const { name, color, description, sort = 0 } = req.body;
 
     // 检查权限
-    if (!req.user || !['director', 'star_5', 'star_4', 'star_3'].includes(req.user.level)) {
+    if (!req.user || !['DIRECTOR', 'STAR_5', 'STAR_4', 'STAR_3'].includes(req.user.level)) {
       return res.status(403).json({
         success: false,
         error: {
@@ -161,7 +161,7 @@ router.post('/',
     }
 
     // 检查标签名称是否重复
-    const existingTag = await prisma.productTag.findUnique({
+    const existingTag = await prisma.productTags.findUnique({
       where: { name }
     });
 
@@ -177,7 +177,7 @@ router.post('/',
     }
 
     // 创建标签
-    const tag = await prisma.productTag.create({
+    const tag = await prisma.productTags.create({
       data: {
         name,
         color,
@@ -226,7 +226,7 @@ router.put('/:id',
     const { name, color, description, sort } = req.body;
 
     // 检查权限
-    if (!req.user || !['director', 'star_5', 'star_4', 'star_3'].includes(req.user.level)) {
+    if (!req.user || !['DIRECTOR', 'STAR_5', 'STAR_4', 'STAR_3'].includes(req.user.level)) {
       return res.status(403).json({
         success: false,
         error: {
@@ -238,7 +238,7 @@ router.put('/:id',
     }
 
     // 检查标签是否存在
-    const existingTag = await prisma.productTag.findUnique({
+    const existingTag = await prisma.productTags.findUnique({
       where: { id }
     });
 
@@ -255,7 +255,7 @@ router.put('/:id',
 
     // 如果修改名称，检查是否重复
     if (name && name !== existingTag.name) {
-      const duplicateTag = await prisma.productTag.findUnique({
+      const duplicateTag = await prisma.productTags.findUnique({
         where: { name }
       });
 
@@ -272,7 +272,7 @@ router.put('/:id',
     }
 
     // 更新标签
-    const updatedTag = await prisma.productTag.update({
+    const updatedTag = await prisma.productTags.update({
       where: { id },
       data: {
         ...(name && { name }),
@@ -303,7 +303,7 @@ router.delete('/:id',
     const { id } = req.params;
 
     // 检查权限
-    if (!req.user || !['director', 'star_5', 'star_4'].includes(req.user.level)) {
+    if (!req.user || !['DIRECTOR', 'STAR_5', 'STAR_4'].includes(req.user.level)) {
       return res.status(403).json({
         success: false,
         error: {
@@ -315,7 +315,7 @@ router.delete('/:id',
     }
 
     // 检查标签是否存在
-    const tag = await prisma.productTag.findUnique({
+    const tag = await prisma.productTags.findUnique({
       where: { id },
       include: {
         _count: {
@@ -350,7 +350,7 @@ router.delete('/:id',
     }
 
     // 删除标签
-    await prisma.productTag.delete({
+    await prisma.productTags.delete({
       where: { id }
     });
 
@@ -383,7 +383,7 @@ router.post('/batch',
     const { tags } = req.body;
 
     // 检查权限
-    if (!req.user || !['director', 'star_5', 'star_4'].includes(req.user.level)) {
+    if (!req.user || !['DIRECTOR', 'STAR_5', 'STAR_4'].includes(req.user.level)) {
       return res.status(403).json({
         success: false,
         error: {
@@ -398,7 +398,7 @@ router.post('/batch',
     const tagNames = tags.map((tag: any) => tag.name);
 
     // 检查已存在的标签
-    const existingTags = await prisma.productTag.findMany({
+    const existingTags = await prisma.productTags.findMany({
       where: {
         name: {
           in: tagNames
@@ -424,7 +424,7 @@ router.post('/batch',
     // 批量创建标签
     const createdTags = await Promise.all(
       tags.map((tag: any) =>
-        prisma.productTag.create({
+        prisma.productTags.create({
           data: {
             name: tag.name,
             color: tag.color || null,

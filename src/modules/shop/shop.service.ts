@@ -3,10 +3,10 @@
  * 处理云店和五通店的核心业务逻辑
  */
 
-import { ShopType, ShopStatus, UserLevel } from '@prisma/client';
-import { logger } from '../../shared/utils/logger';
-import { prisma } from '../../shared/database/client';
-import { ErrorCode } from '../../shared/types/response';
+import { shops_shopType as ShopType, shops_status as ShopStatus, users_level as UserLevel } from '@prisma/client';
+import { logger } from '@/shared/utils/logger';
+import { prisma } from '@/shared/database/client';
+import { ErrorCode } from '@/shared/types/response';
 import { configService } from '../config';
 import { wutongService } from './wutong.service';
 import {
@@ -129,7 +129,7 @@ export class ShopService {
 
       // 3. 创建店铺
       const shop = await prisma.$transaction(async (tx) => {
-        const newShop = await tx.shop.create({
+        const newShop = await tx.shops.create({
           data: {
             userId,
             shopType: params.shopType,
@@ -146,7 +146,7 @@ export class ShopService {
         // 如果是云店，直接激活；如果是五通店，需要待审核
         if (params.shopType === ShopType.CLOUD) {
           // 更新用户的云店等级
-          await tx.user.update({
+          await tx.users.update({
             where: { id: userId },
             data: { cloudShopLevel: 1 }
           });
@@ -194,10 +194,7 @@ export class ShopService {
           cloudShopLevel: true,
           totalBottles: true,
           directCount: true,
-          teamCount: true,
-          children: {
-            select: { id: true, level: true }
-          }
+          teamCount: true
         }
       });
 
@@ -251,7 +248,11 @@ export class ShopService {
       }
 
       // 检查直推等级成员
-      const directQualifiedCount = (user.children || []).filter(child => {
+      const directMembers = await prisma.users.findMany({
+        where: { parentId: userId },
+        select: { level: true }
+      });
+      const directQualifiedCount = directMembers.filter(child => {
         // 至少是该等级或更高等级
         const childLevels = Object.values(UserLevel);
         return childLevels.indexOf(child.level) >= childLevels.indexOf(nextLevelConfig.minDirectMembers as any);
@@ -307,7 +308,7 @@ export class ShopService {
 
       const result = await prisma.$transaction(async (tx) => {
         // 更新用户云店等级
-        const updatedUser = await tx.user.update({
+        const updatedUser = await tx.users.update({
           where: { id: userId },
           data: { cloudShopLevel: upgradeCheck.nextLevel! }
         });
@@ -390,7 +391,7 @@ export class ShopService {
       // 4. 创建五通店和支付订单
       const result = await prisma.$transaction(async (tx) => {
         // 创建五通店
-        const wutongShop = await tx.shop.create({
+        const wutongShop = await tx.shops.create({
           data: {
             userId,
             shopType: ShopType.WUTONG,
@@ -404,7 +405,7 @@ export class ShopService {
         });
 
         // 标记用户拥有五通店
-        await tx.user.update({
+        await tx.users.update({
           where: { id: userId },
           data: { hasWutongShop: true }
         });
@@ -455,7 +456,7 @@ export class ShopService {
     message: string;
   }> {
     try {
-      const shop = await prisma.shop.findUnique({
+      const shop = await prisma.shops.findUnique({
         where: { id: shopId },
         select: { id: true, userId: true, shopType: true, status: true, contactName: true, contactPhone: true, address: true }
       });
@@ -515,10 +516,10 @@ export class ShopService {
    */
   async getShopInfo(shopId: string): Promise<ShopInfo | null> {
     try {
-      const shop = await prisma.shop.findUnique({
+      const shop = await prisma.shops.findUnique({
         where: { id: shopId },
         include: {
-          user: {
+          users: {
             select: { id: true, level: true }
           }
         }
@@ -569,7 +570,7 @@ export class ShopService {
    */
   async getUserShops(userId: string): Promise<ShopInfo[]> {
     try {
-      const shops = await prisma.shop.findMany({
+      const shops = await prisma.shops.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' }
       });
@@ -653,7 +654,7 @@ export class ShopService {
    */
   async getShopStatistics(shopId: string): Promise<ShopStatistics | null> {
     try {
-      const shop = await prisma.shop.findUnique({
+      const shop = await prisma.shops.findUnique({
         where: { id: shopId },
         select: {
           id: true,

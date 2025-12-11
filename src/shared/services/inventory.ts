@@ -1,5 +1,5 @@
-import { logger } from '../../shared/utils/logger';
-import { prisma } from '../../shared/database/client';
+import { logger } from '@/shared/utils/logger';
+import { prisma } from '@/shared/database/client';
 import { WarehouseType, InventoryOperationType, OperatorType } from '@prisma/client';
 import { configService } from '../../modules/config';
 
@@ -105,8 +105,8 @@ export class OptimizedInventoryService {
           where: {
             userId_productId_specId_warehouseType: {
               userId: params.userId || '',
-              productId: params.productId,
-              specId: params.specId || '',
+              productId: params.productsId,
+              specId: params.specsId || '',
               warehouseType: params.warehouseType
             }
           }
@@ -136,8 +136,8 @@ export class OptimizedInventoryService {
         await tx.inventoryLog.create({
           data: {
             userId: params.userId || '',
-            productId: params.productId,
-            specId: params.specId || '',
+            productId: params.productsId,
+            specId: params.specsId || '',
             shopId: params.shopId || '',
             operationType: InventoryOperationType.ORDER_OUT,
             quantity: -params.quantity,
@@ -155,8 +155,8 @@ export class OptimizedInventoryService {
         await this.checkInventoryAlert(inventoryItem, tx);
 
         logger.info('库存扣减成功', {
-          productId: params.productId,
-          specId: params.specId,
+          productId: params.productsId,
+          specId: params.specsId,
           quantity: params.quantity,
           remaining: newQuantity,
           operatorId: params.operatorId
@@ -181,8 +181,8 @@ export class OptimizedInventoryService {
       try {
         // 1. 获取或创建库存记录
         const inventoryItem = await this.getOrCreateInventoryItem(
-          params.productId,
-          params.specId,
+          params.productsId,
+          params.specsId,
           params.warehouseType,
           params.userId,
           params.shopId
@@ -202,8 +202,8 @@ export class OptimizedInventoryService {
         await tx.inventoryLog.create({
           data: {
             userId: params.userId || '',
-            productId: params.productId,
-            specId: params.specId || '',
+            productId: params.productsId,
+            specId: params.specsId || '',
             shopId: params.shopId || '',
             operationType: InventoryOperationType.PURCHASE_IN,
             quantity: params.quantity,
@@ -218,8 +218,8 @@ export class OptimizedInventoryService {
         });
 
         logger.info('库存增加成功', {
-          productId: params.productId,
-          specId: params.specId,
+          productId: params.productsId,
+          specId: params.specsId,
           quantity: params.quantity,
           total: newQuantity,
           operatorId: params.operatorId
@@ -248,8 +248,8 @@ export class OptimizedInventoryService {
           where: {
             userId_productId_specId_warehouseType: {
               userId: params.userId,
-              productId: params.productId,
-              specId: params.specId || '',
+              productId: params.productsId,
+              specId: params.specsId || '',
               warehouseType: params.warehouseType
             }
           }
@@ -277,8 +277,8 @@ export class OptimizedInventoryService {
         await tx.inventoryLog.create({
           data: {
             userId: params.userId,
-            productId: params.productId,
-            specId: params.specId || '',
+            productId: params.productsId,
+            specId: params.specsId || '',
             shopId: params.shopId || '',
             operationType: InventoryOperationType.ORDER_OUT,
             quantity: -params.quantity,
@@ -293,8 +293,8 @@ export class OptimizedInventoryService {
         });
 
         logger.info('库存预留成功', {
-          productId: params.productId,
-          specId: params.specId,
+          productId: params.productsId,
+          specId: params.specsId,
           quantity: params.quantity,
           orderId: params.orderId
         });
@@ -507,8 +507,8 @@ export class OptimizedInventoryService {
         where: {
           userId_productId_specId_warehouseType_alertType: {
             userId: inventoryItem.userId,
-            productId: inventoryItem.productId,
-            specId: inventoryItem.specId || '',
+            productId: inventoryItem.productsId,
+            specId: inventoryItem.specsId || '',
             warehouseType: inventoryItem.warehouseType,
             alertType: 'OUT_OF_STOCK'
           }
@@ -520,8 +520,8 @@ export class OptimizedInventoryService {
         },
         create: {
           userId: inventoryItem.userId,
-          productId: inventoryItem.productId,
-          specId: inventoryItem.specId || '',
+          productId: inventoryItem.productsId,
+          specId: inventoryItem.specsId || '',
           warehouseType: inventoryItem.warehouseType,
           alertType: 'OUT_OF_STOCK',
           currentQuantity,
@@ -535,8 +535,8 @@ export class OptimizedInventoryService {
         where: {
           userId_productId_specId_warehouseType_alertType: {
             userId: inventoryItem.userId,
-            productId: inventoryItem.productId,
-            specId: inventoryItem.specId || '',
+            productId: inventoryItem.productsId,
+            specId: inventoryItem.specsId || '',
             warehouseType: inventoryItem.warehouseType,
             alertType: 'LOW_STOCK'
           }
@@ -548,8 +548,8 @@ export class OptimizedInventoryService {
         },
         create: {
           userId: inventoryItem.userId,
-          productId: inventoryItem.productId,
-          specId: inventoryItem.specId || '',
+          productId: inventoryItem.productsId,
+          specId: inventoryItem.specsId || '',
           warehouseType: inventoryItem.warehouseType,
           alertType: 'LOW_STOCK',
           currentQuantity,
@@ -576,7 +576,7 @@ export class OptimizedInventoryService {
         whereCondition.warehouseType = warehouseType;
       }
 
-      const inventoryItems = await prisma.inventoryItem.findMany({
+      const inventoryItems = await prisma.inventoryItems.findMany({
         where: whereCondition
       });
 
@@ -635,7 +635,7 @@ export class OptimizedInventoryService {
     const skip = (page - 1) * perPage;
     const whereCondition: any = { userId };
 
-    if (productId) whereCondition.productId = productId;
+    if (productId) whereCondition.productsId = productId;
     if (warehouseType) whereCondition.warehouseType = warehouseType;
     if (operationType) whereCondition.operationType = operationType;
     if (startDate || endDate) {
@@ -645,13 +645,13 @@ export class OptimizedInventoryService {
     }
 
     const [logs, total] = await Promise.all([
-      prisma.inventoryLog.findMany({
+      prisma.inventoryLogssss.findMany({
         where: whereCondition,
         include: {
-          product: {
+          products: {
             select: { name: true }
           },
-          spec: {
+          specs: {
             select: { name: true }
           }
         },
@@ -659,7 +659,7 @@ export class OptimizedInventoryService {
         skip,
         take: perPage
       }),
-      prisma.inventoryLog.count({ where: whereCondition })
+      prisma.inventoryLogssss.count({ where: whereCondition })
     ]);
 
     return {
@@ -696,12 +696,12 @@ export class OptimizedInventoryService {
       }
 
       if (specId) {
-        whereCondition.specId = specId;
+        whereCondition.specsId = specId;
       } else {
-        whereCondition.specId = '';
+        whereCondition.specsId = '';
       }
 
-      const inventoryItem = await prisma.inventoryItem.findFirst({
+      const inventoryItem = await prisma.inventoryItems.findFirst({
         where: whereCondition
       });
 
@@ -753,13 +753,13 @@ export class OptimizedInventoryService {
     if (alertType) whereCondition.alertType = alertType;
 
     const [alerts, total] = await Promise.all([
-      prisma.inventoryAlert.findMany({
+      prisma.inventoryAlertss.findMany({
         where: whereCondition,
         include: {
-          product: {
+          products: {
             select: { name: true }
           },
-          spec: {
+          specs: {
             select: { name: true }
           }
         },
@@ -767,7 +767,7 @@ export class OptimizedInventoryService {
         skip,
         take: perPage
       }),
-      prisma.inventoryAlert.count({ where: whereCondition })
+      prisma.inventoryAlertss.count({ where: whereCondition })
     ]);
 
     return {

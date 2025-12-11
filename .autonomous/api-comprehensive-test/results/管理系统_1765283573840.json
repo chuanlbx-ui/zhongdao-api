@@ -1,0 +1,10 @@
+{
+  "name": "管理系统",
+  "command": "npm run test:admin",
+  "startTime": "2025-12-09T12:32:46.948Z",
+  "status": "failed",
+  "output": "",
+  "error": "Command failed: npm run test:admin\n\n\u001b[31m⎯⎯⎯⎯⎯⎯\u001b[39m\u001b[1m\u001b[41m Failed Suites 1 \u001b[49m\u001b[22m\u001b[31m⎯⎯⎯⎯⎯⎯⎯\u001b[39m\n\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m api/admin.test.ts\u001b[2m > \u001b[22mAdmin基础功能测试\n\u001b[31m\u001b[1mTypeError\u001b[22m: Cannot read properties of undefined (reading 'ADMIN')\u001b[39m\n\u001b[36m \u001b[2m❯\u001b[22m api/admin.test.ts:\u001b[2m15:57\u001b[22m\u001b[39m\n    \u001b[90m 13| \u001b[39m\n    \u001b[90m 14| \u001b[39m    \u001b[90m// 创建Admin用户\u001b[39m\n    \u001b[90m 15| \u001b[39m    \u001b[35mconst\u001b[39m adminUser \u001b[33m=\u001b[39m \u001b[35mawait\u001b[39m \u001b[34mcreateTestUser\u001b[39m(\u001b[33mTestUserType\u001b[39m\u001b[33m.\u001b[39m\u001b[33mADMIN\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m   | \u001b[39m                                                        \u001b[31m^\u001b[39m\n    \u001b[90m 16| \u001b[39m    adminHeaders \u001b[33m=\u001b[39m \u001b[34mgetAuthHeaders\u001b[39m(adminUser\u001b[33m.\u001b[39mtoken)\u001b[33m;\u001b[39m\n    \u001b[90m 17| \u001b[39m  })\u001b[33m;\u001b[39m\n\n\u001b[31m\u001b[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯\u001b[22m\u001b[39m\n\n",
+  "endTime": "2025-12-09T12:32:53.840Z",
+  "duration": 6892
+}

@@ -3,8 +3,10 @@
  * 测试核心功能和基本用例
  */
 
-import { supplyChainOptimizer, supplyChainIntegrationService } from '../index';
+import { supplyChainOptimizer } from '../index';
 import { SupplyChainErrorType } from '../types';
+import { supplyChainIntegrationService } from '../integration.service';
+import { describe, beforeAll, test, expect } from 'vitest';
 
 describe('SupplyChainPathOptimizer', () => {
   beforeAll(async () => {

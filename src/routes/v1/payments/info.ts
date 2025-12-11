@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { param, query } from 'express-validator';
-import { asyncHandler } from '../../../shared/middleware/error';
+import { asyncHandler, asyncHandler2 } from '../../../shared/middleware/error';
 import { validate } from '../../../shared/middleware/validation';
 import { logger } from '../../../shared/utils/logger';
 import { paymentService } from '../../../shared/services/payment';

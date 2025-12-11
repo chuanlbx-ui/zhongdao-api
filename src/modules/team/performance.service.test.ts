@@ -3,43 +3,44 @@
  * 验证业绩计算、排行榜、晋级进度、佣金预测等核心功能
  */
 
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { performanceService } from './performance.service';
 import { TeamRole, CommissionType } from './types';
 
 // Mock Prisma
-jest.mock('../../shared/database/client', () => ({
+vi.mock('../../shared/database/client', () => ({
   prisma: {
-    user: {
-      findUnique: jest.fn(),
-      findMany: jest.fn(),
-      count: jest.fn(),
-      aggregate: jest.fn(),
-      update: jest.fn()
+    users: {
+      findUnique: vi.fn(),
+      findMany: vi.fn(),
+      count: vi.fn(),
+      aggregate: vi.fn(),
+      update: vi.fn()
     },
-    order: {
-      findMany: jest.fn(),
-      count: jest.fn(),
-      aggregate: jest.fn(),
-      groupBy: jest.fn()
+    orders: {
+      findMany: vi.fn(),
+      count: vi.fn(),
+      aggregate: vi.fn(),
+      groupBy: vi.fn()
     },
     performanceMetrics: {
-      upsert: jest.fn()
+      upsert: vi.fn()
     },
-    $queryRaw: jest.fn()
+    $queryRaw: vi.fn()
   }
 }));
 
-jest.mock('../../shared/utils/logger', () => ({
+vi.mock('../../shared/utils/logger', () => ({
   logger: {
-    info: jest.fn(),
-    error: jest.fn(),
-    warn: jest.fn()
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn()
   }
 }));
 
 describe('PerformanceService', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('个人业绩计算', () => {
@@ -63,13 +64,13 @@ describe('PerformanceService', () => {
       };
 
       // Mock Prisma 返回
-      (require('../../shared/database/client').prisma.users.findUnique as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findUnique )
         .mockResolvedValue(mockUserData);
 
-      (require('../../shared/database/client').prisma.order.aggregate as jest.Mock)
+      (require('../../shared/database/client').prisma.orders.aggregate )
         .mockResolvedValue({ _sum: { totalAmount: 12000 } });
 
-      (require('../../shared/database/client').prisma.order.count as jest.Mock)
+      (require('../../shared/database/client').prisma.orders.count )
         .mockResolvedValue(30);
 
       // 执行测试
@@ -86,10 +87,10 @@ describe('PerformanceService', () => {
 
     it('应该处理零业绩的情况', async () => {
       // Mock 无订单数据
-      (require('../../shared/database/client').prisma.order.aggregate as jest.Mock)
+      (require('../../shared/database/client').prisma.orders.aggregate )
         .mockResolvedValue({ _sum: { totalAmount: null } });
 
-      (require('../../shared/database/client').prisma.order.count as jest.Mock)
+      (require('../../shared/database/client').prisma.orders.count )
         .mockResolvedValue(0);
 
       const result = await performanceService.calculatePersonalPerformance('user001', '2025-11');
@@ -107,7 +108,7 @@ describe('PerformanceService', () => {
       await performanceService.calculatePersonalPerformance('user001', '2025-11');
 
       // 验证数据库只被调用了一次
-      expect(require('../../shared/database/client').prisma.order.aggregate)
+      expect(require('../../shared/database/client').prisma.orders.aggregate)
         .toHaveBeenCalledTimes(1);
     });
   });
@@ -122,19 +123,19 @@ describe('PerformanceService', () => {
       ];
 
       // Mock Prisma 返回
-      (require('../../shared/database/client').prisma.users.findMany as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findMany )
         .mockResolvedValue(mockTeamMembers.map(member => ({
           id: member.userId,
           teamLevel: member.level
         })));
 
-      (require('../../shared/database/client').prisma.order.aggregate as jest.Mock)
+      (require('../../shared/database/client').prisma.orders.aggregate )
         .mockResolvedValue({ _sum: { totalAmount: 50000 } });
 
-      (require('../../shared/database/client').prisma.order.count as jest.Mock)
+      (require('../../shared/database/client').prisma.orders.count )
         .mockResolvedValue(100);
 
-      (require('../../shared/database/client').prisma.users.count as jest.Mock)
+      (require('../../shared/database/client').prisma.users.count )
         .mockResolvedValue(2); // 新增成员
 
       const result = await performanceService.calculateTeamPerformance('user001', '2025-11');
@@ -148,7 +149,7 @@ describe('PerformanceService', () => {
 
     it('应该处理空团队的情况', async () => {
       // Mock 无团队成员
-      (require('../../shared/database/client').prisma.users.findMany as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findMany )
         .mockResolvedValue([]);
 
       const result = await performanceService.calculateTeamPerformance('user001', '2025-11');
@@ -173,14 +174,14 @@ describe('PerformanceService', () => {
         { id: 'indirect001' }
       ];
 
-      (require('../../shared/database/client').prisma.users.findUnique as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findUnique )
         .mockResolvedValue(mockUser);
 
-      (require('../../shared/database/client').prisma.users.findMany as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findMany )
         .mockResolvedValueOnce(mockDirectReferrals) // 直推
         .mockResolvedValueOnce(mockIndirectReferrals); // 间推
 
-      (require('../../shared/database/client').prisma.order.aggregate as jest.Mock)
+      (require('../../shared/database/client').prisma.orders.aggregate )
         .mockResolvedValue({ _sum: { totalAmount: 8000 } }); // 直推销售
 
       const result = await performanceService.calculateReferralPerformance('user001', '2025-11');
@@ -198,20 +199,20 @@ describe('PerformanceService', () => {
       // Mock 数据库查询结果
       const mockTopPerformers = [
         {
-          user_id: 'user001',
+          userId: 'user001',
           nickname: '销售冠军',
           level: 'STAR_3',
           total_amount: BigInt(150000)
         },
         {
-          user_id: 'user002',
+          userId: 'user002',
           nickname: '销售亚军',
           level: 'STAR_2',
           total_amount: BigInt(120000)
         }
       ];
 
-      (require('../../shared/database/client').prisma.$queryRaw as jest.Mock)
+      (require('../../shared/database/client').prisma.$queryRaw )
         .mockResolvedValue(mockTopPerformers);
 
       const result = await performanceService.getPerformanceLeaderboard('personal', '2025-11', 10);
@@ -231,8 +232,8 @@ describe('PerformanceService', () => {
         { userId: 'user003', rank: 3 }
       ];
 
-      jest.spyOn(performanceService, 'getPerformanceLeaderboard')
-        .mockResolvedValue(mockLeaderboard as any);
+      vi.spyOn(performanceService, 'getPerformanceLeaderboard')
+        .mockResolvedValue(mockLeaderboard );
 
       const result = await performanceService.getLeaderboardRanking('user002', 'personal', '2025-11');
 
@@ -248,8 +249,8 @@ describe('PerformanceService', () => {
         { userId: 'user002', rank: 2 }
       ];
 
-      jest.spyOn(performanceService, 'getPerformanceLeaderboard')
-        .mockResolvedValue(mockLeaderboard as any);
+      vi.spyOn(performanceService, 'getPerformanceLeaderboard')
+        .mockResolvedValue(mockLeaderboard );
 
       const result = await performanceService.getLeaderboardRanking('user999', 'personal', '2025-11');
 
@@ -264,20 +265,20 @@ describe('PerformanceService', () => {
     it('应该正确计算晋级进度', async () => {
       // Mock 用户数据
       const mockUser = { level: 'STAR_2' }; // 二星店长
-      (require('../../shared/database/client').prisma.users.findUnique as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findUnique )
         .mockResolvedValue(mockUser);
 
       // Mock 业绩数据
-      jest.spyOn(performanceService, 'calculatePersonalPerformance')
+      vi.spyOn(performanceService, 'calculatePersonalPerformance')
         .mockResolvedValue({
           salesAmount: 15000, // 超过二星要求
           orderCount: 50,
           newCustomers: 8,
           repeatRate: 0.6,
           averageOrderValue: 300
-        } as any);
+        } );
 
-      jest.spyOn(performanceService, 'calculateReferralPerformance')
+      vi.spyOn(performanceService, 'calculateReferralPerformance')
         .mockResolvedValue({
           directReferrals: 3,
           indirectReferrals: 5,
@@ -285,7 +286,7 @@ describe('PerformanceService', () => {
           networkGrowth: 0.15,
           activeReferrals: 3,
           conversionRate: 0.8
-        } as any);
+        } );
 
       const result = await performanceService.getUpgradeProgress('user001');
 
@@ -315,7 +316,7 @@ describe('PerformanceService', () => {
         }
       ];
 
-      jest.spyOn(performanceService, 'calculateMonthlyGrowthRate')
+      vi.spyOn(performanceService, 'calculateMonthlyGrowthRate')
         .mockResolvedValue(0.1); // 10%月增长率
 
       const result = await performanceService['predictPromotionTime']('user001', TeamRole.DIRECTOR, mockRequirements);
@@ -352,7 +353,7 @@ describe('PerformanceService', () => {
         }
       ];
 
-      jest.spyOn(performanceService, 'calculateMonthlyGrowthRate')
+      vi.spyOn(performanceService, 'calculateMonthlyGrowthRate')
         .mockResolvedValue(0);
 
       const result = await performanceService['predictPromotionTime']('user001', TeamRole.DIRECTOR, mockRequirements);
@@ -364,25 +365,25 @@ describe('PerformanceService', () => {
   describe('佣金预测', () => {
     it('应该正确预测佣金收入', async () => {
       // Mock 业绩数据
-      jest.spyOn(performanceService, 'calculatePersonalPerformance')
+      vi.spyOn(performanceService, 'calculatePersonalPerformance')
         .mockResolvedValue({
           salesAmount: 30000,
           orderCount: 60,
           newCustomers: 10,
           repeatRate: 0.7,
           averageOrderValue: 500
-        } as any);
+        } );
 
-      jest.spyOn(performanceService, 'calculateTeamPerformance')
+      vi.spyOn(performanceService, 'calculateTeamPerformance')
         .mockResolvedValue({
           teamSales: 150000,
           teamOrders: 200,
           newMembers: 5,
           activeRate: 0.8,
           productivity: 7500
-        } as any);
+        } );
 
-      jest.spyOn(performanceService, 'calculateReferralPerformance')
+      vi.spyOn(performanceService, 'calculateReferralPerformance')
         .mockResolvedValue({
           directReferrals: 4,
           indirectReferrals: 8,
@@ -390,18 +391,18 @@ describe('PerformanceService', () => {
           networkGrowth: 0.2,
           activeReferrals: 4,
           conversionRate: 0.9
-        } as any);
+        } );
 
       // Mock 用户等级
-      (require('../../shared/database/client').prisma.users.findUnique as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findUnique )
         .mockResolvedValue({ level: 'STAR_3' });
 
       // Mock 增长率
-      jest.spyOn(performanceService, 'calculateMonthlyGrowthRate' as any)
+      vi.spyOn(performanceService, 'calculateMonthlyGrowthRate' )
         .mockResolvedValue(0.15);
 
       // Mock 容量分析
-      jest.spyOn(performanceService, 'analyzeCommissionCapacity' as any)
+      vi.spyOn(performanceService, 'analyzeCommissionCapacity' )
         .mockResolvedValue({
           maxCapacity: 50000,
           utilizationRate: 0.6,
@@ -423,7 +424,7 @@ describe('PerformanceService', () => {
       const commissionRates = [];
 
       for (const level of userLevels) {
-        (require('../../shared/database/client').prisma.users.findUnique as jest.Mock)
+        (require('../../shared/database/client').prisma.users.findUnique )
           .mockResolvedValue({ level });
 
         const rate = performanceService['getCommissionRate'](CommissionType.PERSONAL_SALES, performanceService['mapUserLevelToTeamRole'](level));
@@ -451,20 +452,20 @@ describe('PerformanceService', () => {
       await performanceService.calculatePersonalPerformance('user001', '2025-11');
 
       // 验证数据库被调用了两次（一次原始，一次清除后）
-      expect(require('../../shared/database/client').prisma.order.aggregate).toHaveBeenCalledTimes(2);
+      expect(require('../../shared/database/client').prisma.orders.aggregate).toHaveBeenCalledTimes(2);
     });
 
     it('应该预热缓存', async () => {
       const userIds = ['user001', 'user002', 'user003'];
 
       // Mock 相关方法
-      jest.spyOn(performanceService, 'calculatePersonalPerformance' as any)
+      vi.spyOn(performanceService, 'calculatePersonalPerformance' )
         .mockResolvedValue({ salesAmount: 10000 });
-      jest.spyOn(performanceService, 'calculateTeamPerformance' as any)
+      vi.spyOn(performanceService, 'calculateTeamPerformance' )
         .mockResolvedValue({ teamSales: 50000 });
-      jest.spyOn(performanceService, 'calculateReferralPerformance' as any)
+      vi.spyOn(performanceService, 'calculateReferralPerformance' )
         .mockResolvedValue({ directReferrals: 2 });
-      jest.spyOn(performanceService, 'getPerformanceLeaderboard' as any)
+      vi.spyOn(performanceService, 'getPerformanceLeaderboard' )
         .mockResolvedValue([]);
 
       await performanceService.warmupCache(userIds);
@@ -479,29 +480,29 @@ describe('PerformanceService', () => {
   describe('数据校验', () => {
     it('应该验证业绩数据完整性', async () => {
       // Mock 用户数据
-      (require('../../shared/database/client').prisma.users.findUnique as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findUnique )
         .mockResolvedValue({ id: 'user001' });
 
       // Mock 业绩数据
-      jest.spyOn(performanceService, 'calculatePersonalPerformance')
+      vi.spyOn(performanceService, 'calculatePersonalPerformance')
         .mockResolvedValue({
           salesAmount: 10000,
           orderCount: 25,
           newCustomers: 5,
           repeatRate: 0.6,
           averageOrderValue: 400
-        } as any);
+        } );
 
-      jest.spyOn(performanceService, 'calculateTeamPerformance')
+      vi.spyOn(performanceService, 'calculateTeamPerformance')
         .mockResolvedValue({
           teamSales: 50000,
           teamOrders: 100,
           newMembers: 3,
           activeRate: 0.8,
           productivity: 2500
-        } as any);
+        } );
 
-      jest.spyOn(performanceService, 'calculateReferralPerformance')
+      vi.spyOn(performanceService, 'calculateReferralPerformance')
         .mockResolvedValue({
           directReferrals: 2,
           indirectReferrals: 4,
@@ -509,7 +510,7 @@ describe('PerformanceService', () => {
           networkGrowth: 0.15,
           activeReferrals: 2,
           conversionRate: 0.8
-        } as any);
+        } );
 
       const result = await performanceService.validatePerformanceData('user001', '2025-11');
 
@@ -519,23 +520,23 @@ describe('PerformanceService', () => {
 
     it('应该检测到数据异常', async () => {
       // Mock 异常业绩数据
-      jest.spyOn(performanceService, 'calculatePersonalPerformance')
+      vi.spyOn(performanceService, 'calculatePersonalPerformance')
         .mockResolvedValue({
           salesAmount: -1000, // 负数
           orderCount: 25,
           newCustomers: 5,
           repeatRate: 1.5, // 超过1
           averageOrderValue: 400
-        } as any);
+        } );
 
-      jest.spyOn(performanceService, 'calculateTeamPerformance')
+      vi.spyOn(performanceService, 'calculateTeamPerformance')
         .mockResolvedValue({
           teamSales: 500, // 小于个人销售额
           teamOrders: 100,
           newMembers: 3,
           activeRate: 1.2, // 超过1
           productivity: 2500
-        } as any);
+        } );
 
       const result = await performanceService.validatePerformanceData('user001', '2025-11');
 
@@ -545,7 +546,7 @@ describe('PerformanceService', () => {
     });
 
     it('应该处理用户不存在的情况', async () => {
-      (require('../../shared/database/client').prisma.users.findUnique as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findUnique )
         .mockResolvedValue(null);
 
       const result = await performanceService.validatePerformanceData('user999', '2025-11');
@@ -558,21 +559,21 @@ describe('PerformanceService', () => {
   describe('重建业绩指标', () => {
     it('应该成功重建业绩指标', async () => {
       // Mock 验证通过
-      jest.spyOn(performanceService, 'validatePerformanceData')
+      vi.spyOn(performanceService, 'validatePerformanceData')
         .mockResolvedValue({ isValid: true, errors: [], warnings: [] });
 
       // Mock 业绩计算
-      jest.spyOn(performanceService, 'calculatePersonalPerformance' as any)
+      vi.spyOn(performanceService, 'calculatePersonalPerformance' )
         .mockResolvedValue({ salesAmount: 15000 });
-      jest.spyOn(performanceService, 'calculateTeamPerformance' as any)
+      vi.spyOn(performanceService, 'calculateTeamPerformance' )
         .mockResolvedValue({ teamSales: 75000 });
-      jest.spyOn(performanceService, 'calculateReferralPerformance' as any)
+      vi.spyOn(performanceService, 'calculateReferralPerformance' )
         .mockResolvedValue({ directReferrals: 3 });
-      jest.spyOn(performanceService, 'getUpgradeProgress' as any)
+      vi.spyOn(performanceService, 'getUpgradeProgress' )
         .mockResolvedValue({ progressPercentage: 75 });
 
       // Mock 用户数据
-      (require('../../shared/database/client').prisma.users.findUnique as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findUnique )
         .mockResolvedValue({ level: 'STAR_2' });
 
       const result = await performanceService.rebuildPerformanceMetrics('user001', '2025-11');
@@ -585,7 +586,7 @@ describe('PerformanceService', () => {
 
     it('应该处理验证失败的情况', async () => {
       // Mock 验证失败
-      jest.spyOn(performanceService, 'validatePerformanceData')
+      vi.spyOn(performanceService, 'validatePerformanceData')
         .mockResolvedValue({
           isValid: false,
           errors: ['数据验证失败'],
@@ -635,7 +636,7 @@ describe('PerformanceService', () => {
   describe('错误处理', () => {
     it('应该处理数据库连接错误', async () => {
       // Mock 数据库错误
-      (require('../../shared/database/client').prisma.order.aggregate as jest.Mock)
+      (require('../../shared/database/client').prisma.orders.aggregate )
         .mockRejectedValue(new Error('数据库连接失败'));
 
       await expect(performanceService.calculatePersonalPerformance('user001', '2025-11'))
@@ -644,7 +645,7 @@ describe('PerformanceService', () => {
 
     it('应该处理无效的用户ID', async () => {
       // Mock 用户不存在
-      (require('../../shared/database/client').prisma.users.findUnique as jest.Mock)
+      (require('../../shared/database/client').prisma.users.findUnique )
         .mockResolvedValue(null);
 
       await expect(performanceService.getUpgradeProgress('user999'))
@@ -667,7 +668,7 @@ describe('PerformanceService Performance', () => {
     const userIds = Array.from({ length: 100 }, (_, i) => `user${i.toString().padStart(3, '0')}`);
 
     // Mock 快速返回
-    jest.spyOn(performanceService, 'calculatePersonalPerformance' as any)
+    vi.spyOn(performanceService, 'calculatePersonalPerformance' )
       .mockResolvedValue({ salesAmount: 10000 });
 
     // 并行计算
@@ -691,14 +692,14 @@ describe('PerformanceService Performance', () => {
 
     // 第一次调用
     await performanceService.calculatePersonalPerformance(userId, period);
-    const firstCallCount = (require('../../shared/database/client').prisma.order.aggregate as jest.Mock).mock.calls.length;
+    const firstCallCount = (require('../../shared/database/client').prisma.orders.aggregate ).mock.calls.length;
 
     // 后续调用应该使用缓存
     await performanceService.calculatePersonalPerformance(userId, period);
     await performanceService.calculatePersonalPerformance(userId, period);
     await performanceService.calculatePersonalPerformance(userId, period);
 
-    const finalCallCount = (require('../../shared/database/client').prisma.order.aggregate as jest.Mock).mock.calls.length;
+    const finalCallCount = (require('../../shared/database/client').prisma.orders.aggregate ).mock.calls.length;
 
     // 数据库调用次数应该只增加了一次（第一次调用）
     expect(finalCallCount).toBe(firstCallCount);

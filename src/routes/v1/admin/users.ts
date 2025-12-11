@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../../../shared/database/client';
 import { createSuccessResponse, createErrorResponse, ErrorCode, createPaginatedResponse } from '../../../shared/types/response';
-import { asyncHandler } from '../../../shared/middleware/error';
+import { asyncHandler, asyncHandler2 } from '../../../shared/middleware/error';
 import { authenticate } from '../../../shared/middleware/auth';
 import { logger } from '../../../shared/utils/logger';
 
@@ -12,7 +12,7 @@ const router = Router();
  */
 router.get('/',
   authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const perPage = Math.min(parseInt(req.query.perPage as string) || 10, 100);
@@ -65,7 +65,7 @@ router.get('/',
  */
 router.get('/:id',
   authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const user = await prisma.users.findUnique({
         where: { id: req.params.id },
@@ -120,7 +120,7 @@ router.get('/:id',
  */
 router.put('/:id',
   authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const { nickname, phone, level, status } = req.body;
       
@@ -152,7 +152,7 @@ router.put('/:id',
  */
 router.delete('/:id',
   authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       await prisma.users.delete({
         where: { id: req.params.id }
@@ -175,7 +175,7 @@ router.delete('/:id',
  */
 router.get('/:id/statistics',
   authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const user = await prisma.users.findUnique({
         where: { id: req.params.id },

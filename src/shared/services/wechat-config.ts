@@ -47,7 +47,7 @@ export class WechatConfigService {
 
     return requiredFields.every(field => {
       const value = cfg[field as keyof WechatPayConfig];
-      return value && value.trim().length > 0;
+      return value && typeof value === 'string' && value.trim().length > 0;
     });
   }
 

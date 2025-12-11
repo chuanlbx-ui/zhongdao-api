@@ -366,8 +366,8 @@ export class OrderService {
               orderId: newOrder.id,
               productId: item.productId,
               skuId: item.skuId,
-              productName: item.productName,
-              productImage: item.productImage,
+              productName: item.productsName,
+              productImage: item.productsImage,
               quantity: item.quantity,
               unitPrice: item.unitPrice,
               totalPrice: item.totalPrice,
@@ -448,7 +448,7 @@ export class OrderService {
       const result = [];
 
       for (const item of items) {
-        const product = await prisma.product.findUnique({
+        const product = await prisma.products.findUnique({
           where: { id: item.productId },
           include: {
             sku: {
@@ -458,14 +458,14 @@ export class OrderService {
           }
         });
 
-        if (!product || !product.sku[0]) {
+        if (!product || !products.sku[0]) {
           return {
             success: false,
             error: `商品不存在：${item.productId}`
           };
         }
 
-        const sku = product.sku[0];
+        const sku = products.sku[0];
         const originalPrice = sku.price;
 
         // 根据订单类型和买方等级计算价格
@@ -492,8 +492,8 @@ export class OrderService {
         result.push({
           productId: item.productId,
           skuId: item.skuId,
-          productName: product.name,
-          productImage: product.images?.[0],
+          productName: products.name,
+          productImage: products.images?.[0],
           quantity: item.quantity,
           unitPrice,
           totalPrice,
@@ -501,7 +501,7 @@ export class OrderService {
           finalPrice,
           metadata: {
             originalPrice,
-            category: product.category
+            category: products.category
           }
         });
       }
@@ -564,7 +564,7 @@ export class OrderService {
   // 获取订单详情
   async getOrderById(orderId: string): Promise<Order | null> {
     try {
-      const order = await prisma.order.findUnique({
+      const order = await prisma.orders.findUnique({
         where: { id: orderId },
         include: {
           items: true,
@@ -606,13 +606,13 @@ export class OrderService {
       finalAmount: order.finalAmount,
       pointsAmount: order.pointsAmount,
       cashAmount: order.cashAmount,
-      items: order.items.map((item: any) => ({
+      items: orderItems.map((item: any) => ({
         id: item.id,
         orderId: item.orderId,
         productId: item.productId,
         skuId: item.skuId,
-        productName: item.productName,
-        productImage: item.productImage,
+        productName: item.productsName,
+        productImage: item.productsImage,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
         totalPrice: item.totalPrice,
@@ -704,7 +704,7 @@ export class OrderService {
       }
 
       const [orders, total] = await Promise.all([
-        prisma.order.findMany({
+        prisma.orders.findMany({
           where,
           include: {
             items: true,
@@ -723,7 +723,7 @@ export class OrderService {
           skip,
           take: perPage
         }),
-        prisma.order.count({ where })
+        prisma.orders.count({ where })
       ]);
 
       const formattedOrders = orders.map(order => this.formatOrder(order));
@@ -783,7 +783,7 @@ export class OrderService {
       const priceCalculation = await this.calculateExchangePriceDifference(params);
 
       // 4. 创建换货申请
-      const exchange = await prisma.exchangeRequest.create({
+      const exchange = await prisma.exchangeRequests.create({
         data: {
           orderNo: this.generateOrderNo(OrderType.EXCHANGE),
           originalOrderId: params.originalOrderId,
@@ -857,26 +857,26 @@ export class OrderService {
       // 计算换出商品总价值
       let outTotal = 0;
       for (const outItem of params.outItems) {
-        const product = await prisma.productSKU.findUnique({
+        const product = await prisma.productsSKU.findUnique({
           where: { id: outItem.skuId },
           include: { product: true }
         });
 
         if (product) {
-          outTotal += product.price * outItem.quantity * discountRate;
+          outTotal += products.price * outItem.quantity * discountRate;
         }
       }
 
       // 计算换入商品总价值
       let inTotal = 0;
       for (const inItem of params.inItems) {
-        const product = await prisma.productSKU.findUnique({
+        const product = await prisma.productsSKU.findUnique({
           where: { id: inItem.skuId },
           include: { product: true }
         });
 
         if (product) {
-          inTotal += product.price * inItem.quantity * discountRate;
+          inTotal += products.price * inItem.quantity * discountRate;
         }
       }
 
@@ -954,34 +954,34 @@ export class OrderService {
         processingOrders,
         shippedOrders
       ] = await Promise.all([
-        prisma.order.count({ where }),
-        prisma.order.aggregate({
+        prisma.orders.count({ where }),
+        prisma.orders.aggregate({
           where,
           _sum: { finalAmount: true }
         }),
-        prisma.order.count({
+        prisma.orders.count({
           where: { ...where, paymentStatus: PaymentStatus.PAID }
         }),
-        prisma.order.count({
+        prisma.orders.count({
           where: { ...where, status: OrderStatus.COMPLETED }
         }),
-        prisma.order.count({
+        prisma.orders.count({
           where: { ...where, status: OrderStatus.CANCELLED }
         }),
-        prisma.order.count({
+        prisma.orders.count({
           where: { ...where, type: OrderType.RETAIL }
         }),
-        prisma.order.count({
+        prisma.orders.count({
           where: { ...where, type: OrderType.PURCHASE }
         }),
-        prisma.exchangeRequest.count({ where: { requesterId: userId } }),
-        prisma.order.count({
+        prisma.exchangeRequests.count({ where: { requesterId: userId } }),
+        prisma.orders.count({
           where: { ...where, status: OrderStatus.PENDING }
         }),
-        prisma.order.count({
+        prisma.orders.count({
           where: { ...where, status: OrderStatus.PROCESSING }
         }),
-        prisma.order.count({
+        prisma.orders.count({
           where: { ...where, status: OrderStatus.SHIPPED }
         })
       ]);
@@ -1015,7 +1015,7 @@ export class OrderService {
   // 确认订单
   async confirmOrder(orderId: string, userId: string): Promise<Order | null> {
     try {
-      const order = await prisma.order.findUnique({
+      const order = await prisma.orders.findUnique({
         where: { id: orderId }
       });
 
@@ -1031,7 +1031,7 @@ export class OrderService {
         throw new Error('订单状态不正确，无法确认');
       }
 
-      const updatedOrder = await prisma.order.update({
+      const updatedOrder = await prisma.orders.update({
         where: { id: orderId },
         data: {
           status: OrderStatus.PAID,
@@ -1071,7 +1071,7 @@ export class OrderService {
   // 取消订单
   async cancelOrder(orderId: string, userId: string, reason?: string): Promise<Order | null> {
     try {
-      const order = await prisma.order.findUnique({
+      const order = await prisma.orders.findUnique({
         where: { id: orderId },
         include: { items: true }
       });
@@ -1091,7 +1091,7 @@ export class OrderService {
       return await prisma.$transaction(async (tx) => {
         // 如果是采购订单且已付款，释放预留库存
         if (order.type === OrderType.PURCHASE && order.status === OrderStatus.PAID) {
-          for (const item of order.items) {
+          for (const item of orderItems) {
             if (item.skuId) {
               await inventoryService.releaseReservedInventory(
                 order.sellerId!,

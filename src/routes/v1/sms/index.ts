@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import { body } from 'express-validator';
+import * as expressValidator from 'express-validator';
+const { body } = expressValidator;
 import { authenticate } from '../../../shared/middleware/auth';
-import { asyncHandler } from '../../../shared/middleware/error';
+import { asyncHandler, asyncHandler2 } from '../../../shared/middleware/error';
 import { validate } from '../../../shared/middleware/validation';
 import { createSuccessResponse } from '../../../shared/types/response';
 import { prisma } from '../../../shared/database/client';

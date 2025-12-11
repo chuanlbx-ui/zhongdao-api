@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
-import { asyncHandler } from '../../../shared/middleware/error';
+import { asyncHandler, asyncHandler2 } from '../../../shared/middleware/error';
 import { createSuccessResponse, createErrorResponse } from '../../../shared/types/response';
 import { prisma } from '../../../shared/database/client';
 import { AdminRole, AdminStatus } from '@prisma/client';
@@ -17,7 +17,7 @@ router.post('/seed-admin',
     // 生产环境的CSRF验证逻辑
     next();
   },
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       if (process.env.NODE_ENV === 'production') {
         return res.status(403).json(createErrorResponse(
@@ -39,13 +39,13 @@ router.post('/seed-admin',
         }
       };
 
-      const existingAdmin = await prisma.admin.findUnique({
+      const existingAdmin = await prisma.admins.findUnique({
         where: { username: 'admin' }
       });
 
       let result;
       if (existingAdmin) {
-        result = await prisma.admin.update({
+        result = await prisma.admins.update({
           where: { username: 'admin' },
           data: {
             password: adminData.password,
@@ -58,7 +58,7 @@ router.post('/seed-admin',
           }
         });
       } else {
-        result = await prisma.admin.create({
+        result = await prisma.admins.create({
           data: adminData
         });
       }

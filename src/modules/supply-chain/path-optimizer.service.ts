@@ -4,7 +4,7 @@
  * 支持帕累托最优解集、自定义权重配置、实时优化等高级功能
  */
 
-import { logger } from '../../shared/utils/logger';
+import { logger } from '@/shared/utils/logger';
 import { pathFinderService } from './path-finder.service';
 import {
   ProcurementPath,

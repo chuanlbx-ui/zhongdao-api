@@ -5,7 +5,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { asyncHandler } from '../../../shared/middleware/error';
+import { asyncHandler, asyncHandler2 } from '../../../shared/middleware/error';
 import { createSuccessResponse, createErrorResponse } from '../../../shared/types/response';
 import { configService } from '../../../modules/config';
 import { logger } from '../../../shared/utils/logger';

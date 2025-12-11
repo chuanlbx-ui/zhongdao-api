@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../../../shared/database/client';
 import { createSuccessResponse, createErrorResponse, ErrorCode, createPaginatedResponse } from '../../../shared/types/response';
-import { asyncHandler } from '../../../shared/middleware/error';
+import { asyncHandler, asyncHandler2 } from '../../../shared/middleware/error';
 import { authenticate } from '../../../shared/middleware/auth';
 import { logger } from '../../../shared/utils/logger';
 
@@ -12,14 +12,14 @@ const router = Router();
  */
 router.get('/',
   authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const perPage = Math.min(parseInt(req.query.perPage as string) || 10, 100);
       const skip = (page - 1) * perPage;
 
       const [orders, total] = await Promise.all([
-        prisma.order.findMany({
+        prisma.orders.findMany({
           skip,
           take: perPage,
           include: {
@@ -42,7 +42,7 @@ router.get('/',
           },
           orderBy: { createdAt: 'desc' }
         }),
-        prisma.order.count()
+        prisma.orders.count()
       ]);
 
       res.json(createPaginatedResponse(
@@ -68,9 +68,9 @@ router.get('/',
  */
 router.get('/:id',
   authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
-      const order = await prisma.order.findUnique({
+      const order = await prisma.orders.findUnique({
         where: { id: req.params.id },
         include: {
           buyer: {
@@ -90,7 +90,7 @@ router.get('/:id',
           },
           items: {
             include: {
-              product: {
+              products: {
                 select: {
                   id: true,
                   name: true,
@@ -128,11 +128,11 @@ router.get('/:id',
  */
 router.put('/:id/status',
   authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const { status } = req.body;
 
-      const updated = await prisma.order.update({
+      const updated = await prisma.orders.update({
         where: { id: req.params.id },
         data: { 
           status,
@@ -157,9 +157,9 @@ router.put('/:id/status',
  */
 router.post('/:id/confirm',
   authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
-      const updated = await prisma.order.update({
+      const updated = await prisma.orders.update({
         where: { id: req.params.id },
         data: { 
           status: 'CONFIRMED',
@@ -184,9 +184,9 @@ router.post('/:id/confirm',
  */
 router.post('/:id/cancel',
   authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
-      const updated = await prisma.order.update({
+      const updated = await prisma.orders.update({
         where: { id: req.params.id },
         data: { 
           status: 'CANCELLED',

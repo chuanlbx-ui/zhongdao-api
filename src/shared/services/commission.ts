@@ -279,7 +279,7 @@ export class CommissionService {
 
       if (bonusAmount > 0) {
         // 记录升级奖励
-        await prisma.commissionCalculation.create({
+        await prisma.commissionCalculationsCalculation.create({
           data: {
             userId,
             period: new Date().toISOString().substring(0, 7), // YYYY-MM
@@ -320,7 +320,7 @@ export class CommissionService {
         whereCondition.period = period;
       }
 
-      const calculations = await prisma.commissionCalculation.findMany({
+      const calculations = await prisma.commissionCalculationsCalculation.findMany({
         where: whereCondition,
         orderBy: { calculatedAt: 'desc' }
       });
@@ -393,7 +393,7 @@ export class CommissionService {
       }
 
       const [records, total] = await Promise.all([
-        prisma.commissionCalculation.findMany({
+        prisma.commissionCalculationsCalculation.findMany({
           where: whereCondition,
           include: {
             user: {
@@ -404,7 +404,7 @@ export class CommissionService {
           skip,
           take: perPage
         }),
-        prisma.commissionCalculation.count({ where: whereCondition })
+        prisma.commissionCalculationsCalculation.count({ where: whereCondition })
       ]);
 
       return {
@@ -430,7 +430,7 @@ export class CommissionService {
    */
   async settleCommission(calculationIds: string[]): Promise<void> {
     try {
-      await prisma.commissionCalculation.updateMany({
+      await prisma.commissionCalculationsCalculation.updateMany({
         where: { id: { in: calculationIds } },
         data: {
           status: 'CALCULATED' as any,
@@ -453,7 +453,7 @@ export class CommissionService {
    */
   async payCommission(calculationIds: string[]): Promise<void> {
     try {
-      await prisma.commissionCalculation.updateMany({
+      await prisma.commissionCalculationsCalculation.updateMany({
         where: { id: { in: calculationIds } },
         data: {
           status: 'PAID' as any,
@@ -582,7 +582,7 @@ export class CommissionService {
   private async getUserPerformance(userId: string, period: string): Promise<{ orderCount: number; orderAmount: number }> {
     const [startDate, endDate] = this.getPeriodDateRange(period);
 
-    const orders = await prisma.order.findMany({
+    const orders = await prisma.orders.findMany({
       where: {
         sellerId: userId,
         status: 'COMPLETED',

@@ -136,7 +136,7 @@ export class NotificationChannelManager {
     channelType: NotificationChannelType
   ): Promise<boolean> {
     try {
-      const preference = await prisma.notificationPreference.findUnique({
+      const preference = await prisma.notificationsPreference.findUnique({
         where: { userId }
       });
 
@@ -174,7 +174,7 @@ export class NotificationChannelManager {
     result: NotificationChannelResult
   ): Promise<void> {
     try {
-      await prisma.notificationChannel.create({
+      await prisma.notificationsChannel.create({
         data: {
           notificationId,
           channelType,
@@ -198,7 +198,7 @@ export class NotificationChannelManager {
   ): Promise<NotificationChannelResult> {
     try {
       // 更新通知记录
-      await prisma.notification.update({
+      await prisma.notifications.update({
         where: { id: payload.id },
         data: {
           status: NotificationStatus.SENT,

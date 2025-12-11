@@ -1,0 +1,10 @@
+{
+  "name": "性能测试",
+  "command": "npm run test:performance",
+  "startTime": "2025-12-09T12:18:49.065Z",
+  "status": "failed",
+  "output": "",
+  "error": "Command failed: npm run test:performance",
+  "endTime": "2025-12-09T12:18:49.162Z",
+  "duration": 97
+}

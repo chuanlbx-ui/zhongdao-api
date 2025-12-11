@@ -84,7 +84,7 @@ export function testCsrfBypass(req: Request, res: Response, next: NextFunction) 
   }
 
   // 测试环境：跳过CSRF验证
-  req.skipCsrfValidation = true;
+  (req as any).skipCSRF = true;
   next();
 }
 

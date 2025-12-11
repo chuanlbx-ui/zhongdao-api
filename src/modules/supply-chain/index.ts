@@ -4,7 +4,7 @@
  * 提供统一的API接口，支持实时路径优化和批量处理
  */
 
-import { logger } from '../../shared/utils/logger';
+import { logger } from '@/shared/utils/logger';
 import { networkBuilderService } from './network-builder.service';
 import { pathFinderService } from './path-finder.service';
 import { pathOptimizerService } from './path-optimizer.service';
@@ -729,7 +729,7 @@ export class SupplyChainPathOptimizer {
 
 // 导出主要类型和服务
 export {
-  SupplyChainPathOptimizer,
+
   pathFinderService,
   pathOptimizerService,
   networkBuilderService,

@@ -3,11 +3,19 @@ import bcrypt from 'bcryptjs';
 import { generateToken } from '../../shared/middleware/auth';
 import { prisma } from '../../shared/database/client';
 import { logger } from '../../shared/utils/logger';
-import { 
-  generateUniqueReferralCode, 
-  validateReferralCode 
+import {
+  generateUniqueReferralCode,
+  validateReferralCode
 } from '../../shared/utils/referralCode';
 import { createReferralRelationship, updateReferralChainStats } from '../../shared/services/teamStatsService';
+import {
+  asyncHandler,
+  ValidationError,
+  AuthenticationError,
+  NotFoundError,
+  ConflictError
+} from '../../shared/middleware/error';
+import { createErrorResponse, createSuccessResponse } from '../../shared/types/response';
 
 const router = Router();
 
@@ -17,35 +25,21 @@ const skipCSRF = (req: Request, res: Response, next: any) => {
   next();
 };
 
-// 简单的异步处理包装器
-const asyncHandler = (fn: any) => (req: Request, res: Response, next: any) => {
-  Promise.resolve(fn(req, res, next)).catch(next);
-};
 
 // 登录状态检查接口
 router.get('/status',
   asyncHandler(async (req: Request, res: Response) => {
-    res.json({
-      success: true,
-      data: {
-        status: 'authenticated',
-        message: '认证模块正常工作',
-        timestamp: new Date().toISOString()
-      },
-      message: '认证服务正常'
-    });
+    res.json(createSuccessResponse({
+      status: 'authenticated',
+      message: '认证模块正常工作'
+    }, '认证服务正常', undefined, req.requestId));
   })
 );
 
 // 微信小程序登录接口（简化版）
 router.post('/wechat-login',
   asyncHandler(async (req: Request, res: Response) => {
-    try {
       const { code } = req.body;
-
-      console.log('收到微信登录请求', {
-        code: code ? code.substring(0, 10) + '...' : 'no code'
-      });
 
       // 模拟登录成功
       const mockUser = {
@@ -73,63 +67,34 @@ router.post('/wechat-login',
         },
         message: '模拟登录成功（开发模式）'
       });
-    } catch (error) {
-      console.error('微信登录失败', error);
-
-      res.status(500).json({
-        success: false,
-        error: {
-          code: 'INTERNAL_ERROR',
-          message: '登录处理失败',
-          timestamp: new Date().toISOString()
-        }
-      });
-    }
   })
 );
 
 // 登出接口
 router.post('/logout',
   asyncHandler(async (req: Request, res: Response) => {
-    res.json({
-      success: true,
-      data: { message: '登出成功' },
-      message: '已成功登出'
-    });
+    res.json(createSuccessResponse({ message: '登出成功' }, '已成功登出', undefined, req.requestId));
   })
 );
 
 // Token刷新接口
 router.post('/refresh',
   asyncHandler(async (req: Request, res: Response) => {
-    try {
-      const { refreshToken } = req.body;
+    const { refreshToken } = req.body;
 
-      console.log('收到Token刷新请求');
-
-      const newTokens = {
-        accessToken: 'new_mock_access_token_' + Date.now(),
-        refreshToken: 'new_mock_refresh_token_' + Date.now(),
-        expiresIn: '7d'
-      };
-
-      res.json({
-        success: true,
-        data: newTokens,
-        message: 'Token刷新成功（模拟）'
-      });
-    } catch (error) {
-      console.error('Token刷新失败', error);
-
-      res.status(401).json({
-        success: false,
-        error: {
-          code: 'UNAUTHORIZED',
-          message: 'Token刷新失败',
-          timestamp: new Date().toISOString()
-        }
-      });
+    if (!refreshToken) {
+      throw new ValidationError('缺少刷新Token');
     }
+
+// [DEBUG REMOVED]     console.log('收到Token刷新请求');
+
+    const newTokens = {
+      accessToken: 'new_mock_access_token_' + Date.now(),
+      refreshToken: 'new_mock_refresh_token_' + Date.now(),
+      expiresIn: '7d'
+    };
+
+    res.json(createSuccessResponse(newTokens, 'Token刷新成功（模拟）', undefined, req.requestId));
   })
 );
 
@@ -137,18 +102,11 @@ router.post('/refresh',
 router.post('/password-login',
   skipCSRF,
   asyncHandler(async (req: Request, res: Response) => {
-    try {
-      const { phone, password } = req.body;
+    const { phone, password } = req.body;
 
+      // 输入验证
       if (!phone || !password) {
-        return res.status(400).json({
-          success: false,
-          error: {
-            code: 'VALIDATION_ERROR',
-            message: '手机号和密码不能为空',
-            timestamp: new Date().toISOString()
-          }
-        });
+        throw new ValidationError('手机号和密码不能为空');
       }
 
       // 查找用户
@@ -158,14 +116,20 @@ router.post('/password-login',
 
       if (!user) {
         logger.warn('密码登录失败 - 用户不存在', { phone });
-        return res.status(401).json({
-          success: false,
-          error: {
-            code: 'INVALID_CREDENTIALS',
-            message: '手机号或密码错误',
-            timestamp: new Date().toISOString()
-          }
-        });
+        throw new AuthenticationError('手机号或密码错误');
+      }
+
+      // 验证密码
+      if (!user.password) {
+        logger.warn('密码登录失败 - 用户未设置密码', { phone });
+        throw new AuthenticationError('手机号或密码错误');
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+
+      if (!isPasswordValid) {
+        logger.warn('密码登录失败 - 密码错误', { phone });
+        throw new AuthenticationError('手机号或密码错误');
       }
 
       logger.info('用户登录成功', { userId: user.id, phone });
@@ -178,34 +142,93 @@ router.post('/password-login',
         level: user.level.toLowerCase()
       });
 
-      res.json({
-        success: true,
-        data: {
-          user: {
-            id: user.id,
-            phone: user.phone,
-            nickname: user.nickname,
-            avatarUrl: user.avatarUrl,
-            level: user.level.toLowerCase(),
-            status: user.status.toLowerCase()
-          },
-          token
+      res.json(createSuccessResponse({
+        user: {
+          id: user.id,
+          phone: user.phone,
+          nickname: user.nickname,
+          avatarUrl: null,
+          level: user.level.toLowerCase(),
+          status: user.status.toLowerCase()
         },
-        message: '登录成功',
-        timestamp: new Date().toISOString()
-      });
+        token
+      }, '登录成功', undefined, req.requestId));
+  })
+);
 
-    } catch (error) {
-      logger.error('密码登录失败', { error });
-      res.status(500).json({
-        success: false,
-        error: {
-          code: 'INTERNAL_ERROR',
-          message: '登录失败，请稍后重试',
-          timestamp: new Date().toISOString()
-        }
-      });
+// 获取当前用户信息 (auth/me)
+router.get('/me',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { verifyToken } = await import('@/shared/middleware/auth');
+
+    // 获取Authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new AuthenticationError('缺少认证令牌');
     }
+
+    const token = authHeader.substring(7);
+    const decoded = verifyToken(token);
+
+    // 从数据库获取用户信息
+    const user = await prisma.users.findUnique({
+      where: { id: decoded.sub },
+      select: {
+        id: true,
+        openid: true,
+        nickname: true,
+        phone: true,
+        avatarUrl: true,
+        level: true,
+        status: true,
+        pointsBalance: true,
+        pointsFrozen: true,
+        parentId: true,
+        teamPath: true,
+        teamLevel: true,
+        totalSales: true,
+        totalBottles: true,
+        directSales: true,
+        teamSales: true,
+        directCount: true,
+        teamCount: true,
+        cloudShopLevel: true,
+        hasWutongShop: true,
+        referralCode: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+
+    if (!user) {
+      throw new NotFoundError('用户不存在');
+    }
+
+    res.json(createSuccessResponse({
+      id: user.id,
+      openid: user.openid,
+      nickname: user.nickname,
+      phone: user.phone,
+      avatarUrl: null,
+      level: user.level.toLowerCase(),
+      status: user.status.toLowerCase(),
+      pointsBalance: user.pointsBalance,
+      pointsFrozen: user.pointsFrozen,
+      parentId: user.parentId,
+      teamPath: user.teamPath,
+      teamLevel: user.teamLevel,
+      totalSales: user.totalSales,
+      totalBottles: user.totalBottles,
+      directSales: user.directSales,
+      teamSales: user.teamSales,
+      directCount: user.directCount,
+      teamCount: user.teamCount,
+      cloudShopLevel: user.cloudShopLevel,
+      hasWutongShop: user.hasWutongShop,
+      referralCode: user.referralCode,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    }, '获取用户信息成功', undefined, req.requestId));
   })
 );
 
@@ -213,131 +236,91 @@ router.post('/password-login',
 router.post('/password-register',
   skipCSRF,
   asyncHandler(async (req: Request, res: Response) => {
-    try {
-      const { phone, password, referralCode } = req.body;
+    const { phone, password, referralCode } = req.body;
 
-      // ... 验证输入
-      if (!phone || !password) {
-        return res.status(400).json({
-          success: false,
-          error: {
-            code: 'VALIDATION_ERROR',
-            message: '手机号和密码不能为空',
-            timestamp: new Date().toISOString()
-          }
-        });
-      }
+    // 输入验证
+    if (!phone || !password) {
+      throw new ValidationError('手机号和密码不能为空');
+    }
 
-      // ... 检查手机号是否已注册
-      const existingUser = await prisma.users.findUnique({
-        where: { phone }
-      });
+    // 检查手机号是否已注册
+    const existingUser = await prisma.users.findUnique({
+      where: { phone }
+    });
 
-      if (existingUser) {
-        return res.status(409).json({
-          success: false,
-          error: {
-            code: 'USER_EXISTS',
-            message: '该手机号已注册，请直接登录或使用其他手机号',
-            details: {
-              phone: phone,
-              suggestion: '您可以尝试使用该手机号登录，或使用新的手机号注册'
-            },
-            timestamp: new Date().toISOString()
-          }
-        });
-      }
-
-      // ... 验证推荐码（如果有提供）
-      let parentId: string | null = null;
-      if (referralCode) {
-        const validationResult = await validateReferralCode(referralCode);
-        if (!validationResult.valid) {
-          return res.status(400).json({
-            success: false,
-            error: {
-              code: 'INVALID_REFERRAL_CODE',
-              message: validationResult.error,
-              details: {
-                provided: referralCode,
-                suggestion: '请检查推荐码是否正确（6位数字和字母组合）'
-              },
-              timestamp: new Date().toISOString()
-            }
-          });
-        }
-        parentId = validationResult.referrer?.id || null;
-      }
-
-      // ... 生成推荐码和密码哈希
-      const userReferralCode = await generateUniqueReferralCode();
-      const passwordHash = await bcrypt.hash(password, 10);
-      const openid = `phone_${phone}_${Date.now()}`;
-
-      // ... 创建用户
-      const user = await prisma.users.create({
-        data: {
-          id: "sdjslkdjflksdfjlsdf",
-          openid,
-          phone,
-          nickname: phone,
-          referral_code: userReferralCode,
-          level: 'NORMAL',
-          status: 'ACTIVE',
-          parent_id: parentId || null,
-          team_level: parentId ? 2 : 1,
-          team_path: parentId ? `/${parentId}/` : null,
-        }
-      });
-
-      logger.info('用户注册成功', { 
-        userId: user.id, 
-        phone,
-        parentId,
-        referralCode: userReferralCode
-      });
-
-      // ... 生成JWT token
-      const token = generateToken({
-        sub: user.id,
-        scope: ['active', 'user'],
-        role: 'USER',
-        level: user.level.toLowerCase()
-      });
-
-      res.status(201).json({
-        success: true,
-        data: {
-          user: {
-            id: user.id,
-            phone: user.phone,
-            nickname: user.nickname,
-            avatarUrl: user.avatarUrl,
-            level: user.level.toLowerCase(),
-            status: user.status.toLowerCase(),
-            referralCode: user.referralCode
-          },
-          token,
-          referralInfo: {
-            yourCode: userReferralCode,
-            message: '您的推荐码已生成，可分享给朋友注册时使用'
-          }
-        },
-        message: '注册成功',
-        timestamp: new Date().toISOString()
-      });
-
-    } catch (error) {
-      logger.error('密码注册失败', { error });
-      res.status(500).json({
-        success: false,
-        error: {
-          code: 'INTERNAL_ERROR',
-          message: '注册失败，请稍后重试',
-          timestamp: new Date().toISOString()
-        }
+    if (existingUser) {
+      throw new ConflictError('该手机号已注册，请直接登录或使用其他手机号', {
+        phone: phone,
+        suggestion: '您可以尝试使用该手机号登录，或使用新的手机号注册'
       });
     }
+
+    // 验证推荐码（如果有提供）
+    let parentId: string | null = null;
+    if (referralCode) {
+      const validationResult = await validateReferralCode(referralCode);
+      if (!validationResult.valid) {
+        throw new ValidationError(validationResult.error, {
+          provided: referralCode,
+          suggestion: '请检查推荐码是否正确（6位数字和字母组合）'
+        });
+      }
+      parentId = validationResult.referrer?.id || null;
+    }
+
+    // 生成推荐码和密码哈希
+    const userReferralCode = await generateUniqueReferralCode();
+    const passwordHash = await bcrypt.hash(password, 10);
+    const openid = `phone_${phone}_${Date.now()}`;
+
+    // 创建用户
+    const user = await prisma.users.create({
+      data: {
+        id: "sdjslkdjflksdfjlsdf",
+        openid,
+        phone,
+        nickname: phone,
+        password: passwordHash,
+        referralCode: userReferralCode,
+        level: 'NORMAL',
+        status: 'ACTIVE',
+        parentId: parentId || null,
+        teamLevel: parentId ? 2 : 1,
+        teamPath: parentId ? `/${parentId}/` : null,
+      }
+    });
+
+    logger.info('用户注册成功', {
+      userId: user.id,
+      phone,
+      parentId,
+      referralCode: userReferralCode
+    });
+
+    // 生成JWT token
+    const token = generateToken({
+      sub: user.id,
+      scope: ['active', 'user'],
+      role: 'USER',
+      level: user.level.toLowerCase()
+    });
+
+    res.status(201).json(createSuccessResponse({
+      user: {
+        id: user.id,
+        phone: user.phone,
+        nickname: user.nickname,
+        avatarUrl: null,
+        level: user.level.toLowerCase(),
+        status: user.status.toLowerCase(),
+        referralCode: user.referralCode
+      },
+      token,
+      referralInfo: {
+        yourCode: userReferralCode,
+        message: '您的推荐码已生成，可分享给朋友注册时使用'
+      }
+    }, '注册成功', undefined, req.requestId));
   })
 );
 

@@ -95,7 +95,7 @@ export const loginRateLimit = (req: Request, res: Response, next: NextFunction) 
     });
 
     return res.status(429).json(createErrorResponse(
-      'RATE_LIMIT_EXCEEDED',
+      'RATE_LIMITED',
       '登录尝试过于频繁，请稍后再试',
       {
         retryAfter: Math.ceil((result.resetTime - Date.now()) / 1000),
@@ -139,7 +139,7 @@ export const apiRateLimit = (req: Request, res: Response, next: NextFunction) =>
     });
 
     return res.status(429).json(createErrorResponse(
-      'RATE_LIMIT_EXCEEDED',
+      'RATE_LIMITED',
       'API请求过于频繁，请稍后再试',
       {
         retryAfter: Math.ceil((result.resetTime - Date.now()) / 1000),
@@ -173,7 +173,7 @@ export const sensitiveRateLimit = (req: Request, res: Response, next: NextFuncti
     });
 
     return res.status(429).json(createErrorResponse(
-      'RATE_LIMIT_EXCEEDED',
+      'RATE_LIMITED',
       '敏感操作过于频繁，请稍后再试',
       {
         retryAfter: Math.ceil((result.resetTime - Date.now()) / 1000),
@@ -239,7 +239,7 @@ export const createUserRateLimiter = (windowMs: number, maxRequests: number) => 
       });
 
       return res.status(429).json(createErrorResponse(
-        'RATE_LIMIT_EXCEEDED',
+        'RATE_LIMITED',
         '操作过于频繁，请稍后再试',
         {
           retryAfter: Math.ceil((result.resetTime - Date.now()) / 1000)

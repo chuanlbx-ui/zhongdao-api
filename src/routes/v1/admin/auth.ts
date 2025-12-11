@@ -1,12 +1,13 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { body, validationResult } from 'express-validator';
-import { asyncHandler } from '../../../shared/middleware/error';
+import { asyncHandler, asyncHandler2 } from '../../../shared/middleware/error';
 import { createSuccessResponse, createErrorResponse } from '../../../shared/types/response';
+import { ErrorCode } from '../../../shared/errors';
 import { prisma } from '../../../shared/database/client';
 import { logger } from '../../../shared/utils/logger';
 import { generateToken, generateRefreshToken } from '../../../shared/middleware/auth';
-import { AdminRole, AdminStatus } from '@prisma/client';
+import { admins_role, admins_status } from '@prisma/client';
 
 const router = Router();
 
@@ -28,7 +29,7 @@ const loginValidation = [
 // 管理员登录接口
 router.post('/login',
   loginValidation,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       // 验证请求参数
       const errors = validationResult(req);
@@ -43,12 +44,12 @@ router.post('/login',
       const { username, password } = req.body;
 
       // DEBUG: 检查 prisma 对象
-      console.log('DEBUG: prisma =', prisma);
-      console.log('DEBUG: prisma.admin =', prisma?.admin);
-      console.log('DEBUG: typeof prisma =', typeof prisma);
+// [DEBUG REMOVED]       console.log('DEBUG: prisma =', prisma);
+// [DEBUG REMOVED]       console.log('DEBUG: prisma.admin =', prisma?.admin);
+// [DEBUG REMOVED]       console.log('DEBUG: typeof prisma =', typeof prisma);
 
       // 查找管理员
-      const admin = await prisma.admin.findUnique({
+      const admin = await prisma.admins.findUnique({
         where: { username }
       });
 
@@ -61,7 +62,7 @@ router.post('/login',
       }
 
       // 检查账户状态
-      if (admin.status === AdminStatus.LOCKED) {
+      if (admin.status === admins_status.LOCKED) {
         if (admin.lockedUntil && admin.lockedUntil > new Date()) {
           logger.warn('管理员登录失败 - 账户已锁定', {
             username,
@@ -75,10 +76,10 @@ router.post('/login',
           ));
         } else {
           // 锁定时间已过，解锁账户
-          await prisma.admin.update({
+          await prisma.admins.update({
             where: { id: admin.id },
             data: {
-              status: AdminStatus.ACTIVE,
+              status: admins_status.ACTIVE,
               loginAttempts: 0,
               lockedUntil: null
             }
@@ -86,7 +87,7 @@ router.post('/login',
         }
       }
 
-      if (admin.status !== AdminStatus.ACTIVE) {
+      if (admin.status !== admins_status.ACTIVE) {
         logger.warn('管理员登录失败 - 账户状态异常', {
           username,
           status: admin.status,
@@ -108,7 +109,7 @@ router.post('/login',
         // 如果失败次数达到5次，锁定账户30分钟
         if (loginAttempts >= 5) {
           updateData.lockedUntil = new Date(Date.now() + 30 * 60 * 1000);
-          updateData.status = AdminStatus.LOCKED;
+          updateData.status = admins_status.LOCKED;
 
           logger.warn('管理员账户被锁定', {
             username,
@@ -117,7 +118,7 @@ router.post('/login',
           });
         }
 
-        await prisma.admin.update({
+        await prisma.admins.update({
           where: { id: admin.id },
           data: updateData
         });
@@ -134,7 +135,7 @@ router.post('/login',
       }
 
       // 登录成功，重置失败次数
-      await prisma.admin.update({
+      await prisma.admins.update({
         where: { id: admin.id },
         data: {
           loginAttempts: 0,
@@ -199,7 +200,7 @@ router.post('/login',
 
 // 获取当前管理员信息
 router.get('/profile',
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const token = req.headers.authorization?.replace('Bearer ', '');
       if (!token) {
@@ -231,7 +232,7 @@ router.get('/profile',
 
 // 管理员登出
 router.post('/logout',
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       // 这里可以添加token黑名单逻辑
       logger.info('管理员登出', { ip: req.ip });

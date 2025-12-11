@@ -1,0 +1,266 @@
+{
+  "agents": {
+    "PM-AI": {
+      "role": "项目经理",
+      "responsibilities": [
+        "整体项目协调",
+        "任务分配和进度跟踪",
+        "风险管理和决策",
+        "最终报告整合",
+        "团队沟通协调"
+      ],
+      "priority": 1,
+      "modules": []
+    },
+    "Test-AI": {
+      "role": "测试专家",
+      "responsibilities": [
+        "测试策略制定",
+        "测试用例设计",
+        "测试执行监督",
+        "问题分类和评估",
+        "测试结果分析"
+      ],
+      "priority": 2,
+      "modules": [
+        "test-setup",
+        "test-results-analysis",
+        "issue-tracking"
+      ]
+    },
+    "User-API-AI": {
+      "role": "用户系统专家",
+      "responsibilities": [
+        "用户认证API测试",
+        "用户管理API测试",
+        "团队关系API测试",
+        "用户等级系统测试",
+        "微信集成测试"
+      ],
+      "priority": 3,
+      "modules": [
+        "auth-api",
+        "users-api",
+        "teams-api",
+        "levels-api"
+      ],
+      "testSuites": [
+        "tests/api/auth.test.ts",
+        "tests/api/users.test.ts",
+        "tests/api/teams.test.ts"
+      ]
+    },
+    "Shop-API-AI": {
+      "role": "商城系统专家",
+      "responsibilities": [
+        "商城管理API测试",
+        "商品管理API测试",
+        "采购流程API测试",
+        "库存管理API测试",
+        "商品分类和标签测试"
+      ],
+      "priority": 3,
+      "modules": [
+        "shops-api",
+        "products-api",
+        "orders-api",
+        "inventory-api",
+        "categories-api"
+      ],
+      "testSuites": [
+        "tests/api/shops.test.ts",
+        "tests/api/products.test.ts",
+        "tests/api/orders.test.ts",
+        "tests/api/inventory.test.ts"
+      ]
+    },
+    "Payment-API-AI": {
+      "role": "支付系统专家",
+      "responsibilities": [
+        "积分系统API测试",
+        "支付流程API测试",
+        "佣金系统API测试",
+        "退款流程API测试",
+        "交易记录测试"
+      ],
+      "priority": 3,
+      "modules": [
+        "points-api",
+        "payments-api",
+        "commission-api",
+        "transactions-api"
+      ],
+      "testSuites": [
+        "tests/api/points.test.ts",
+        "tests/api/payments.test.ts",
+        "tests/api/commission.test.ts"
+      ]
+    },
+    "Admin-API-AI": {
+      "role": "管理系统专家",
+      "responsibilities": [
+        "管理员认证测试",
+        "用户管理接口测试",
+        "商品管理接口测试",
+        "订单管理接口测试",
+        "系统配置API测试"
+      ],
+      "priority": 3,
+      "modules": [
+        "admin-auth",
+        "admin-users",
+        "admin-products",
+        "admin-orders",
+        "admin-dashboard"
+      ],
+      "testSuites": [
+        "tests/api/admin.test.ts",
+        "tests/api/admin-roles.test.ts",
+        "tests/api/admin-performance.test.ts"
+      ]
+    },
+    "Security-AI": {
+      "role": "安全专家",
+      "responsibilities": [
+        "JWT令牌安全测试",
+        "权限绕过测试",
+        "输入验证安全测试",
+        "SQL注入测试",
+        "XSS和CSRF测试"
+      ],
+      "priority": 4,
+      "modules": [
+        "authentication-security",
+        "authorization-security",
+        "input-validation",
+        "sql-injection",
+        "xss-protection",
+        "csrf-protection"
+      ],
+      "testSuites": [
+        "tests/security/auth.test.ts",
+        "tests/security/authorization.test.ts",
+        "tests/security/input-validation.test.ts",
+        "tests/security/injection.test.ts"
+      ]
+    },
+    "Performance-AI": {
+      "role": "性能专家",
+      "responsibilities": [
+        "API响应时间测试",
+        "并发处理测试",
+        "负载测试",
+        "数据库查询优化测试",
+        "内存使用监控"
+      ],
+      "priority": 4,
+      "modules": [
+        "response-time",
+        "concurrent-requests",
+        "load-testing",
+        "database-performance",
+        "memory-usage"
+      ],
+      "testSuites": [
+        "tests/performance/api-response.test.ts",
+        "tests/performance/concurrent.test.ts",
+        "tests/performance/load.test.ts"
+      ]
+    },
+    "Documentation-AI": {
+      "role": "文档专家",
+      "responsibilities": [
+        "测试文档编写",
+        "API文档验证",
+        "问题追踪记录",
+        "最终报告生成",
+        "修复建议文档"
+      ],
+      "priority": 5,
+      "modules": [
+        "test-documentation",
+        "api-documentation",
+        "issue-documentation",
+        "report-generation"
+      ]
+    }
+  },
+  "testPhases": {
+    "preparation": {
+      "duration": "2 hours",
+      "agents": ["PM-AI", "Test-AI"],
+      "tasks": [
+        "环境检查和配置",
+        "测试数据准备",
+        "测试计划审查",
+        "团队同步会议"
+      ]
+    },
+    "execution": {
+      "duration": "6 hours",
+      "agents": ["User-API-AI", "Shop-API-AI", "Payment-API-AI", "Admin-API-AI"],
+      "tasks": [
+        "核心API功能测试",
+        "业务逻辑验证",
+        "集成测试",
+        "错误处理测试"
+      ]
+    },
+    "specialized": {
+      "duration": "2 hours",
+      "agents": ["Security-AI", "Performance-AI"],
+      "tasks": [
+        "安全漏洞扫描",
+        "性能基准测试",
+        "压力测试",
+        "并发测试"
+      ]
+    },
+    "reporting": {
+      "duration": "2 hours",
+      "agents": ["PM-AI", "Test-AI", "Documentation-AI"],
+      "tasks": [
+        "结果汇总分析",
+        "问题分类整理",
+        "报告编写",
+        "修复建议制定"
+      ]
+    }
+  },
+  "communication": {
+    "channels": {
+      "daily-standup": "09:30 AM, 03:30 PM",
+      "emergency": "@mentions",
+      "issues": "GitHub Issues",
+      "updates": "实时更新到任务板"
+    },
+    "escalation": {
+      "critical": "立即通知PM-AI",
+      "high": "1小时内通知相关AI",
+      "medium": "纳入每日报告",
+      "low": "记录在问题追踪中"
+    }
+  },
+  "successCriteria": {
+    "coverage": {
+      "target": "95%",
+      "description": "API端点覆盖率"
+    },
+    "passRate": {
+      "target": "80%",
+      "description": "测试用例通过率"
+    },
+    "responseTime": {
+      "target": "500ms",
+      "description": "API平均响应时间"
+    },
+    "security": {
+      "target": "0",
+      "description": "高危安全漏洞数量"
+    },
+    "documentation": {
+      "target": "100%",
+      "description": "问题记录和修复建议完整性"
+    }
+  }
+}

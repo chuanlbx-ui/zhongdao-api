@@ -2,11 +2,10 @@
  * 五通店特殊业务逻辑服务
  * 实现买10赠1机制和终身权益
  */
-// @ts-nocheck
 
 import { ShopType, ShopStatus, UserLevel, ProductStatus, OrderStatus } from '@prisma/client';
-import { logger } from '../../shared/utils/logger';
-import { prisma } from '../../shared/database/client';
+import { logger } from '@/shared/utils/logger';
+import { prisma } from '@/shared/database/client';
 import { WUTONG_SHOP_CONFIG } from './types';
 
 /**
@@ -64,6 +63,38 @@ export interface WutongUpgradeResult {
   benefits?: string[];
 }
 
+// 类型定义
+interface WutongQualificationResult {
+  hasWutongShop: boolean;
+  shopId?: string;
+  shopStatus?: ShopStatus;
+  activatedAt?: Date;
+  canUseBenefits: boolean;
+}
+
+interface ShopCreationParams {
+  contactName: string;
+  contactPhone: string;
+  address?: string;
+}
+
+interface WutongStatistics {
+  totalOrders: number;
+  totalGifts: number;
+  totalGiftValue: number;
+  lastOrderDate?: Date;
+  benefitsUsedThisMonth: number;
+  monthlyLimit: number;
+}
+
+interface ProductInfo {
+  id: string;
+  name: string;
+  price: number;
+  status: ProductStatus;
+  qualifiesForBenefit: boolean;
+}
+
 /**
  * 五通店服务类
  */
@@ -71,13 +102,7 @@ export class WutongService {
   /**
    * 验证用户是否拥有五通店资格
    */
-  async validateWutongQualification(userId: string): Promise<{
-    hasWutongShop: boolean;
-    shopId?: string;
-    shopStatus?: ShopStatus;
-    activatedAt?: Date;
-    canUseBenefits: boolean;
-  }> {
+  async validateWutongQualification(userId: string): Promise<WutongQualificationResult> {
     try {
       const user = await prisma.users.findUnique({
         where: { id: userId },
@@ -213,7 +238,7 @@ export class WutongService {
       const participatingProductIds = await this.getParticipatingProductIds();
 
       return cartItems.filter(item =>
-        participatingProductIds.includes(item.productId) && item.quantity > 0
+        participatingProductIds.includes(item.productsId) && item.quantity > 0
       );
     } catch (error) {
       logger.error('获取符合条件的商品失败', {
@@ -229,7 +254,7 @@ export class WutongService {
   private async getParticipatingProductIds(): Promise<string[]> {
     try {
       // 从系统配置中获取参与活动的商品
-      const config = await prisma.systemConfig.findUnique({
+      const config = await prisma.systemConfigs.findUnique({
         where: { key: 'wutong_gift_products' }
       });
 
@@ -238,7 +263,7 @@ export class WutongService {
       }
 
       // 如果没有配置，默认返回所有上架商品
-      const products = await prisma.product.findMany({
+      const products = await prisma.products.findMany({
         where: { status: ProductStatus.ACTIVE },
         select: { id: true }
       });
@@ -268,13 +293,13 @@ export class WutongService {
         if (remainingQuantity <= 0) break;
 
         // 检查商品库存
-        const stock = await this.getProductStock(item.productId);
+        const stock = await this.getProductStock(item.productsId);
         const maxFreeQuantity = Math.min(remainingQuantity, Math.floor(item.quantity / 10));
 
         if (maxFreeQuantity > 0 && stock >= maxFreeQuantity) {
           freeProducts.push({
-            productId: item.productId,
-            productName: item.productName,
+            productId: item.productsId,
+            productName: item.productsName,
             quantity: maxFreeQuantity,
             unitPrice: item.unitPrice,
             totalValue: maxFreeQuantity * item.unitPrice
@@ -305,7 +330,7 @@ export class WutongService {
    */
   private async getProductStock(productId: string): Promise<number> {
     try {
-      const stock = await prisma.inventoryStock.aggregate({
+      const stock = await prisma.inventoryStocks.aggregate({
         where: { productId },
         _sum: { availableQuantity: true }
       });
@@ -323,7 +348,7 @@ export class WutongService {
   private async getAlternativeGifts(requiredQuantity: number): Promise<BuyTenGetOneResult['freeProducts']> {
     try {
       // 获取等值商品作为赠品
-      const products = await prisma.product.findMany({
+      const products = await prisma.products.findMany({
         where: {
           status: ProductStatus.ACTIVE,
           basePrice: {
@@ -377,7 +402,7 @@ export class WutongService {
     try {
       const result = await prisma.$transaction(async (tx) => {
         // 1. 获取用户当前信息
-        const user = await tx.user.findUnique({
+        const user = await tx.users.findUnique({
           where: { id: userId },
           select: { level: true, status: true, hasWutongShop: true }
         });
@@ -393,7 +418,7 @@ export class WutongService {
         const previousLevel = user.level;
 
         // 2. 创建五通店
-        const wutongShop = await tx.shop.create({
+        const wutongShop = await tx.shops.create({
           data: {
             userId,
             shopType: ShopType.WUTONG,
@@ -407,7 +432,7 @@ export class WutongService {
         });
 
         // 3. 更新用户五通店状态
-        await tx.user.update({
+        await tx.users.update({
           where: { id: userId },
           data: { hasWutongShop: true }
         });
@@ -415,13 +440,13 @@ export class WutongService {
         // 4. 五通店特权：直接升级为二星店长
         const newLevel = UserLevel.STAR_2;
         if (previousLevel !== UserLevel.STAR_2 && previousLevel !== UserLevel.DIRECTOR) {
-          await tx.user.update({
+          await tx.users.update({
             where: { id: userId },
             data: { level: newLevel }
           });
 
           // 创建升级记录
-          await tx.levelUpgradeRecord.create({
+          await tx.levelUpgradeRecords.create({
             data: {
               userId,
               previousLevel,
@@ -524,7 +549,7 @@ export class WutongService {
           data: {
             userId,
             orderId,
-            productId: freeProduct.productId,
+            productId: freeProduct.productsId,
             quantity: freeProduct.quantity,
             value: freeProduct.totalValue,
             type: 'WUTONG_BUY_TEN_GET_ONE',
@@ -556,12 +581,10 @@ export class WutongService {
   /**
    * 获取五通店统计数据
    */
-  async getWutongStatistics(userId: string): Promise<{
+  async getWutongStatistics(userId: string): Promise<WutongStatistics & {
     shopId?: string;
     activatedAt?: Date;
-    totalOrders: number;
     totalGiftsGiven: number;
-    totalGiftValue: number;
     lastGiftAt?: Date;
     monthlyStats: {
       orders: number;
@@ -588,7 +611,7 @@ export class WutongService {
         monthlyOrders,
         monthlyGifts
       ] = await Promise.all([
-        prisma.order.count({
+        prisma.orders.count({
           where: {
             buyerId: userId,
             status: { in: [OrderStatus.PAID, OrderStatus.COMPLETED] },
@@ -604,7 +627,7 @@ export class WutongService {
           _sum: { quantity: true, value: true },
           _max: { createdAt: true }
         }),
-        prisma.order.count({
+        prisma.orders.count({
           where: {
             buyerId: userId,
             status: { in: [OrderStatus.PAID, OrderStatus.COMPLETED] },

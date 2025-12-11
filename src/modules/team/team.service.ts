@@ -49,7 +49,7 @@ export class TeamService {
   }> {
     try {
       // 验证参数
-      if (!params.referrerId || !params.refereeId) {
+      if (!params.parentId || !params.refereeId) {
         return {
           success: false,
           message: '推荐人和被推荐人ID不能为空'
@@ -58,7 +58,7 @@ export class TeamService {
 
       // 检查是否已存在推荐关系
       const existingRelationship = await this.getReferralRelationship(
-        params.referrerId,
+        params.parentId,
         params.refereeId
       );
 
@@ -70,7 +70,7 @@ export class TeamService {
       }
 
       // 获取推荐人信息
-      const referrer = await this.getTeamMember(params.referrerId);
+      const referrer = await this.getTeamMember(params.parentId);
       if (!referrer) {
         return {
           success: false,
@@ -81,15 +81,15 @@ export class TeamService {
       // 确定关系类型和层级
       const relationshipType = params.relationshipType || RelationshipType.DIRECT;
       const level = relationshipType === RelationshipType.DIRECT ? 1 :
-                   await this.calculateRelationshipLevel(params.referrerId, params.refereeId);
+                   await this.calculateRelationshipLevel(params.parentId, params.refereeId);
 
       // 生成推荐路径
-      const path = await this.generateReferralPath(params.referrerId, params.refereeId);
+      const path = await this.generateReferralPath(params.parentId, params.refereeId);
 
       // 创建推荐关系
       const relationship: ReferralRelationship = {
         id: `rel_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
-        referrerId: params.referrerId,
+        parentId: params.parentId,
         refereeId: params.refereeId,
         relationshipType,
         level,
@@ -107,9 +107,9 @@ export class TeamService {
 
       // 更新被推荐人的团队信息
       await this.updateMemberTeamInfo(params.refereeId, {
-        referrerId: params.referrerId,
+        parentId: params.parentId,
         referrerNickname: referrer.nickname,
-        uplineId: params.referrerId,
+        uplineId: params.parentId,
         uplineNickname: referrer.nickname,
         teamId: referrer.teamId,
         teamName: referrer.teamName,
@@ -118,9 +118,9 @@ export class TeamService {
       });
 
       // 更新推荐人的团队统计
-      await this.updateReferrerStats(params.referrerId);
+      await this.updateReferrerStats(params.parentId);
 
-      console.log('创建推荐关系成功', { relationship });
+// [DEBUG REMOVED]       console.log('创建推荐关系成功', { relationship });
 
       return {
         success: true,
@@ -140,7 +140,7 @@ export class TeamService {
   /**
    * 获取推荐关系
    */
-  async getReferralRelationship(referrerId: string, refereeId: string): Promise<ReferralRelationship | null> {
+  async getReferralRelationship(parentId: string, refereeId: string): Promise<ReferralRelationship | null> {
     // 模拟数据库查询
     // 在实际实现中，这里会查询数据库
     return null;
@@ -149,7 +149,7 @@ export class TeamService {
   /**
    * 计算关系层级
    */
-  private async calculateRelationshipLevel(referrerId: string, refereeId: string): Promise<number> {
+  private async calculateRelationshipLevel(parentId: string, refereeId: string): Promise<number> {
     // 模拟计算推荐关系层级
     // 在实际实现中，会通过推荐路径计算
     return Math.floor(Math.random() * 8) + 1; // 1-9级
@@ -158,25 +158,25 @@ export class TeamService {
   /**
    * 生成推荐路径
    */
-  private async generateReferralPath(referrerId: string, refereeId: string): Promise<string> {
+  private async generateReferralPath(parentId: string, refereeId: string): Promise<string> {
     // 模拟生成推荐路径
     // 在实际实现中，会递归查找上级推荐关系
-    return `${referrerId}>${refereeId}`;
+    return `${parentId}>${refereeId}`;
   }
 
   /**
    * 更新成员团队信息
    */
   private async updateMemberTeamInfo(memberId: string, updates: Partial<TeamMember>): Promise<void> {
-    console.log('更新成员团队信息', { memberId, updates });
+// [DEBUG REMOVED]     console.log('更新成员团队信息', { memberId, updates });
     // 在实际实现中，会更新数据库
   }
 
   /**
    * 更新推荐人统计
    */
-  private async updateReferrerStats(referrerId: string): Promise<void> {
-    console.log('更新推荐人统计', { referrerId });
+  private async updateReferrerStats(parentId: string): Promise<void> {
+// [DEBUG REMOVED]     console.log('更新推荐人统计', { parentId });
     // 在实际实现中，会更新推荐人的直推人数等统计信息
   }
 
@@ -242,7 +242,7 @@ export class TeamService {
           role: TeamRole.DIRECTOR,
           level: 3,
           status: TeamStatus.ACTIVE,
-          referrerId: 'referrer_001',
+          parentId: 'referrer_001',
           referrerNickname: '推荐人A',
           uplineId: 'upline_001',
           uplineNickname: '上级A',
@@ -268,7 +268,7 @@ export class TeamService {
           role: TeamRole.MANAGER,
           level: 4,
           status: TeamStatus.ACTIVE,
-          referrerId: 'referrer_002',
+          parentId: 'referrer_002',
           referrerNickname: '推荐人B',
           uplineId: 'upline_002',
           uplineNickname: '上级B',
@@ -646,7 +646,7 @@ export class TeamService {
         updatedAt: new Date()
       };
 
-      console.log('佣金计算完成', { commission });
+// [DEBUG REMOVED]       console.log('佣金计算完成', { commission });
 
       return {
         success: true,
@@ -744,7 +744,7 @@ export class TeamService {
         notes: params.notes
       });
 
-      console.log('成员晋升成功', { updatedMember });
+// [DEBUG REMOVED]       console.log('成员晋升成功', { updatedMember });
 
       return {
         success: true,
@@ -788,7 +788,7 @@ export class TeamService {
       createdAt: new Date()
     };
 
-    console.log('记录团队操作日志', { log });
+// [DEBUG REMOVED]     console.log('记录团队操作日志', { log });
     // 在实际实现中，会保存到数据库
   }
 

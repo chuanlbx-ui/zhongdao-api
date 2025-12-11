@@ -4,7 +4,7 @@
  * 包含智能预加载、缓存预热、内存监控等高级功能
  */
 
-import { logger } from '../../shared/utils/logger';
+import { logger } from '@/shared/utils/logger';
 import {
   CacheEntry,
   CacheStats,
@@ -476,7 +476,7 @@ export class SupplyChainCacheService<T = any> {
   /**
    * 执行后台清理
    */
-  private performBackgroundCleanup(): void {
+  private async performBackgroundCleanup(): Promise<void> {
     const now = Date.now();
     if (now - this.lastCleanupTime < this.config.cleanupInterval) return;
 

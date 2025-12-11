@@ -1,0 +1,10 @@
+{
+  "name": "集成测试",
+  "command": "npm run test:integration",
+  "startTime": "2025-12-09T12:32:57.255Z",
+  "status": "failed",
+  "output": "",
+  "error": "Command failed: npm run test:integration\n\u001b[31mNo test files found, exiting with code 1\n\u001b[39m\n\u001b[2mfilter: \u001b[22m\u001b[33mtests/integration/*.test.ts\u001b[39m\n\u001b[2minclude: \u001b[22m\u001b[33m**/*.test.ts\u001b[39m\n\u001b[2mexclude:  \u001b[22m\u001b[33mnode_modules\u001b[2m, \u001b[22mdist\u001b[39m\n\n",
+  "endTime": "2025-12-09T12:32:58.749Z",
+  "duration": 1494
+}

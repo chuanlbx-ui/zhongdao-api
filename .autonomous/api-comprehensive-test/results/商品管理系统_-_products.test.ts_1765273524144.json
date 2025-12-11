@@ -1,0 +1,10 @@
+{
+  "name": "商品管理系统 - products.test.ts",
+  "command": "npm test tests/api/products.test.ts",
+  "startTime": "2025-12-09T09:45:24.059Z",
+  "status": "failed",
+  "output": "",
+  "error": "Command failed: npm test tests/api/products.test.ts",
+  "endTime": "2025-12-09T09:45:24.144Z",
+  "duration": 85
+}

@@ -1,6 +1,5 @@
-// @ts-nocheck
-import { logger } from '../../shared/utils/logger';
-import { prisma } from '../../shared/database/client';
+import { logger } from '@/shared/utils/logger';
+import { prisma } from '@/shared/database/client';
 
 // 用户等级枚举 - 与数据库保持一致
 export enum UserLevel {
@@ -14,8 +13,59 @@ export enum UserLevel {
   DIRECTOR = 'DIRECTOR'     // 董事
 }
 
+// 类型定义
+interface LevelRequirement {
+  minBottles: number;
+  minTeamSize: number;
+  minDirectVIP: number;
+  description: string;
+}
+
+interface LevelRequirements {
+  [key: string]: LevelRequirement;
+}
+
+interface UpgradeCheckResult {
+  canUpgrade: boolean;
+  currentLevel: UserLevel;
+  nextLevel?: UserLevel;
+  requirements?: LevelRequirement;
+  currentStats?: {
+    totalBottles: number;
+    teamSize: number;
+    directVIPCount: number;
+  };
+}
+
+interface UserStats {
+  totalBottles: number;
+  teamSize: number;
+  directVIPCount: number;
+}
+
+interface UpgradeResult {
+  success: boolean;
+  previousLevel: UserLevel;
+  newLevel: UserLevel;
+  message: string;
+}
+
+interface TeamUpgradeCheck {
+  userId: string;
+  canUpgrade: boolean;
+  currentLevel: UserLevel;
+  nextLevel?: UserLevel;
+}
+
+interface LevelBenefits {
+  purchaseDiscount: number;
+  commissionRate: number;
+  teamDepth: number;
+  specialRights: string[];
+}
+
 // 等级要求配置
-export const LEVEL_REQUIREMENTS = {
+export const LEVEL_REQUIREMENTS: LevelRequirements = {
   [UserLevel.NORMAL]: {
     minBottles: 0,
     minTeamSize: 0,
@@ -91,13 +141,7 @@ export class UserLevelService {
   }
 
   // 检查用户是否满足升级条件
-  async checkUpgradeConditions(userId: string): Promise<{
-    canUpgrade: boolean;
-    currentLevel: UserLevel;
-    nextLevel?: UserLevel;
-    requirements?: any;
-    currentStats?: any;
-  }> {
+  async checkUpgradeConditions(userId: string): Promise<UpgradeCheckResult> {
     try {
       const user = await prisma.users.findUnique({
         where: { id: userId },
@@ -146,7 +190,7 @@ export class UserLevelService {
   }
 
   // 获取用户统计数据
-  async getUserStats(userId: string) {
+  async getUserStats(userId: string): Promise<UserStats> {
     try {
       const [
         totalPurchases,
@@ -155,7 +199,7 @@ export class UserLevelService {
         teamStats
       ] = await Promise.all([
         // 总购买箱数
-        prisma.purchaseOrder.aggregate({
+        prisma.purchaseOrders.aggregate({
           where: {
             buyerId: userId,
             status: 'COMPLETED'
@@ -165,13 +209,13 @@ export class UserLevelService {
 
         // 直推团队人数
         prisma.users.count({
-          where: { referrerId: userId }
+          where: { parentId: userId }
         }),
 
         // 直推VIP人数
         prisma.users.count({
           where: {
-            referrerId: userId,
+            parentId: userId,
             level: 'VIP'
           }
         }),
@@ -227,7 +271,7 @@ export class UserLevelService {
 
     try {
       const directDownlines = await prisma.users.findMany({
-        where: { referrerId: userId },
+        where: { parentId: userId },
         select: { id: true }
       });
 
@@ -244,7 +288,7 @@ export class UserLevelService {
   }
 
   // 验证升级要求
-  private validateUpgradeRequirements(stats: any, requirements: any): boolean {
+  private validateUpgradeRequirements(stats: UserStats, requirements: LevelRequirement): boolean {
     return (
       stats.totalBottles >= requirements.minBottles &&
       stats.teamSize >= requirements.minTeamSize &&
@@ -253,12 +297,7 @@ export class UserLevelService {
   }
 
   // 执行用户升级
-  async upgradeUser(userId: string, targetLevel?: UserLevel): Promise<{
-    success: boolean;
-    previousLevel: UserLevel;
-    newLevel: UserLevel;
-    message: string;
-  }> {
+  async upgradeUser(userId: string, targetLevel?: UserLevel): Promise<UpgradeResult> {
     try {
       const upgradeCheck = await this.checkUpgradeConditions(userId);
 
@@ -281,7 +320,7 @@ export class UserLevelService {
       });
 
       // 创建升级记录
-      await prisma.levelUpgradeRecord.create({
+      await prisma.levelUpgradeRecords.create({
         data: {
           userId,
           previousLevel,
@@ -331,12 +370,7 @@ export class UserLevelService {
   }
 
   // 批量检查团队升级
-  async batchCheckTeamUpgrades(userId: string): Promise<{
-    userId: string;
-    canUpgrade: boolean;
-    currentLevel: UserLevel;
-    nextLevel?: UserLevel;
-  }[]> {
+  async batchCheckTeamUpgrades(userId: string): Promise<TeamUpgradeCheck[]> {
     try {
       const downlines = await this.getAllDownlines(userId);
       const upgradeChecks = await Promise.all(
@@ -362,12 +396,7 @@ export class UserLevelService {
   }
 
   // 获取等级权益说明
-  getLevelBenefits(level: UserLevel): {
-    purchaseDiscount: number;
-    commissionRate: number;
-    teamDepth: number;
-    specialRights: string[];
-  } {
+  getLevelBenefits(level: UserLevel): LevelBenefits {
     const benefits = {
       [UserLevel.NORMAL]: {
         purchaseDiscount: 0,

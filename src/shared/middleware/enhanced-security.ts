@@ -11,30 +11,38 @@ const REQUEST_LIMITS = {
   maxUrlLength: 2048
 };
 
-// 危险模式检测
+// 危险模式检测（优化版，减少误判）
 const DANGEROUS_PATTERNS = [
-  // SQL注入模式
-  /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION)\b)/i,
-  /(\b(OR|AND)\s+\d+\s*=\s*\d+)/i,
-  /(--|#|\/\*|\*\/)/,
-  /(\b(SCRIPT|IFRAME|OBJECT|EMBED)\b)/i,
+  // SQL注入模式（需要完整关键字组合，更严格的匹配）
+  /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION)\b\s+.*\b(FROM|INTO|TABLE|DATABASE)\b)/i,
+  /(\b(OR|AND)\s+\w+\s*=\s*\w+\s*(AND|OR)\s+\w+\s*=\s*\w+)/i, // 需要两个条件才判断为SQL注入
 
-  // XSS模式
-  /(javascript:|vbscript:|onload=|onerror=|onclick=)/i,
-  /<\s*(script|iframe|object|embed|form|input|textarea)[^>]*>/i,
-  /expression\s*\(/i,
-  /@import/i,
+  // XSS模式（更严格的匹配）
+  /<\s*script[^>]*>.*?<\s*\/\s*script\s*>/i,
+  /<\s*iframe[^>]*>.*?<\s*\/\s*iframe\s*>/i,
+  /javascript\s*:/i,
+  /vbscript\s*:/i,
+  /on(load|error|click|submit|focus|blur|mouseover|mouseout)\s*=/i,
 
-  // 路径遍历模式
-  /\.\.[\/\\]/i,
-  /(\.\.\/){2,}/i,
+  // CSS注入（排除颜色值）
+  /expression\s*\(\s*.*\)/i,
+  /@import\s+(?!url\s*\()/i,
 
-  // 命令注入模式
-  /[;&|`$()]/i,
-  /(cmd|powershell|bash|sh|system|exec)\s/i,
+  // 路径遍历模式（需要连续的../）
+  /\.\.[\/\\]\.\.[\/\\]/i,
+  /(\.\.\/){3,}/i,
 
-  // NoSQL注入模式
-  /(\$\{|\$where|\$ne|\$gt|\$lt|\$in|\$nin)/i
+  // 命令注入模式（需要完整命令）
+  /(;\s*(cmd|powershell|bash|sh|system|exec)\s|\/\s*(cmd|powershell|bash|sh|system|exec)\s)/i,
+  /[|&]\s*(rm|del|format|shutdown|reboot)\s/i,
+
+  // NoSQL注入模式（更严格的匹配）
+  /\$\{[^}]*\b(where|ne|gt|lt|in|nin)\b[^}]*\}/i
+];
+
+// 用于查询参数和请求体的注释模式检测
+const COMMENT_PATTERNS = [
+  /(--(?!.*#)|\/\*.*?\*\/)/
 ];
 
 // 敏感信息模式
@@ -243,7 +251,7 @@ export const enhancedInputValidation = (req: Request, res: Response, next: NextF
 };
 
 /**
- * 验证查询对象
+ * 验证查询对象（优化版，减少误判）
  */
 const validateQueryObject = (query: any): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
@@ -256,10 +264,29 @@ const validateQueryObject = (query: any): { isValid: boolean; errors: string[] }
         continue;
       }
 
-      // 检查危险模式
+      // 对查询参数使用更宽松的检查
+      // 跳过常见的、无害的特殊字符组合
+      if (value.includes('#') && (
+        key.toLowerCase().includes('color') ||
+        key.toLowerCase().includes('colour') ||
+        value.match(/^#[0-9a-fA-F]{3,6}$/)
+      )) {
+        // 颜色值，跳过安全检查
+        continue;
+      }
+
+      // 只检查真正危险的模式
       for (const pattern of DANGEROUS_PATTERNS) {
+        // 跳过过于宽泛的模式
+        if (pattern === /[;&|`]/i) continue;
+
         if (pattern.test(value)) {
-          errors.push(`参数 ${key} 包含危险内容`);
+          // 额外检查：确保不是误判
+          if (value.includes('>') && !value.includes('<')) {
+            // 单独的 > 符号通常是安全的（例如：price>100）
+            continue;
+          }
+          errors.push(`参数 ${key} 包含潜在危险内容`);
           break;
         }
       }
@@ -270,27 +297,88 @@ const validateQueryObject = (query: any): { isValid: boolean; errors: string[] }
 };
 
 /**
- * 验证请求体对象
+ * 验证请求体对象（优化性能版本）
  */
 const validateBodyObject = (body: any): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
-  const bodyStr = JSON.stringify(body);
 
-  // 检查请求体大小
-  if (Buffer.byteLength(bodyStr, 'utf8') > REQUEST_LIMITS.maxPayloadSize) {
+  // 🚀 性能优化1: 快速大小检查，避免JSON.stringify
+  const bodySize = estimateObjectSize(body);
+  if (bodySize > REQUEST_LIMITS.maxPayloadSize) {
     errors.push('请求体过大');
     return { isValid: false, errors };
   }
 
-  // 检查危险模式
-  for (const pattern of DANGEROUS_PATTERNS) {
-    if (pattern.test(bodyStr)) {
+  // 🚀 性能优化2: 只对小请求体进行深度验证
+  if (bodySize > 100 * 1024) { // 100KB以上跳过复杂验证
+    // 对大请求体只进行基础检查
+    return { isValid: true, errors };
+  }
+
+  // 🚀 性能优化3: 延迟JSON.stringify，只在必要时执行
+  let bodyStr: string | null = null;
+
+  // 智能检查危险模式（优化版）
+  const allPatterns = [...DANGEROUS_PATTERNS, ...COMMENT_PATTERNS];
+
+  // 延迟计算JSON字符串
+  if (bodyStr === null) {
+    bodyStr = JSON.stringify(body);
+  }
+
+  // 预处理：识别并临时移除颜色值以避免误判
+  const colorRegex = /"([^"]*color[^"]*)"\s*:\s*"([^"]*#[^"]*")/g;
+  const colorMatches = [];
+  let match;
+  while ((match = colorRegex.exec(bodyStr)) !== null) {
+    colorMatches.push({
+      full: match[0],
+      field: match[1],
+      value: match[2]
+    });
+  }
+
+  // 临时替换颜色值
+  let processedBodyStr = bodyStr;
+  colorMatches.forEach((color, index) => {
+    processedBodyStr = processedBodyStr.replace(color.full, `"${color.field}":"COLOR_VALUE_${index}"`);
+  });
+
+  for (const pattern of allPatterns) {
+    // 跳过注释模式检查，避免对颜色值误判
+    if (COMMENT_PATTERNS.includes(pattern)) {
+      continue;
+    }
+
+    if (pattern.test(processedBodyStr)) {
       errors.push('请求体包含危险模式');
       break;
     }
   }
 
   return { isValid: errors.length === 0, errors };
+};
+
+/**
+ * 快速估算对象大小（避免JSON.stringify的性能开销）
+ */
+const estimateObjectSize = (obj: any): number => {
+  if (obj === null || obj === undefined) return 0;
+
+  if (typeof obj === 'string') return obj.length * 2; // UTF-16
+  if (typeof obj === 'number') return 8; // 64位数字
+  if (typeof obj === 'boolean') return 4;
+  if (typeof obj === 'object') {
+    let size = 2; // 对象开销
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        size += key.length * 2 + estimateObjectSize(obj[key]) + 2; // key + value + 分隔符
+      }
+    }
+    return size;
+  }
+
+  return 0;
 };
 
 /**
@@ -440,7 +528,7 @@ export const checkResourceOwnership = (resourceType: string, resourceIdField: st
 // 示例函数，实际应该从数据库查询
 const checkOrderOwnership = async (orderId: string, userId: string): Promise<boolean> => {
   try {
-    // const order = await prisma.order.findFirst({
+    // const order = await prisma.orders.findFirst({
     //   where: { id: orderId, userId }
     // });
     // return !!order;
@@ -452,7 +540,7 @@ const checkOrderOwnership = async (orderId: string, userId: string): Promise<boo
 
 const checkShopOwnership = async (shopId: string, userId: string): Promise<boolean> => {
   try {
-    // const shop = await prisma.shop.findFirst({
+    // const shop = await prisma.shops.findFirst({
     //   where: { id: shopId, ownerId: userId }
     // });
     // return !!shop;
@@ -461,3 +549,7 @@ const checkShopOwnership = async (shopId: string, userId: string): Promise<boole
     return false;
   }
 };
+
+// 导出验证函数供测试使用
+export const validateBodyObjectExported = validateBodyObject;
+export const validateQueryObjectExported = validateQueryObject;

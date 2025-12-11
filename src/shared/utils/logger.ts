@@ -65,10 +65,10 @@ class Logger {
       const color = colors[entry.level];
       const reset = '\x1b[0m';
 
-      console.log(`${color}[${entry.level.toUpperCase()}]${reset} ${entry.message}`);
+// [DEBUG REMOVED]       console.log(`${color}[${entry.level.toUpperCase()}]${reset} ${entry.message}`);
 
       if (entry.data) {
-        console.log(`${color}Data:${reset}`, entry.data);
+// [DEBUG REMOVED]         console.log(`${color}Data:${reset}`, entry.data);
       }
     }
   }

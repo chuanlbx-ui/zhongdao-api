@@ -4,7 +4,7 @@
  */
 
 import { configService } from './config.service';
-import { logger } from '../../shared/utils/logger';
+import { logger } from '@/shared/utils/logger';
 import type { CloudShopLevelConfig, CommissionConfig, PointsConfig, OrderConfig, InventoryConfig } from './config.types';
 
 /**
@@ -127,8 +127,16 @@ const defaultInventoryConfig: InventoryConfig = {
 export async function initializeConfigs(): Promise<void> {
   try {
     // 检查数据库连接
+    const { checkDatabaseHealth } = require('../../shared/database/client');
     try {
-      await configService.getConfigDetail('init_check');
+      const isHealthy = await checkDatabaseHealth();
+      if (!isHealthy) {
+        // 数据库未连接，跳过配置初始化（静默处理）
+        if (process.env.NODE_ENV === 'development') {
+          console.log('⚠️ 数据库未连接，使用默认配置');
+        }
+        return;
+      }
     } catch (dbError) {
       // 数据库未连接，跳过配置初始化（静默处理）
       if (process.env.NODE_ENV === 'development') {

@@ -1,6 +1,5 @@
-// @ts-nocheck
-import { logger } from '../../shared/utils/logger';
-import { prisma } from '../../shared/database/client';
+import { logger } from '@/shared/utils/logger';
+import { prisma } from '@/shared/database/client';
 import { UserLevel } from './level.service';
 
 // 团队成员信息接口
@@ -27,24 +26,49 @@ export interface TeamStats {
   topPerformers: TeamMember[];
 }
 
+// 类型定义
+interface PaginationResult {
+  members: TeamMember[];
+  pagination: {
+    page: number;
+    perPage: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+interface TeamRelationshipResult {
+  isValid: boolean;
+  relationship: string;
+  distance: number;
+}
+
+interface TeamPerformanceReport {
+  period: { start: Date; end: Date };
+  summary: {
+    newMembers: number;
+    totalPurchases: number;
+    totalSales: number;
+    averageOrderValue: number;
+  };
+  levelProgression: Array<{
+    level: UserLevel;
+    count: number;
+    newThisPeriod: number;
+  }>;
+  topPerformers: TeamMember[];
+}
+
 // 团队服务类
 export class TeamService {
   // 获取用户的直推团队
-  async getDirectTeam(userId: string, page: number = 1, perPage: number = 20): Promise<{
-    members: TeamMember[];
-    pagination: {
-      page: number;
-      perPage: number;
-      total: number;
-      totalPages: number;
-    };
-  }> {
+  async getDirectTeam(userId: string, page: number = 1, perPage: number = 20): Promise<PaginationResult> {
     try {
       const skip = (page - 1) * perPage;
 
       const [members, total] = await Promise.all([
         prisma.users.findMany({
-          where: { referrerId: userId },
+          where: { parentId: userId },
           select: {
             id: true,
             nickname: true,
@@ -65,7 +89,7 @@ export class TeamService {
           take: perPage
         }),
         prisma.users.count({
-          where: { referrerId: userId }
+          where: { parentId: userId }
         })
       ]);
 
@@ -102,7 +126,7 @@ export class TeamService {
   // 获取完整团队树（递归获取所有下级）
   async getFullTeamTree(userId: string, maxDepth: number = 5): Promise<{
     root: TeamMember;
-    tree: any[];
+    tree: TeamMember[];
     stats: TeamStats;
   }> {
     try {
@@ -133,14 +157,14 @@ export class TeamService {
   }
 
   // 递归构建团队树
-  private async buildTeamTree(userId: string, currentDepth: number, maxDepth: number): Promise<any[]> {
+  private async buildTeamTree(userId: string, currentDepth: number, maxDepth: number): Promise<TeamMember[]> {
     if (currentDepth >= maxDepth) {
       return [];
     }
 
     try {
       const directMembers = await prisma.users.findMany({
-        where: { referrerId: userId },
+        where: { parentId: userId },
         select: {
           id: true,
           nickname: true,
@@ -191,7 +215,7 @@ export class TeamService {
             status: true,
             createdAt: true,
             updatedAt: true,
-            referrerId: true
+            parentId: true
           }
         }),
         this.getUserTeamStats(userId)
@@ -210,7 +234,7 @@ export class TeamService {
         teamSize: stats.teamSize,
         joinedAt: user.createdAt,
         lastActiveAt: user.updatedAt,
-        path: user.referrerId ? `${user.referrerId}->${user.id}` : user.id
+        path: user.parentId ? `${user.parentId}->${user.id}` : user.id
       };
     } catch (error) {
       logger.error('获取用户统计信息失败', {
@@ -228,7 +252,7 @@ export class TeamService {
   }> {
     try {
       const [purchaseStats, teamSize] = await Promise.all([
-        prisma.purchaseOrder.aggregate({
+        prisma.purchaseOrders.aggregate({
           where: {
             buyerId: userId,
             status: 'COMPLETED'
@@ -236,7 +260,7 @@ export class TeamService {
           _sum: { totalAmount: true }
         }),
         prisma.users.count({
-          where: { referrerId: userId }
+          where: { parentId: userId }
         })
       ]);
 
@@ -306,7 +330,7 @@ export class TeamService {
     const collectMembers = async (currentUserId: string) => {
       try {
         const directMembers = await prisma.users.findMany({
-          where: { referrerId: currentUserId },
+          where: { parentId: currentUserId },
           select: { id: true }
         });
 
@@ -337,10 +361,12 @@ export class TeamService {
       const distribution: Record<UserLevel, number> = {
         [UserLevel.NORMAL]: 0,
         [UserLevel.VIP]: 0,
-        [UserLevel.DIAMOND]: 0,
-        [UserLevel.DIRECTOR]: 0,
-        [UserLevel.MANAGER]: 0,
-        [UserLevel.SENIOR_MANAGER]: 0
+        [UserLevel.STAR_1]: 0,
+        [UserLevel.STAR_2]: 0,
+        [UserLevel.STAR_3]: 0,
+        [UserLevel.STAR_4]: 0,
+        [UserLevel.STAR_5]: 0,
+        [UserLevel.DIRECTOR]: 0
       };
 
       levelStats.forEach(stat => {
@@ -353,10 +379,12 @@ export class TeamService {
       return {
         [UserLevel.NORMAL]: 0,
         [UserLevel.VIP]: 0,
-        [UserLevel.DIAMOND]: 0,
-        [UserLevel.DIRECTOR]: 0,
-        [UserLevel.MANAGER]: 0,
-        [UserLevel.SENIOR_MANAGER]: 0
+        [UserLevel.STAR_1]: 0,
+        [UserLevel.STAR_2]: 0,
+        [UserLevel.STAR_3]: 0,
+        [UserLevel.STAR_4]: 0,
+        [UserLevel.STAR_5]: 0,
+        [UserLevel.DIRECTOR]: 0
       };
     }
   }
@@ -364,7 +392,7 @@ export class TeamService {
   // 获取团队采购总额
   private async getTeamPurchases(memberIds: string[]): Promise<number> {
     try {
-      const result = await prisma.purchaseOrder.aggregate({
+      const result = await prisma.purchaseOrders.aggregate({
         where: {
           buyerId: { in: memberIds },
           status: 'COMPLETED'
@@ -382,7 +410,7 @@ export class TeamService {
   // 获取团队销售总额
   private async getTeamSales(memberIds: string[]): Promise<number> {
     try {
-      const result = await prisma.purchaseOrder.aggregate({
+      const result = await prisma.purchaseOrders.aggregate({
         where: {
           sellerId: { in: memberIds },
           status: 'COMPLETED'
@@ -455,13 +483,13 @@ export class TeamService {
       const [currentMonth, previousMonth] = await Promise.all([
         prisma.users.count({
           where: {
-            referrerId: userId,
+            parentId: userId,
             createdAt: { gte: oneMonthAgo }
           }
         }),
         prisma.users.count({
           where: {
-            referrerId: userId,
+            parentId: userId,
             createdAt: {
               gte: twoMonthsAgo,
               lt: oneMonthAgo
@@ -482,11 +510,7 @@ export class TeamService {
   }
 
   // 验证团队关系
-  async validateTeamRelationship(uplineId: string, downlineId: string): Promise<{
-    isValid: boolean;
-    relationship: string;
-    distance: number;
-  }> {
+  async validateTeamRelationship(uplineId: string, downlineId: string): Promise<TeamRelationshipResult> {
     try {
       if (uplineId === downlineId) {
         return {
@@ -500,7 +524,7 @@ export class TeamService {
       const directRelation = await prisma.users.findFirst({
         where: {
           id: downlineId,
-          referrerId: uplineId
+          parentId: uplineId
         }
       });
 
@@ -547,7 +571,7 @@ export class TeamService {
 
     try {
       const downlines = await prisma.users.findMany({
-        where: { referrerId: uplineId },
+        where: { parentId: uplineId },
         select: { id: true }
       });
 
@@ -580,21 +604,7 @@ export class TeamService {
     userId: string,
     startDate?: Date,
     endDate?: Date
-  ): Promise<{
-    period: { start: Date; end: Date };
-    summary: {
-      newMembers: number;
-      totalPurchases: number;
-      totalSales: number;
-      averageOrderValue: number;
-    };
-    levelProgression: Array<{
-      level: UserLevel;
-      count: number;
-      newThisPeriod: number;
-    }>;
-    topPerformers: TeamMember[];
-  }> {
+  ): Promise<TeamPerformanceReport> {
     try {
       const end = endDate || new Date();
       const start = startDate || new Date(end.getFullYear(), end.getMonth() - 1, end.getDate());
@@ -611,7 +621,7 @@ export class TeamService {
             }
           }
         }),
-        prisma.purchaseOrder.aggregate({
+        prisma.purchaseOrders.aggregate({
           where: {
             buyerId: { in: allMemberIds },
             status: 'COMPLETED',
@@ -623,7 +633,7 @@ export class TeamService {
           _sum: { totalAmount: true },
           _count: { id: true }
         }),
-        prisma.purchaseOrder.aggregate({
+        prisma.purchaseOrders.aggregate({
           where: {
             sellerId: { in: allMemberIds },
             status: 'COMPLETED',

@@ -1,0 +1,474 @@
+{
+  "timestamp": "2025-12-09T05:28:50.876Z",
+  "summary": {
+    "total": 9,
+    "passed": 8,
+    "failed": 1,
+    "passRate": 88.88888888888889,
+    "avgResponseTime": 12.25
+  },
+  "details": [
+    {
+      "name": "健康检查端点",
+      "status": "PASS",
+      "duration": 41,
+      "data": {
+        "status": "ok",
+        "timestamp": "2025-12-09T05:28:50.809Z",
+        "version": "1.0.0",
+        "environment": "development",
+        "uptime": 6741.5626558
+      }
+    },
+    {
+      "name": "数据库健康检查",
+      "status": "PASS",
+      "duration": 15,
+      "data": {
+        "status": "ok",
+        "database": "mysql://127.0.0.1:3306/zhongdao_mall_dev",
+        "timestamp": "2025-12-09T05:28:50.826Z"
+      }
+    },
+    {
+      "name": "管理员身份验证",
+      "status": "PASS",
+      "duration": 7,
+      "data": {
+        "user": {
+          "id": "xlexb35vac2jq40wngr1sfca",
+          "openid": "admin_openid_001",
+          "nickname": "系统管理员",
+          "phone": "13800138000",
+          "avatarUrl": null,
+          "level": "director",
+          "status": "active",
+          "createdAt": "2025-12-05T09:23:04.699Z",
+          "updatedAt": "2025-12-05T09:23:04.699Z"
+        }
+      }
+    },
+    {
+      "name": "普通用户身份验证",
+      "status": "PASS",
+      "duration": 6,
+      "data": {
+        "user": {
+          "id": "e2bafvp0grfc39ihhr89hbgb",
+          "openid": "user_4_bhOj4ZfUhOVTwut2ous4",
+          "nickname": "Mr. John Leuschke",
+          "phone": "1-539-394-4092 x81940",
+          "avatarUrl": null,
+          "level": "normal",
+          "status": "active",
+          "createdAt": "2025-09-17T03:49:11.064Z",
+          "updatedAt": "2025-12-05T09:23:04.786Z"
+        }
+      }
+    },
+    {
+      "name": "无效令牌测试",
+      "status": "PASS",
+      "duration": 4,
+      "data": null
+    },
+    {
+      "name": "获取用户列表（管理员）",
+      "status": "PASS",
+      "duration": 14,
+      "data": {
+        "users": [
+          {
+            "id": "xlexb35vac2jq40wngr1sfca",
+            "openid": "admin_openid_001",
+            "nickname": "系统管理员",
+            "phone": "13800138000",
+            "avatarUrl": null,
+            "level": "director",
+            "status": "active",
+            "createdAt": "2025-12-05T09:23:04.699Z",
+            "updatedAt": "2025-12-05T09:23:04.699Z"
+          },
+          {
+            "id": "vbxu6clwnkvgctrb1gdumqg1",
+            "openid": "user_1_6q8ZFIzV1sL8HnbGUX3s",
+            "nickname": "Raul Herzog",
+            "phone": "975.726.3337 x95969",
+            "avatarUrl": null,
+            "level": "normal",
+            "status": "active",
+            "createdAt": "2025-11-09T04:01:54.334Z",
+            "updatedAt": "2025-12-05T09:23:04.751Z"
+          },
+          {
+            "id": "zksj4n4zl6ecm8rt0f2240aa",
+            "openid": "user_8_XFq4WX2mZ91nltjuHz8R",
+            "nickname": "Mr. Arturo Hayes",
+            "phone": "824-744-1872",
+            "avatarUrl": null,
+            "level": "normal",
+            "status": "active",
+            "createdAt": "2025-10-02T21:28:58.996Z",
+            "updatedAt": "2025-12-05T09:23:04.833Z"
+          },
+          {
+            "id": "s8fsn6yah4og9ormvrlcfazv",
+            "openid": "user_3_6VMn0HedzuCyohSpuRgz",
+            "nickname": "Mr. Nicolas McGlynn",
+            "phone": "(817) 951-0752 x71423",
+            "avatarUrl": null,
+            "level": "normal",
+            "status": "active",
+            "createdAt": "2025-09-30T13:22:04.525Z",
+            "updatedAt": "2025-12-05T09:23:04.773Z"
+          },
+          {
+            "id": "e2bafvp0grfc39ihhr89hbgb",
+            "openid": "user_4_bhOj4ZfUhOVTwut2ous4",
+            "nickname": "Mr. John Leuschke",
+            "phone": "1-539-394-4092 x81940",
+            "avatarUrl": null,
+            "level": "normal",
+            "status": "active",
+            "createdAt": "2025-09-17T03:49:11.064Z",
+            "updatedAt": "2025-12-05T09:23:04.786Z"
+          },
+          {
+            "id": "wxp0vacz74wiajnp1jmd2p95",
+            "openid": "vip_1_Np5Gxc5QmzWq13w8t1S1",
+            "nickname": "Betsy Graham",
+            "phone": "735-865-1267 x82896",
+            "avatarUrl": null,
+            "level": "vip",
+            "status": "active",
+            "createdAt": "2025-09-04T19:58:51.399Z",
+            "updatedAt": "2025-12-05T09:23:04.867Z"
+          },
+          {
+            "id": "o2kt4zgvn4rmx4mveku8vtop",
+            "openid": "user_0_w7bpbMN15rGWanqIRHVX",
+            "nickname": "Marcus Mueller",
+            "phone": "1-437-577-9816",
+            "avatarUrl": null,
+            "level": "normal",
+            "status": "active",
+            "createdAt": "2025-07-31T13:23:38.690Z",
+            "updatedAt": "2025-12-05T09:23:04.738Z"
+          },
+          {
+            "id": "v5qy9elpkz5varwlkbaurtfo",
+            "openid": "user_2_x905pojIdncVjN9IAlfQ",
+            "nickname": "Amber Auer",
+            "phone": "(668) 724-5066 x696",
+            "avatarUrl": null,
+            "level": "normal",
+            "status": "active",
+            "createdAt": "2025-07-10T19:51:42.629Z",
+            "updatedAt": "2025-12-05T09:23:04.762Z"
+          },
+          {
+            "id": "no0eaxi252ffdv6zw4df5lje",
+            "openid": "user_5_9kWOTWfOVNrR6kGh3Mvk",
+            "nickname": "Lola Rosenbaum",
+            "phone": "1-811-205-6223 x339",
+            "avatarUrl": null,
+            "level": "normal",
+            "status": "active",
+            "createdAt": "2025-07-09T01:15:56.628Z",
+            "updatedAt": "2025-12-05T09:23:04.798Z"
+          },
+          {
+            "id": "aiwlm3azfr6ryc2mx64mqo6b",
+            "openid": "user_7_inijZBJPVH7ZKguclhjH",
+            "nickname": "Ross Schoen",
+            "phone": "(755) 856-1006 x590",
+            "avatarUrl": null,
+            "level": "normal",
+            "status": "active",
+            "createdAt": "2025-06-12T23:48:14.640Z",
+            "updatedAt": "2025-12-05T09:23:04.821Z"
+          },
+          {
+            "id": "etwb9rsr17qdot78mwguwhk0",
+            "openid": "user_9_Pu6vKo1HKkYKE68DkA0l",
+            "nickname": "Mr. Gustavo Dickens-Greenholt",
+            "phone": "(233) 845-9255 x83551",
+            "avatarUrl": null,
+            "level": "normal",
+            "status": "active",
+            "createdAt": "2025-04-29T18:13:07.623Z",
+            "updatedAt": "2025-12-05T09:23:04.845Z"
+          },
+          {
+            "id": "imh9off5zi3qg63uaw27igom",
+            "openid": "vip_2_hnrarEe49pfYIupN3DaJ",
+            "nickname": "Dr. Theresa Halvorson",
+            "phone": "1-759-378-8017 x2787",
+            "avatarUrl": null,
+            "level": "vip",
+            "status": "active",
+            "createdAt": "2025-04-16T02:33:52.862Z",
+            "updatedAt": "2025-12-05T09:23:04.880Z"
+          },
+          {
+            "id": "cr64xrf5tk5k2t04ihxpry8k",
+            "openid": "vip_0_EqqESNAmzIjHeerNcwsr",
+            "nickname": "Ryan Becker",
+            "phone": "707.377.8272 x545",
+            "avatarUrl": null,
+            "level": "vip",
+            "status": "active",
+            "createdAt": "2025-03-05T22:47:50.319Z",
+            "updatedAt": "2025-12-05T09:23:04.855Z"
+          },
+          {
+            "id": "ndf66a7guhvqmy28vthkl4hg",
+            "openid": "user_6_05yzs4INIphC0rhRYgVK",
+            "nickname": "Harry Ebert",
+            "phone": "1-401-352-1081 x9230",
+            "avatarUrl": null,
+            "level": "normal",
+            "status": "active",
+            "createdAt": "2025-01-09T09:21:31.591Z",
+            "updatedAt": "2025-12-05T09:23:04.809Z"
+          }
+        ],
+        "pagination": {
+          "page": 1,
+          "perPage": 20,
+          "total": 14,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        }
+      }
+    },
+    {
+      "name": "用户等级系统验证",
+      "status": "PASS",
+      "duration": 3,
+      "data": {
+        "levels": [
+          {
+            "key": "NORMAL",
+            "name": "普通会员",
+            "order": 1,
+            "discount": 1,
+            "monthlyReward": 0,
+            "upgradeRequires": {},
+            "benefits": [
+              "基础购物功能",
+              "参与平台活动",
+              "积累消费升级"
+            ]
+          },
+          {
+            "key": "VIP",
+            "name": "VIP会员",
+            "order": 2,
+            "discount": 0.8,
+            "monthlyReward": 100,
+            "upgradeRequires": {
+              "salesQuantity": {
+                "amount": 1000,
+                "unitPrice": 1,
+                "requiredQuantity": 1000
+              }
+            },
+            "benefits": [
+              "享受8折优惠",
+              "优先客服支持",
+              "每月赠送100通券"
+            ]
+          },
+          {
+            "key": "STAR_1",
+            "name": "一星店长",
+            "order": 3,
+            "discount": 0.75,
+            "monthlyReward": 200,
+            "monthlyBonus": 100,
+            "upgradeRequires": {
+              "directCountOfSameLevel": 1,
+              "salesQuantity": {
+                "amount": 5000,
+                "unitPrice": 599,
+                "requiredQuantity": 9
+              }
+            },
+            "benefits": [
+              "享受7.5折优惠",
+              "专属客服支持",
+              "每月赠送200通券",
+              "店长营销权限"
+            ]
+          },
+          {
+            "key": "STAR_2",
+            "name": "二星店长",
+            "order": 4,
+            "discount": 0.7,
+            "monthlyReward": 300,
+            "monthlyBonus": 150,
+            "upgradeRequires": {
+              "directCountOfSameLevel": 2,
+              "salesQuantity": {
+                "amount": 15000,
+                "unitPrice": 599,
+                "requiredQuantity": 25
+              }
+            },
+            "benefits": [
+              "享受7折优惠",
+              "专属客服支持",
+              "每月赠送300通券",
+              "店长营销权限",
+              "团队管理权限"
+            ]
+          },
+          {
+            "key": "STAR_3",
+            "name": "三星店长",
+            "order": 5,
+            "discount": 0.65,
+            "monthlyReward": 500,
+            "monthlyBonus": 250,
+            "upgradeRequires": {
+              "directCountOfSameLevel": 3,
+              "salesQuantity": {
+                "amount": 30000,
+                "unitPrice": 599,
+                "requiredQuantity": 50
+              }
+            },
+            "benefits": [
+              "享受6.5折优惠",
+              "专属客服支持",
+              "每月赠送500通券",
+              "店长营销权限",
+              "团队管理权限",
+              "佣金提升权限"
+            ]
+          },
+          {
+            "key": "STAR_4",
+            "name": "四星店长",
+            "order": 6,
+            "discount": 0.6,
+            "monthlyReward": 800,
+            "monthlyBonus": 400,
+            "upgradeRequires": {
+              "directCountOfSameLevel": 4,
+              "salesQuantity": {
+                "amount": 50000,
+                "unitPrice": 599,
+                "requiredQuantity": 84
+              }
+            },
+            "benefits": [
+              "享受6折优惠",
+              "专属客服支持",
+              "每月赠送800通券",
+              "店长营销权限",
+              "团队管理权限",
+              "佣金提升权限",
+              "区域营销权限"
+            ]
+          },
+          {
+            "key": "STAR_5",
+            "name": "五星店长",
+            "order": 7,
+            "discount": 0.55,
+            "monthlyReward": 1200,
+            "monthlyBonus": 600,
+            "upgradeRequires": {
+              "directCountOfSameLevel": 5,
+              "salesQuantity": {
+                "amount": 80000,
+                "unitPrice": 599,
+                "requiredQuantity": 134
+              }
+            },
+            "benefits": [
+              "享受5.5折优惠",
+              "专属客服支持",
+              "每月赠送1200通券",
+              "店长营销权限",
+              "团队管理权限",
+              "佣金提升权限",
+              "区域营销权限",
+              "品牌合作权限"
+            ]
+          },
+          {
+            "key": "DIRECTOR",
+            "name": "董事",
+            "order": 8,
+            "discount": 0.5,
+            "monthlyReward": 2000,
+            "monthlyBonus": 1000,
+            "upgradeRequires": {
+              "directCountOfSameLevel": 6,
+              "salesQuantity": {
+                "amount": 150000,
+                "unitPrice": 599,
+                "requiredQuantity": 250
+              }
+            },
+            "benefits": [
+              "享受5折优惠",
+              "专属客服支持",
+              "每月赠送2000通券",
+              "店长营销权限",
+              "团队管理权限",
+              "佣金提升权限",
+              "区域营销权限",
+              "品牌合作权限",
+              "公司治理权限"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "获取用户积分余额",
+      "status": "PASS",
+      "duration": 8,
+      "data": {
+        "userId": "e2bafvp0grfc39ihhr89hbgb",
+        "balance": 2770.49,
+        "frozen": 0,
+        "available": 2770.49
+      }
+    },
+    {
+      "name": "获取积分交易记录",
+      "status": "FAIL",
+      "duration": 5,
+      "error": "Request failed with status code 404",
+      "response": {
+        "success": false,
+        "error": {
+          "code": "NOT_FOUND",
+          "message": "请求的资源不存在",
+          "timestamp": "2025-12-09T05:28:50.873Z"
+        },
+        "timestamp": "2025-12-09T05:28:50.873Z",
+        "requestId": "b73e9387-8383-480e-aef8-d11f2671ae9d"
+      }
+    }
+  ],
+  "health": {
+    "passed": 2,
+    "total": 2
+  },
+  "authentication": {
+    "passed": 3,
+    "total": 3
+  },
+  "api": {
+    "passed": 2,
+    "total": 3
+  }
+}

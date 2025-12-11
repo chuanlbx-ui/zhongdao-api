@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { body, validationResult, param, query } from 'express-validator';
+import * as expressValidator from 'express-validator';
+const { body, validationResult, param, query } = expressValidator;
 import { createErrorResponse, ErrorCode } from '../types/response';
 
 // 验证中间件工厂

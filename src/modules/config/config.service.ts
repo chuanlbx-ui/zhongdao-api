@@ -1,11 +1,93 @@
-// @ts-nocheck
 /**
  * 系统配置管理服务
  * 用于管理所有系统参数（会员等级、折扣、佣金等）
  */
 
-import { prisma } from '../../shared/database/client';
-import { logger } from '../../shared/utils/logger';
+import { prisma } from '@/shared/database/client';
+import { logger } from '@/shared/utils/logger';
+import { createId } from '@paralleldrive/cuid2';
+
+// 配置类型定义
+interface ConfigValue = string | number | boolean | Record<string, any> | any[];
+
+interface ConfigListItem {
+  id: string;
+  key: string;
+  value: ConfigValue;
+  description: string | null;
+  category: string | null;
+  type: string;
+  createdAt: Date;
+  updatedAt: Date;
+  lastModifiedBy: string | null;
+}
+
+interface PaginationOptions {
+  page: number;
+  perPage: number;
+  category?: string;
+  key?: string;
+  search?: string;
+}
+
+interface PaginationResult<T> {
+  configs: T[];
+  pagination: {
+    page: number;
+    perPage: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+interface CreateConfigParams {
+  key: string;
+  value: ConfigValue;
+  category: string;
+  description?: string;
+  dataType?: string;
+  createdBy: string;
+}
+
+interface BatchUpdateResult {
+  success: Array<{ key: string; newValue: ConfigValue }>;
+  failure: Array<{ key: string; error: string }>;
+}
+
+interface ImportConfigResult {
+  success: Array<{ key: string }>;
+  failure: Array<{ key: string; error: string }>;
+}
+
+interface ConfigHistoryEntry {
+  id: string;
+  key: string;
+  oldValue: ConfigValue;
+  newValue: ConfigValue;
+  reason: string;
+  modifiedBy: string | null;
+  modifiedAt: Date;
+}
+
+interface ConfigHistoryResult {
+  history: ConfigHistoryEntry[];
+  pagination: {
+    page: number;
+    perPage: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+interface ExportOptions {
+  category?: string;
+  format: 'json' | 'csv';
+}
+
+interface ImportOptions {
+  overwrite?: boolean;
+  userId: string;
+}
 
 /**
  * 系统配置服务
@@ -15,7 +97,7 @@ export class ConfigService {
   private static instance: ConfigService;
 
   // 内存缓存（为了性能）
-  private cache: Map<string, any> = new Map();
+  private cache: Map<string, ConfigValue> = new Map();
   private cacheExpiry: Map<string, number> = new Map();
   private cacheTimeout = 5 * 60 * 1000; // 5分钟缓存
 
@@ -34,7 +116,7 @@ export class ConfigService {
   /**
    * 获取配置值（带缓存）
    */
-  async getConfig<T = any>(key: string, defaultValue?: T): Promise<T | null> {
+  async getConfig<T = ConfigValue>(key: string, defaultValue?: T): Promise<T | null> {
     try {
       // 检查缓存
       if (this.cache.has(key)) {
@@ -48,7 +130,7 @@ export class ConfigService {
       }
 
       // 从数据库读取
-      const config = await (prisma as any).systemConfig.findUnique({
+      const config = await prisma.systemConfigs.findUnique({
         where: { key }
       });
 
@@ -73,9 +155,9 @@ export class ConfigService {
   /**
    * 获取多个配置值
    */
-  async getConfigs<T = Record<string, any>>(keys: string[]): Promise<T> {
+  async getConfigs<T = Record<string, ConfigValue>>(keys: string[]): Promise<T> {
     try {
-      const configs = await (prisma as any).systemConfig.findMany({
+      const configs = await prisma.systemConfigs.findMany({
         where: { key: { in: keys } }
       });
 
@@ -96,7 +178,7 @@ export class ConfigService {
    */
   async getConfigsByCategory(category: string): Promise<Record<string, any>> {
     try {
-      const configs = await (prisma as any).systemConfig.findMany({
+      const configs = await prisma.systemConfigs.findMany({
         where: { category }
       });
 
@@ -117,7 +199,7 @@ export class ConfigService {
    */
   async updateConfig(
     key: string,
-    value: any,
+    value: ConfigValue,
     options?: {
       description?: string;
       category?: string;
@@ -130,7 +212,7 @@ export class ConfigService {
       const serializedValue = this.serializeValue(value);
 
       // 更新数据库
-      await (prisma as any).systemConfig.upsert({
+      await prisma.systemConfigs.upsert({
         where: { key },
         update: {
           value: serializedValue,
@@ -141,12 +223,15 @@ export class ConfigService {
           updatedAt: new Date()
         },
         create: {
+          id: createId(),
           key,
           value: serializedValue,
           description: options?.description,
           category: options?.category,
           type: options?.type || 'STRING',
-          lastModifiedBy: options?.lastModifiedBy
+          lastModifiedBy: options?.lastModifiedBy,
+          createdAt: new Date(),
+          updatedAt: new Date()
         }
       });
 
@@ -164,7 +249,7 @@ export class ConfigService {
    * 批量更新配置
    */
   async updateConfigs(
-    configs: Record<string, any>,
+    configs: Record<string, ConfigValue>,
     options?: {
       category?: string;
       lastModifiedBy?: string;
@@ -185,7 +270,7 @@ export class ConfigService {
    */
   async deleteConfig(key: string): Promise<void> {
     try {
-      await (prisma as any).systemConfig.delete({
+      await prisma.systemConfigs.delete({
         where: { key }
       });
 
@@ -219,7 +304,7 @@ export class ConfigService {
   /**
    * 解析配置值
    */
-  private parseValue(value: string, type: string): any {
+  private parseValue(value: string, type: string): ConfigValue {
     try {
       switch (type) {
         case 'JSON':
@@ -242,7 +327,7 @@ export class ConfigService {
   /**
    * 序列化配置值
    */
-  private serializeValue(value: any): string {
+  private serializeValue(value: ConfigValue): string {
     if (value === null || value === undefined) {
       return '';
     }
@@ -260,21 +345,7 @@ export class ConfigService {
   /**
    * 获取所有配置（分页）
    */
-  async getAllConfigs(options: {
-    page: number;
-    perPage: number;
-    category?: string;
-    key?: string;
-    search?: string;
-  }): Promise<{
-    configs: any[];
-    pagination: {
-      page: number;
-      perPage: number;
-      total: number;
-      totalPages: number;
-    };
-  }> {
+  async getAllConfigs(options: PaginationOptions): Promise<PaginationResult<ConfigListItem>> {
     try {
       const { page, perPage, category, key, search } = options;
       const skip = (page - 1) * perPage;
@@ -298,7 +369,7 @@ export class ConfigService {
       }
 
       const [configs, total] = await Promise.all([
-        (prisma as any).systemConfig.findMany({
+        prisma.systemConfigs.findMany({
           where: whereCondition,
           orderBy: { updatedAt: 'desc' },
           skip,
@@ -315,13 +386,20 @@ export class ConfigService {
             lastModifiedBy: true
           }
         }),
-        (prisma as any).systemConfig.count({ where: whereCondition })
+        prisma.systemConfigs.count({ where: whereCondition })
       ]);
 
       // 解析配置值
       const parsedConfigs = configs.map(config => ({
-        ...config,
-        value: this.parseValue(config.value, config.type)
+        id: config.id,
+        key: config.key,
+        value: this.parseValue(config.value, config.type),
+        description: config.description,
+        category: config.category,
+        type: config.type,
+        createdAt: config.createdAt,
+        updatedAt: config.updatedAt,
+        lastModifiedBy: config.lastModifiedBy
       }));
 
       return {
@@ -342,9 +420,9 @@ export class ConfigService {
   /**
    * 获取单个配置详情
    */
-  async getConfigDetail(key: string, retryCount: number = 0): Promise<any> {
+  async getConfigDetail(key: string, retryCount: number = 0): Promise<ConfigListItem | null> {
     try {
-      const config = await (prisma as any).systemConfig.findUnique({
+      const config = await prisma.systemConfigs.findUnique({
         where: { key },
         select: {
           id: true,
@@ -364,8 +442,15 @@ export class ConfigService {
       }
 
       return {
-        ...config,
-        value: this.parseValue(config.value, config.type)
+        id: config.id,
+        key: config.key,
+        value: this.parseValue(config.value, config.type),
+        description: config.description,
+        category: config.category,
+        type: config.type,
+        createdAt: config.createdAt,
+        updatedAt: config.updatedAt,
+        lastModifiedBy: config.lastModifiedBy
       };
     } catch (error: any) {
       // 特殊处理初始化检查错误，避免在开发环境显示过多错误
@@ -400,27 +485,21 @@ export class ConfigService {
   /**
    * 创建新配置
    */
-  async createConfig(params: {
-    key: string;
-    value: any;
-    category: string;
-    description?: string;
-    dataType?: string;
-        createdBy: string;
-  }): Promise<any> {
+  async createConfig(params: CreateConfigParams): Promise<ConfigListItem> {
     try {
       const { key, value, category, description, dataType = 'string', createdBy } = params;
 
       const serializedValue = this.serializeValue(value);
 
-      const newConfig = await (prisma as any).systemConfig.create({
+      const newConfig = await prisma.systemConfigs.create({
         data: {
+          id: createId(),
           key,
           value: serializedValue,
           description,
           category,
           type: dataType.toUpperCase(),
-                    lastModifiedBy: createdBy,
+          lastModifiedBy: createdBy,
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -450,95 +529,13 @@ export class ConfigService {
     }
   }
 
-  /**
-   * 更新配置（扩展版本，支持原因和操作记录）
-   */
-  async updateConfig(key: string, value: any, options?: {
-    description?: string;
-    reason?: string;
-    lastModifiedBy?: string;
-  }): Promise<any> {
-    try {
-      const oldConfig = await this.getConfigDetail(key);
-
-      // 序列化值
-      const serializedValue = this.serializeValue(value);
-
-      // 更新数据库
-      const updatedConfig = await (prisma as any).systemConfig.update({
-        where: { key },
-        data: {
-          value: serializedValue,
-          description: options?.description,
-          lastModifiedBy: options?.lastModifiedBy,
-          updatedAt: new Date()
-        },
-        select: {
-          id: true,
-          key: true,
-          value: true,
-          description: true,
-          category: true,
-          type: true,
-          createdAt: true,
-          updatedAt: true,
-          lastModifiedBy: true
-        }
-      });
-
-      // 记录配置变更历史（如果有历史表）
-      if (oldConfig && options?.reason) {
-        try {
-          await this.recordConfigChange({
-            configKey: key,
-            oldValue: oldConfig.value,
-            newValue: value,
-            reason: options.reason,
-            modifiedBy: options.lastModifiedBy
-          });
-        } catch (historyError) {
-          logger.warn('记录配置变更历史失败', { key, error: historyError });
-        }
-      }
-
-      // 清除缓存
-      this.invalidateCache(key);
-
-      return {
-        ...updatedConfig,
-        value: this.parseValue(updatedConfig.value, updatedConfig.type)
-      };
-    } catch (error) {
-      logger.error('更新配置失败', { key, error });
-      throw error;
-    }
-  }
-
-  /**
-   * 删除配置（扩展版本）
-   */
-  async deleteConfig(key: string, deletedBy: string): Promise<void> {
-    try {
-      await (prisma as any).systemConfig.delete({
-        where: { key }
-      });
-
-      // 清除缓存
-      this.invalidateCache(key);
-
-      logger.info('配置已删除', { key, deletedBy });
-    } catch (error) {
-      logger.error('删除配置失败', { key, error });
-      throw error;
-    }
-  }
-
+  
   /**
    * 获取配置分类列表
    */
   async getCategories(): Promise<string[]> {
     try {
-      const result = await (prisma as any).systemConfig.findMany({
+      const result = await prisma.systemConfigs.findMany({
         select: { category: true },
         distinct: ['category'],
         orderBy: { category: 'asc' }
@@ -554,16 +551,13 @@ export class ConfigService {
   /**
    * 批量更新配置
    */
-  async batchUpdateConfigs(configs: Array<{ key: string; value: any }>, options: {
+  async batchUpdateConfigs(configs: Array<{ key: string; value: ConfigValue }>, options: {
     lastModifiedBy?: string;
     reason?: string;
-  }): Promise<{
-    success: Array<{ key: string; newValue: any }>;
-    failure: Array<{ key: string; error: string }>;
-  }> {
-    const result = {
-      success: [] as Array<{ key: string; newValue: any }>,
-      failure: [] as Array<{ key: string; error: string }>
+  }): Promise<BatchUpdateResult> {
+    const result: BatchUpdateResult = {
+      success: [],
+      failure: []
     };
 
     for (const config of configs) {
@@ -590,7 +584,7 @@ export class ConfigService {
   async getConfigHistory(key: string, options: {
     page: number;
     perPage: number;
-  }): Promise<any> {
+  }): Promise<ConfigHistoryResult> {
     try {
       // 这里假设有配置变更历史表，如果没有则返回配置的基本信息
       const config = await this.getConfigDetail(key);
@@ -634,10 +628,7 @@ export class ConfigService {
   /**
    * 导出配置
    */
-  async exportConfigs(options: {
-    category?: string;
-    format: 'json' | 'csv';
-  }): Promise<string> {
+  async exportConfigs(options: ExportOptions): Promise<string> {
     try {
       const configs = await this.getAllConfigs({
         page: 1,
@@ -676,16 +667,10 @@ export class ConfigService {
   /**
    * 导入配置
    */
-  async importConfigs(configs: Array<any>, options: {
-    overwrite?: boolean;
-    userId: string;
-  }): Promise<{
-    success: Array<{ key: string }>;
-    failure: Array<{ key: string; error: string }>;
-  }> {
-    const result = {
-      success: [] as Array<{ key: string }>,
-      failure: [] as Array<{ key: string; error: string }>
+  async importConfigs(configs: Array<Partial<ConfigListItem> & { value: ConfigValue }>, options: ImportOptions): Promise<ImportConfigResult> {
+    const result: ImportConfigResult = {
+      success: [],
+      failure: []
     };
 
     for (const config of configs) {
@@ -733,8 +718,8 @@ export class ConfigService {
    */
   private async recordConfigChange(params: {
     configKey: string;
-    oldValue: any;
-    newValue: any;
+    oldValue: ConfigValue;
+    newValue: ConfigValue;
     reason: string;
     modifiedBy: string;
   }): Promise<void> {

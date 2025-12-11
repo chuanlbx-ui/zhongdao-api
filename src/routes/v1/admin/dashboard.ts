@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../../../shared/database/client';
 import { createSuccessResponse, createErrorResponse, ErrorCode } from '../../../shared/types/response';
-import { asyncHandler } from '../../../shared/middleware/error';
+import { asyncHandler, asyncHandler2 } from '../../../shared/middleware/error';
 import { authenticate } from '../../../shared/middleware/auth';
 import { logger } from '../../../shared/utils/logger';
 
@@ -12,7 +12,7 @@ const router = Router();
  */
 router.get('/users',
   authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const now = new Date();
       const todayStart = new Date(now.setHours(0, 0, 0, 0));
@@ -62,21 +62,21 @@ router.get('/users',
  */
 router.get('/orders',
   authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const now = new Date();
       const todayStart = new Date(now.setHours(0, 0, 0, 0));
 
       const [total, todayCount, totalAmount, todayAmount] = await Promise.all([
-        prisma.order.count(),
-        prisma.order.count({
+        prisma.orders.count(),
+        prisma.orders.count({
           where: { createdAt: { gte: todayStart } }
         }),
-        prisma.order.aggregate({
+        prisma.orders.aggregate({
           _sum: { finalAmount: true },
           where: { status: 'PAID' }
         }),
-        prisma.order.aggregate({
+        prisma.orders.aggregate({
           _sum: { finalAmount: true },
           where: {
             status: 'PAID',
@@ -107,9 +107,9 @@ router.get('/orders',
  */
 router.get('/sales',
   authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
-      const result = await prisma.order.aggregate({
+      const result = await prisma.orders.aggregate({
         _sum: { finalAmount: true },
         _count: true,
         where: { status: 'PAID' }
@@ -135,13 +135,13 @@ router.get('/sales',
  */
 router.get('/overview',
   authenticate,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler2(async (req: Request, res: Response) => {
     try {
       const [userCount, orderCount, shopCount, salesAmount] = await Promise.all([
         prisma.users.count(),
-        prisma.order.count(),
-        prisma.shop.count({ where: { status: 'ACTIVE' } }),
-        prisma.order.aggregate({
+        prisma.orders.count(),
+        prisma.shops.count({ where: { status: 'ACTIVE' } }),
+        prisma.orders.aggregate({
           _sum: { finalAmount: true },
           where: { status: 'PAID' }
         })

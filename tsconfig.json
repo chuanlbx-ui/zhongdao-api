@@ -2,7 +2,9 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "commonjs",
-    "lib": ["ES2022"],
+    "lib": [
+      "ES2022"
+    ],
     "outDir": "./dist",
     "rootDir": "./",
     "strict": false,
@@ -26,13 +28,27 @@
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "assumeChangesOnlyAffectDirectDependencies": true,
+    "disableSourceOfProjectReferenceRedirect": true,
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"],
-      "@/modules/*": ["src/modules/*"],
-      "@/shared/*": ["src/shared/*"],
-      "@/config/*": ["src/config/*"],
-      "@/types/*": ["src/shared/types/*"]
+      "@/*": [
+        "src/*"
+      ],
+      "@/modules/*": [
+        "src/modules/*"
+      ],
+      "@/shared/*": [
+        "src/shared/*"
+      ],
+      "@/config/*": [
+        "src/config/*"
+      ],
+      "@/types/*": [
+        "src/shared/types/*"
+      ]
     }
   },
   "include": [
@@ -47,13 +63,11 @@
     "coverage",
     "prisma",
     "src/test-data/**/*",
-    "src/routes/**/*",
-    "src/scripts/**/*",
-    "src/services/**/*",
-    "tests/**/*",
-    "examples/**/*"
+    "src/modules/**/inventory.disabled/**/*"
   ],
   "ts-node": {
-    "require": ["tsconfig-paths/register"]
+    "require": [
+      "tsconfig-paths/register"
+    ]
   }
 }

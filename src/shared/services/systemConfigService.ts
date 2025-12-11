@@ -1,10 +1,10 @@
 import { prisma } from '@/shared/database/client'
-import { ConfigType } from '@prisma/client'
+import { systemConfigs_type } from '@prisma/client'
 
 export interface SystemConfigValue {
   key: string
   value: any
-  type: ConfigType
+  type: systemConfigs_type
   category: string
   description?: string
   isSystem?: boolean
@@ -20,7 +20,7 @@ export class SystemConfigService {
    * 获取配置值（智能类型转换）
    */
   static async getConfig<T = any>(key: string): Promise<T | null> {
-    const config = await prisma.systemConfig.findUnique({
+    const config = await prisma.systemConfigs.findUnique({
       where: { key }
     })
     
@@ -39,7 +39,7 @@ export class SystemConfigService {
    * 获取某分类下的所有配置
    */
   static async getConfigsByCategory<T = any>(category: string): Promise<Record<string, T>> {
-    const configs = await prisma.systemConfig.findMany({
+    const configs = await prisma.systemConfigs.findMany({
       where: { category }
     })
     
@@ -61,16 +61,17 @@ export class SystemConfigService {
   static async setConfig(
     key: string,
     value: any,
-    type: ConfigType = 'JSON',
+    type: systemConfigs_type = 'JSON',
     category: string = 'system',
     description?: string,
     modifiedBy?: string
   ): Promise<void> {
     const valueStr = typeof value === 'string' ? value : JSON.stringify(value)
-    
-    await prisma.systemConfig.upsert({
+
+    await prisma.systemConfigs.upsert({
       where: { key },
       create: {
+        id: `cmi${Date.now()}`,
         key,
         value: valueStr,
         type,
@@ -78,7 +79,9 @@ export class SystemConfigService {
         description,
         isSystem: false,
         isEditable: true,
-        lastModifiedBy: modifiedBy
+        lastModifiedBy: modifiedBy,
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       update: {
         value: valueStr,
@@ -93,12 +96,12 @@ export class SystemConfigService {
    * 删除配置
    */
   static async deleteConfig(key: string): Promise<void> {
-    const config = await prisma.systemConfig.findUnique({ where: { key } })
+    const config = await prisma.systemConfigs.findUnique({ where: { key } })
     if (config?.isSystem) {
       throw new Error('系统内置配置不能删除')
     }
     
-    await prisma.systemConfig.delete({
+    await prisma.systemConfigs.delete({
       where: { key }
     })
   }
@@ -113,13 +116,13 @@ export class SystemConfigService {
   ) {
     const where = category ? { category } : {}
     const [configs, total] = await Promise.all([
-      prisma.systemConfig.findMany({
+      prisma.systemConfigs.findMany({
         where,
         skip,
         take,
         orderBy: { createdAt: 'desc' }
       }),
-      prisma.systemConfig.count({ where })
+      prisma.systemConfigs.count({ where })
     ])
 
     // 解析JSON值
@@ -148,12 +151,12 @@ export class SystemConfigService {
    */
   static async initializeDefaultConfigs(): Promise<void> {
     // 检查默认配置是否已存在
-    const existingLevelConfig = await prisma.systemConfig.findUnique({
+    const existingLevelConfig = await prisma.systemConfigs.findUnique({
       where: { key: 'USER_LEVEL_SYSTEM' }
     })
 
     if (existingLevelConfig) {
-      console.log('✅ 系统默认配置已存在，跳过初始化')
+// [DEBUG REMOVED]       console.log('✅ 系统默认配置已存在，跳过初始化')
       return
     }
 
@@ -241,19 +244,21 @@ export class SystemConfigService {
       }
     }
 
-    await prisma.systemConfig.create({
+    await prisma.systemConfigs.create({
       data: {
+        id: `USER_LEVEL_SYSTEM_${Date.now()}`,
         key: 'USER_LEVEL_SYSTEM',
         value: JSON.stringify(levelSystemConfig),
-        type: 'JSON',
+        type: 'JSON' as systemConfigs_type,
         category: 'levels',
         description: '用户等级体系配置 - 包含8个等级的完整配置',
         isSystem: true,
-        isEditable: true
+        isEditable: true,
+        updatedAt: new Date()
       }
     })
 
-    console.log('✅ 用户等级系统配置初始化完成')
+// [DEBUG REMOVED]     console.log('✅ 用户等级系统配置初始化完成')
   }
 
   /**

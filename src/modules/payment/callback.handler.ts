@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * 支付回调处理系统
  * 统一处理微信支付和支付宝的异步回调通知
@@ -11,9 +10,10 @@ import { PaymentStatus, PaymentChannel } from '@prisma/client';
 import { paymentService } from './payment.service';
 import { wechatPaymentAdapter } from './wechat.provider';
 import { alipayPaymentAdapter } from './alipay.provider';
-import { pointsService } from '../../shared/services/points';
-import { notificationService } from '../../shared/services/notification';
+import { pointsService } from '@/shared/services/points';
+import { notificationService } from '@/shared/services/notification';
 
+// 类型定义
 export interface CallbackRequest {
   body: any;
   headers: any;
@@ -38,6 +38,29 @@ export interface CallbackHandlerOptions {
   enableSignatureVerification?: boolean;
   enableDuplicateCheck?: boolean;
   duplicateCheckWindow?: number; // 重复检查时间窗口（秒）
+}
+
+interface PreprocessedData {
+  paymentId: string;
+  paymentNo: string;
+  amount: number;
+  status: PaymentStatus;
+  channelTradeNo?: string;
+  paidAt?: Date;
+  extra?: any;
+}
+
+interface SignatureHeaders {
+  [key: string]: string;
+}
+
+interface CallbackProcessingLog {
+  callbackId: string;
+  channel: PaymentChannel;
+  request: any;
+  response: CallbackResponse;
+  success: boolean;
+  duration: number;
 }
 
 /**
@@ -283,7 +306,7 @@ export class PaymentCallbackHandler {
   /**
    * 预处理回调数据
    */
-  private async preprocessCallbackData(req: CallbackRequest, channel: PaymentChannel): Promise<any> {
+  private async preprocessCallbackData(req: CallbackRequest, channel: PaymentChannel): Promise<PreprocessedData> {
     switch (channel) {
       case PaymentChannel.WECHAT:
         return await wechatPaymentAdapter.verifyNotify(req.body, req.headers);
@@ -338,7 +361,7 @@ export class PaymentCallbackHandler {
   /**
    * 处理回调业务逻辑
    */
-  private async processCallbackBusiness(callbackData: any, channel: PaymentChannel): Promise<CallbackResponse> {
+  private async processCallbackBusiness(callbackData: PreprocessedData, channel: PaymentChannel): Promise<CallbackResponse> {
     try {
       const result = await paymentService.handlePaymentCallback({
         channel,
@@ -402,7 +425,7 @@ export class PaymentCallbackHandler {
    * 查找退款记录
    */
   private async findRefundRecord(refundId: string, channelRefundId?: string): Promise<any> {
-    return await prisma.paymentRefund.findFirst({
+    return await prisma.paymentsRefund.findFirst({
       where: {
         OR: [
           { refundNo: refundId },
@@ -424,7 +447,7 @@ export class PaymentCallbackHandler {
    * 从回调更新退款状态
    */
   private async updateRefundStatusFromCallback(refundId: string, updateData: any): Promise<void> {
-    await prisma.paymentRefund.update({
+    await prisma.paymentsRefund.update({
       where: { id: refundId },
       data: {
         status: updateData.status === 'SUCCESS' ? 'SUCCESS' as any :
@@ -481,7 +504,7 @@ export class PaymentCallbackHandler {
    */
   private async updateOrderRefundStatus(orderId: string): Promise<void> {
     // 检查订单是否所有退款都已完成
-    const totalRefunds = await prisma.paymentRefund.count({
+    const totalRefunds = await prisma.paymentsRefund.count({
       where: {
         payment: {
           orderId: orderId
@@ -489,7 +512,7 @@ export class PaymentCallbackHandler {
       }
     });
 
-    const completedRefunds = await prisma.paymentRefund.count({
+    const completedRefunds = await prisma.paymentsRefund.count({
       where: {
         payment: {
           orderId: orderId
@@ -499,7 +522,7 @@ export class PaymentCallbackHandler {
     });
 
     if (totalRefunds === completedRefunds && totalRefunds > 0) {
-      await prisma.order.update({
+      await prisma.orders.update({
         where: { id: orderId },
         data: {
           paymentStatus: PaymentStatus.REFUNDED
@@ -560,9 +583,9 @@ export class PaymentCallbackHandler {
   /**
    * 记录回调处理日志
    */
-  private async logCallbackProcessing(logData: any): Promise<void> {
+  private async logCallbackProcessing(logData: CallbackProcessingLog): Promise<void> {
     try {
-      await prisma.paymentLog.create({
+      await prisma.paymentsLog.create({
         data: {
           paymentId: logData.callbackId,
           action: 'NOTIFY' as any,
