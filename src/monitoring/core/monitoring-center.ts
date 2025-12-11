@@ -290,11 +290,21 @@ export class MonitoringCenter extends EventEmitter {
    */
   private getComponentStatus() {
     return {
-      metrics: this.metricsCollector.isRunning(),
-      health: this.healthChecker.isRunning(),
-      alerts: this.alertManager.isRunning(),
-      business: this.businessMetrics.isRunning(),
-      system: this.systemMetrics.isRunning()
+      metrics: this.metricsCollector && typeof this.metricsCollector.isRunning === 'function'
+        ? this.metricsCollector.isRunning()
+        : false,
+      health: this.healthChecker && typeof this.healthChecker.isRunning === 'function'
+        ? this.healthChecker.isRunning()
+        : false,
+      alerts: this.alertManager && typeof this.alertManager.isRunning === 'function'
+        ? this.alertManager.isRunning()
+        : false,
+      business: this.businessMetrics && typeof this.businessMetrics.isRunning === 'function'
+        ? this.businessMetrics.isRunning()
+        : false,
+      system: this.systemMetrics && typeof this.systemMetrics.isRunning === 'function'
+        ? this.systemMetrics.isRunning()
+        : false
     };
   }
 
@@ -362,3 +372,4 @@ export class MonitoringCenter extends EventEmitter {
 // 创建并导出单例
 const monitoringCenter = new MonitoringCenter();
 export default monitoringCenter;
+export { monitoringCenter };

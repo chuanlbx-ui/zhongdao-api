@@ -3,13 +3,31 @@
  * 提供高性能的性能指标、智能采样数据和告警信息
  */
 
-import { Router } from 'express';
-import { globalMonitor, PERF_CONFIG } from '../../../shared/middleware/performance-monitor-new';
+import { Router, Request, Response, NextFunction } from 'express';
+import { performanceMonitor } from '../../../shared/middleware/performance-monitor-new';
 import { logger } from '../../../shared/utils/logger';
 import { authenticate, optionalAuthenticate } from '../../../shared/middleware/auth';
 import { createSuccessResponse, createErrorResponse, ErrorCode } from '../../../shared/types/response';
 
 const router = Router();
+
+// 性能配置
+const PERF_CONFIG = {
+  thresholds: {
+    excellent: 100,
+    good: 200,
+    acceptable: 500,
+    slow: 1000,
+    critical: 2000
+  },
+  sampling: {
+    sampleRate: 0.1,
+    maxSamples: 1000
+  },
+  memory: {
+    alertThreshold: 0.9
+  }
+};
 
 /**
  * 获取性能概览（优化版）
@@ -17,7 +35,7 @@ const router = Router();
  */
 router.get('/overview', optionalAuthenticate, (req, res) => {
   try {
-    const report = globalMonitor.getPerformanceReport();
+    const report = performanceMonitor.getPerformanceReport();
 
     res.json(createSuccessResponse({
       timestamp: report.timestamp,
@@ -57,7 +75,7 @@ const requireAdminRole = (req: Request, res: Response, next: NextFunction) => {
 
 router.get('/slow-routes', authenticate, requireAdminRole, (req, res) => {
   try {
-    const report = globalMonitor.getPerformanceReport();
+    const report = performanceMonitor.getPerformanceReport();
     const { limit = 20 } = req.query;
 
     const slowRoutes = report.summary.topSlowRoutes
@@ -124,11 +142,11 @@ router.get('/stream', authenticate, requireAdminRole, (req, res) => {
   }, 30000);
 
   // 注册监听器
-  globalMonitor.on('metric', onMetric);
-  globalMonitor.on('alert', onAlert);
+  performanceMonitor.on('metric', onMetric);
+  performanceMonitor.on('alert', onAlert);
 
   // 发送初始数据
-  const initialReport = globalMonitor.getPerformanceReport();
+  const initialReport = performanceMonitor.getPerformanceReport();
   res.write(`data: ${JSON.stringify({
     type: 'init',
     data: initialReport
@@ -137,14 +155,14 @@ router.get('/stream', authenticate, requireAdminRole, (req, res) => {
   // 清理连接
   req.on('close', () => {
     clearInterval(heartbeat);
-    globalMonitor.off('metric', onMetric);
-    globalMonitor.off('alert', onAlert);
+    performanceMonitor.off('metric', onMetric);
+    performanceMonitor.off('alert', onAlert);
   });
 
   req.on('error', () => {
     clearInterval(heartbeat);
-    globalMonitor.off('metric', onMetric);
-    globalMonitor.off('alert', onAlert);
+    performanceMonitor.off('metric', onMetric);
+    performanceMonitor.off('alert', onAlert);
   });
 });
 
@@ -157,7 +175,7 @@ router.get('/health', async (req, res) => {
     const memUsage = process.memoryUsage();
     const cpuUsage = process.cpuUsage();
     const uptime = process.uptime();
-    const report = globalMonitor.getPerformanceReport();
+    const report = performanceMonitor.getPerformanceReport();
 
     // 检查各项指标
     const health: any = {

@@ -4,8 +4,18 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { monitoringCenter } from '../core/monitoring-center';
 import { logger } from '../../shared/utils/logger';
+
+// 延迟加载监控中心以避免循环依赖
+let monitoringCenter: any = null;
+
+async function getMonitoringCenter() {
+  if (!monitoringCenter) {
+    const module = await import('../core/monitoring-center');
+    monitoringCenter = module.monitoringCenter;
+  }
+  return monitoringCenter;
+}
 
 /**
  * 初始化监控系统中间件
@@ -14,8 +24,13 @@ import { logger } from '../../shared/utils/logger';
 export async function initializeMonitoring(): Promise<void> {
   try {
     logger.info('正在启动监控系统...');
-    await monitoringCenter.start();
-    logger.info('监控系统启动成功');
+    const center = await getMonitoringCenter();
+    if (center && typeof center.start === 'function') {
+      await center.start();
+      logger.info('监控系统启动成功');
+    } else {
+      logger.warn('监控中心未正确导出，跳过监控初始化');
+    }
   } catch (error) {
     logger.error('监控系统启动失败', error);
     throw error;
@@ -31,12 +46,20 @@ export function performanceMonitoring(req: Request, res: Response, next: NextFun
   const startTime = process.hrtime.bigint();
 
   // 监听响应完成
-  res.on('finish', () => {
-    const endTime = process.hrtime.bigint();
-    const responseTime = Number(endTime - startTime) / 1000000; // 转换为毫秒
+  res.on('finish', async () => {
+    try {
+      const endTime = process.hrtime.bigint();
+      const responseTime = Number(endTime - startTime) / 1000000; // 转换为毫秒
 
-    // 记录到监控中心
-    monitoringCenter.getMetricsCollector().recordRequest(req, res, responseTime);
+      // 延迟获取监控中心并记录
+      const center = await getMonitoringCenter();
+      if (center && center.getMetricsCollector) {
+        center.getMetricsCollector().recordRequest(req, res, responseTime);
+      }
+    } catch (error) {
+      // 静默处理错误，避免影响正常业务
+      logger.warn('性能监控记录失败', { error: error.message });
+    }
   });
 
   next();
@@ -51,20 +74,30 @@ export function businessMetrics(req: Request, res: Response, next: NextFunction)
   const url = req.url;
   const method = req.method;
 
-  // 注册相关业务指标
-  if (url.includes('/api/v1/auth/register')) {
-    monitoringCenter.recordMetric('counter', 'user_registrations_total', 1);
-  } else if (url.includes('/api/v1/auth/login')) {
-    monitoringCenter.recordMetric('counter', 'user_logins_total', 1);
-  } else if (url.includes('/api/v1/orders')) {
-    if (method === 'POST') {
-      monitoringCenter.recordMetric('counter', 'orders_created_total', 1);
+  // 延迟执行，避免阻塞请求
+  setImmediate(async () => {
+    try {
+      const center = await getMonitoringCenter();
+      if (!center || typeof center.recordMetric !== 'function') return;
+
+      // 注册相关业务指标
+      if (url.includes('/api/v1/auth/register')) {
+        center.recordMetric('counter', 'user_registrations_total', 1);
+      } else if (url.includes('/api/v1/auth/login')) {
+        center.recordMetric('counter', 'user_logins_total', 1);
+      } else if (url.includes('/api/v1/orders')) {
+        if (method === 'POST') {
+          center.recordMetric('counter', 'orders_created_total', 1);
+        }
+      } else if (url.includes('/api/v1/payments')) {
+        if (method === 'POST') {
+          center.recordMetric('counter', 'payments_initiated_total', 1);
+        }
+      }
+    } catch (error) {
+      logger.warn('业务指标记录失败', { error: error.message });
     }
-  } else if (url.includes('/api/v1/payments')) {
-    if (method === 'POST') {
-      monitoringCenter.recordMetric('counter', 'payments_initiated_total', 1);
-    }
-  }
+  });
 
   next();
 }
@@ -74,27 +107,39 @@ export function businessMetrics(req: Request, res: Response, next: NextFunction)
  * 捕获并记录错误
  */
 export function errorMonitoring(error: Error, req: Request, res: Response, next: NextFunction): void {
-  // 记录错误指标
-  monitoringCenter.recordMetric('counter', 'errors_total', 1, {
-    type: error.constructor.name,
-    route: req.path,
-    method: req.method
-  });
+  // 延迟执行，避免阻塞错误处理
+  setImmediate(async () => {
+    try {
+      const center = await getMonitoringCenter();
+      if (!center) return;
 
-  // 触发告警
-  if (res.statusCode >= 500) {
-    monitoringCenter.triggerAlert(
-      'server_error',
-      'high',
-      `服务器错误: ${error.message}`,
-      {
-        stack: error.stack,
-        route: req.path,
-        method: req.method,
-        userId: (req as any).user?.id
+      // 记录错误指标
+      if (typeof center.recordMetric === 'function') {
+        center.recordMetric('counter', 'errors_total', 1, {
+          type: error.constructor.name,
+          route: req.path,
+          method: req.method
+        });
       }
-    );
-  }
+
+      // 触发告警
+      if (res.statusCode >= 500 && typeof center.triggerAlert === 'function') {
+        center.triggerAlert(
+          'server_error',
+          'high',
+          `服务器错误: ${error.message}`,
+          {
+            stack: error.stack,
+            route: req.path,
+            method: req.method,
+            userId: (req as any).user?.id
+          }
+        );
+      }
+    } catch (err) {
+      logger.warn('错误监控失败', { error: err.message });
+    }
+  });
 
   // 继续传递错误
   next(error);
@@ -191,7 +236,10 @@ export function setupGracefulShutdown(): void {
   const shutdown = async (signal: string) => {
     logger.info(`收到 ${signal} 信号，正在关闭监控系统...`);
     try {
-      await monitoringCenter.stop();
+      const center = await getMonitoringCenter();
+      if (center && typeof center.stop === 'function') {
+        await center.stop();
+      }
       process.exit(0);
     } catch (error) {
       logger.error('关闭监控系统失败', error);

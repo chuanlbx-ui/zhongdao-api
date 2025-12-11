@@ -1,5 +1,4 @@
 import { Stream } from 'stream';
-import { ErrorCode } from '../../../shared/errors';
 
 // 统一API响应格式
 export interface ApiResponse<T = any> {

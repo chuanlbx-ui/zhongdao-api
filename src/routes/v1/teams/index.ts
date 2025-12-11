@@ -3,8 +3,8 @@
  */
 
 import { Router } from 'express';
-import { asyncHandler } from "@/shared/middleware/asyncHandler";
-import { authenticate } from "@/shared/middleware/auth";
+import { asyncHandler } from "../../../shared/middleware/asyncHandler";
+import { authenticate } from "../../../shared/middleware/auth";
 
 const router = Router();
 

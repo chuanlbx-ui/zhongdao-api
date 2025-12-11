@@ -24,7 +24,8 @@ export const errorHandler = (
   // 处理自定义错误类
   if (err instanceof AppError) {
     const response = createErrorResponse(err.code, err.message, err.details, undefined, requestId);
-    return res.status(err.statusCode).json(response);
+    res.status(err.statusCode).json(response);
+    return;
   }
 
   // 处理普通错误

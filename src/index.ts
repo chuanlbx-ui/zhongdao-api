@@ -68,6 +68,11 @@ PaymentConfigLoader.initializePaymentSystem();
 const app = express();
 const PORT = config.app.port;  // ✅ 从config对象读取端口号
 
+// 监控页面路由（最先处理，避免被其他中间件拦截）
+app.get('/monitoring.html', (req, res) => {
+  res.sendFile(require('path').join(__dirname, '../public/monitoring.html'));
+});
+
 // 启动时安全检查（静默模式，只记录日志）
 if (process.env.NODE_ENV === 'production') {
     performStartupSecurityCheck();
@@ -113,6 +118,9 @@ app.use(cors({
 // 压缩
 app.use(compression());
 
+// 静态文件服务
+app.use(express.static('public'));
+
 // 请求体大小限制和解析
 app.use(express.json({
     limit: process.env.MAX_PAYLOAD_SIZE || '10mb',
@@ -137,7 +145,7 @@ app.use(apiLoggingMiddleware);
 // 启用优化的性能监控V2
 app.use(enhancedPerformanceMonitor);
 
-// 新的监控系统中间件（在性能监控之后）
+// 新的监控系统中间件（已修复循环依赖）
 const monitoringMiddleware = getMonitoringMiddleware();
 app.use(monitoringMiddleware);
 
@@ -261,6 +269,11 @@ app.get('/api/v1/test-simple', (req, res) => {
 // API路由
 app.use('/api/v1', apiV1Routes);
 
+// 监控页面路由（必须在404处理之前）
+app.get('/monitoring.html', (req, res) => {
+  res.sendFile(require('path').join(__dirname, '../public/monitoring.html'));
+});
+
 // 调试：添加日志查看路由是否被注册
 console.log('🔍 API路由已注册到 /api/v1');
 
@@ -305,7 +318,7 @@ app.listen(PORT, async () => {
     console.log(`🌍 环境: ${isDev ? '开发模式' : '生产模式'}`);
     console.log(`🗄️ 数据库: ${dbStatus} (${config.database.host}:${config.database.port}/${config.database.name})`);
     console.log(`🔗 健康检查: http://localhost:${PORT}/health`);
-    console.log(`📊 监控面板: http://localhost:${PORT}/api/v1/monitoring/dashboard`);
+    console.log(`📊 监控面板: http://localhost:${PORT}/api/v1/monitoring/page`);
     console.log(`📚 API文档: http://localhost:${PORT}/api-docs\n`);
 
     // 🚀 优化：测试环境跳过配置初始化，避免数据库连接池竞争
