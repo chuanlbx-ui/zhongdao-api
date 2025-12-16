@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { OrdersService } from '../../../modules/orders';
+import simpleOrderRoutes from './simple-orders';
 import * as expressValidator from 'express-validator';
 const { body, query, param  } = expressValidator;
 import { authenticate } from '../../../shared/middleware/auth';
@@ -12,6 +13,9 @@ import { OrderType, OrderStatus, PaymentMethod } from '../../../shared/types/ord
 
 const ordersService = new OrdersService();
 const router = Router();
+
+// 简化订单接口（不需要复杂验证）
+router.use('/simple', simpleOrderRoutes);
 
 // 创建订单
 router.post('/',

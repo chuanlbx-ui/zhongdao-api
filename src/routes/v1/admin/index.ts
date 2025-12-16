@@ -9,6 +9,7 @@ import ordersRoutes from './orders';
 import usersManageRoutes from './users-manage';
 import financeManageRoutes from './finance-manage';
 import systemConfigRoutes from './system-config-enhanced';
+import createTestUsersRoutes from './create-test-users';
 
 const router = Router();
 
@@ -41,6 +42,9 @@ router.use('/config', configRoutes);
 
 // 种子数据路由（开发环境）
 router.use('/seed', seedRoutes);
+
+// 创建测试用户路由
+router.use('/test-users', createTestUsersRoutes);
 
 // 测试路由
 router.get('/', (req, res) => {

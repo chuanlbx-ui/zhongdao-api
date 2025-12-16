@@ -17,6 +17,9 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       reportsDirectory: './coverage',
+      include: [
+        'src/**/*.{ts,js}',
+      ],
       exclude: [
         'node_modules/',
         'tests/',
@@ -29,10 +32,10 @@ export default defineConfig({
       ],
       thresholds: {
         global: {
-          branches: 60,
-          functions: 60,
-          lines: 60,
-          statements: 60
+          branches: 80,
+          functions: 80,
+          lines: 80,
+          statements: 80
         }
       }
     }

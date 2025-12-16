@@ -19,6 +19,8 @@ import { createErrorResponse, createSuccessResponse } from '../../shared/types/r
 
 const router = Router();
 
+console.log('[auth-simple.ts] Router created, mounting routes...');
+
 // 跳过CSRF验证的中间件
 const skipCSRF = (req: Request, res: Response, next: any) => {
   (req as any).skipCSRF = true;
@@ -109,6 +111,11 @@ router.post('/password-login',
         throw new ValidationError('手机号和密码不能为空');
       }
 
+      // 验证密码长度（仅当密码不为空且不是登录失败情况下的提示）
+      if (password.length < 8) {
+        throw new ValidationError('密码长度至少8位');
+      }
+
       // 查找用户
       const user = await prisma.users.findUnique({
         where: { phone }
@@ -147,9 +154,11 @@ router.post('/password-login',
           id: user.id,
           phone: user.phone,
           nickname: user.nickname,
-          avatarUrl: null,
+          email: user.email,
+          avatarUrl: user.avatarUrl,
           level: user.level.toLowerCase(),
-          status: user.status.toLowerCase()
+          status: user.status.toLowerCase(),
+          referralCode: user.referralCode
         },
         token
       }, '登录成功', undefined, req.requestId));
@@ -178,6 +187,7 @@ router.get('/me',
         openid: true,
         nickname: true,
         phone: true,
+        email: true,
         avatarUrl: true,
         level: true,
         status: true,
@@ -209,7 +219,8 @@ router.get('/me',
       openid: user.openid,
       nickname: user.nickname,
       phone: user.phone,
-      avatarUrl: null,
+      email: user.email,
+      avatarUrl: user.avatarUrl,
       level: user.level.toLowerCase(),
       status: user.status.toLowerCase(),
       pointsBalance: user.pointsBalance,
@@ -243,6 +254,11 @@ router.post('/password-register',
       throw new ValidationError('手机号和密码不能为空');
     }
 
+    // 验证密码长度
+    if (password.length < 8) {
+      throw new ValidationError('密码长度至少8位');
+    }
+
     // 检查手机号是否已注册
     const existingUser = await prisma.users.findUnique({
       where: { phone }
@@ -272,11 +288,12 @@ router.post('/password-register',
     const userReferralCode = await generateUniqueReferralCode();
     const passwordHash = await bcrypt.hash(password, 10);
     const openid = `phone_${phone}_${Date.now()}`;
+    const userId = `user_${phone}_${Date.now()}`;
 
     // 创建用户
     const user = await prisma.users.create({
       data: {
-        id: "sdjslkdjflksdfjlsdf",
+        id: userId,
         openid,
         phone,
         nickname: phone,
@@ -321,6 +338,129 @@ router.post('/password-register',
         message: '您的推荐码已生成，可分享给朋友注册时使用'
       }
     }, '注册成功', undefined, req.requestId));
+  })
+);
+
+// 更新用户资料接口
+router.put('/profile',
+  skipCSRF,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { nickname, phone, avatarUrl, email } = req.body;
+    const userId = req.user?.id || req.body.userId;
+
+    if (!userId) {
+      throw new ValidationError('用户ID不能为空');
+    }
+
+    // 基本验证
+    if (!nickname || !nickname.trim()) {
+      throw new ValidationError('昵称不能为空');
+    }
+
+    if (!phone || phone.length !== 11) {
+      throw new ValidationError('手机号格式不正确');
+    }
+
+    // 准备更新数据
+    const updateData: any = {
+      nickname: nickname.trim(),
+      phone
+    };
+
+    // 处理头像URL（如果有）
+    if (avatarUrl && avatarUrl.trim()) {
+      updateData.avatarUrl = avatarUrl.trim();
+    }
+
+    // 处理邮箱（如果有）
+    if (email && email.trim()) {
+      updateData.email = email.trim();
+    }
+
+    // 更新用户信息
+    const updatedUser = await prisma.users.update({
+      where: { id: userId },
+      data: updateData,
+      select: {
+        id: true,
+        nickname: true,
+        phone: true,
+        email: true,
+        avatarUrl: true,
+        level: true,
+        status: true,
+        updatedAt: true
+      }
+    });
+
+    logger.info('用户资料更新成功', {
+      userId,
+      fields: Object.keys(updateData)
+    });
+
+    res.json(createSuccessResponse({
+      id: updatedUser.id,
+      nickname: updatedUser.nickname,
+      phone: updatedUser.phone,
+      email: updatedUser.email,
+      avatarUrl: updatedUser.avatarUrl,
+      level: updatedUser.level.toLowerCase(),
+      status: updatedUser.status.toLowerCase(),
+      updatedAt: updatedUser.updatedAt
+    }, '个人资料更新成功'));
+  })
+);
+
+// 临时添加测试数据端点（仅开发环境）
+router.post('/create-test-referral',
+  skipCSRF,
+  asyncHandler(async (req: Request, res: Response) => {
+    if (process.env.NODE_ENV !== 'development') {
+      return res.status(403).json(createErrorResponse(
+        'FORBIDDEN',
+        '此接口仅在开发环境可用'
+      ));
+    }
+
+    const bcrypt = require('bcryptjs');
+    const passwordHash = await bcrypt.hash('123456', 10);
+
+    // 创建或更新测试用户
+    const testUser = await prisma.users.upsert({
+      where: { phone: '13900139000' },
+      update: {
+        referralCode: '6GLKU9',
+        level: 'VIP',
+        status: 'ACTIVE',
+        password: passwordHash
+      },
+      create: {
+        id: 'test_referrer_001',
+        openid: 'test_openid_referrer_001',
+        phone: '13900139000',
+        nickname: '测试推荐人',
+        password: passwordHash,
+        referralCode: '6GLKU9',
+        level: 'VIP',
+        status: 'ACTIVE',
+        parentId: null,
+        teamLevel: 1,
+        teamPath: null,
+      },
+      select: {
+        id: true,
+        nickname: true,
+        referralCode: true,
+        level: true,
+        status: true,
+        phone: true
+      }
+    });
+
+    res.json(createSuccessResponse({
+      message: '测试推荐人创建成功',
+      user: testUser
+    }, '测试数据创建成功'));
   })
 );
 

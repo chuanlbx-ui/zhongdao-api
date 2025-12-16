@@ -6,14 +6,14 @@ services:
     image: mysql:8.0
     container_name: zhongdao-mysql-dev
     ports:
-      - "3307:3306"
+      - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root_password_123
       MYSQL_DATABASE: zhongdao_mall_dev
       MYSQL_USER: dev_user
       MYSQL_PASSWORD: dev_password_123
     volumes:
-      - mysql_dev_data:/var/lib/mysql
+      - zhongdao-mall_mysql_dev_data:/var/lib/mysql
       - ./docker/mysql/dev.cnf:/etc/mysql/conf.d/dev.cnf
     command: --default-authentication-plugin=mysql_native_password
     restart: unless-stopped
@@ -25,11 +25,11 @@ services:
     image: redis:7-alpine
     container_name: zhongdao-redis-dev
     ports:
-      - "6380:6379"
+      - "6379:6379"
     volumes:
       - redis_dev_data:/data
-      - ./docker/redis/redis-dev.conf:/etc/redis/redis.conf
-    command: redis-server /etc/redis/redis.conf
+      - ./docker/redis:/etc/redis
+    command: ["redis-server", "/etc/redis/redis-dev.conf"]
     restart: unless-stopped
     networks:
       - zhongdao-dev

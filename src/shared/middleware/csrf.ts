@@ -65,6 +65,7 @@ export const csrfProtection = (req: Request, res: Response, next: NextFunction):
       '/api/v1/users/register',      // 用户注册
       '/api/v1/auth/password-register', // 密码注册
       '/api/v1/auth/password-login',    // 密码登录
+      '/api/v1/auth/login',          // 登录
       '/api/v1/admin/auth/login',    // 管理员登录
       '/api/v1/admin/auth/logout',   // 管理员登出
     ];

@@ -122,13 +122,14 @@ router.put('/:id',
   authenticate,
   asyncHandler2(async (req: Request, res: Response) => {
     try {
-      const { nickname, phone, level, status } = req.body;
-      
+      const { nickname, phone, level, status, avatarUrl } = req.body;
+
       const updateData: any = {};
       if (nickname !== undefined) updateData.nickname = nickname;
       if (phone !== undefined) updateData.phone = phone;
       if (level !== undefined) updateData.level = level;
       if (status !== undefined) updateData.status = status;
+      if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl;
 
       const updated = await prisma.users.update({
         where: { id: req.params.id },
@@ -141,6 +142,57 @@ router.put('/:id',
       res.status(500).json(createErrorResponse(
         ErrorCode.INTERNAL_ERROR,
         '更新用户失败',
+        error instanceof Error ? error.message : '未知错误'
+      ));
+    }
+  })
+);
+
+/**
+ * 创建用户
+ */
+router.post('/',
+  authenticate,
+  asyncHandler2(async (req: Request, res: Response) => {
+    try {
+      const { nickname, phone, avatarUrl, level = 'NORMAL', status = 'ACTIVE' } = req.body;
+
+      // 检查手机号是否已存在
+      if (phone) {
+        const existingUser = await prisma.users.findUnique({
+          where: { phone }
+        });
+
+        if (existingUser) {
+          return res.status(400).json(createErrorResponse(
+            ErrorCode.VALIDATION_ERROR,
+            '手机号已存在',
+            { field: 'phone' }
+          ));
+        }
+      }
+
+      // 创建用户
+      const newUser = await prisma.users.create({
+        data: {
+          openid: `phone_${phone}_${Date.now()}`,
+          nickname: nickname || `用户_${phone}`,
+          phone,
+          avatarUrl,
+          level,
+          status,
+          pointsBalance: 100,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      });
+
+      res.json(createSuccessResponse(newUser, '用户创建成功'));
+    } catch (error) {
+      logger.error('创建用户失败', { error });
+      res.status(500).json(createErrorResponse(
+        ErrorCode.INTERNAL_ERROR,
+        '创建用户失败',
         error instanceof Error ? error.message : '未知错误'
       ));
     }

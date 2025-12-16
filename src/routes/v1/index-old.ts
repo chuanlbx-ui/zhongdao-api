@@ -70,6 +70,64 @@ router.get('/hot', getHotProducts);
 router.get('/banners', getBanners);
 router.get('/banners/active', getActiveBanners);
 
+// 简单的 admin 测试路由
+router.get('/admin-test', (req, res) => {
+  console.log('🔍 admin-test 路由被调用');
+  res.json({
+    success: true,
+    message: 'Admin route working!',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// 用户列表测试路由
+router.get('/admin/users', (req, res) => {
+  console.log('🔍 /admin/users 路由被调用');
+
+  const mockUsers = [
+    { id: '1', nickname: '张三', phone: '13911111001', level: 'VIP', pointsBalance: 1000, createdAt: new Date() },
+    { id: '2', nickname: '李四', phone: '13911111002', level: 'STAR_1', pointsBalance: 3200, createdAt: new Date() },
+    { id: '3', nickname: '王五', phone: '13911111003', level: 'STAR_2', pointsBalance: 8500, createdAt: new Date() },
+    { id: '4', nickname: '赵六', phone: '13911111004', level: 'STAR_3', pointsBalance: 15000, createdAt: new Date() },
+    { id: '5', nickname: '钱七', phone: '13911111005', level: 'NORMAL', pointsBalance: 200, createdAt: new Date() }
+  ];
+
+  res.json({
+    success: true,
+    data: {
+      items: mockUsers,
+      total: 5,
+      page: 1,
+      perPage: 20
+    }
+  });
+});
+
+// 创建用户测试路由 - 已删除，现在使用admin/users中的真实路由
+
+// 同时挂载到 /users 路径
+router.get('/users', (req, res) => {
+  console.log('🔍 /users 路由被调用');
+
+  const mockUsers = [
+    { id: '1', nickname: '张三', phone: '13911111001', level: 'VIP', pointsBalance: 1000, createdAt: new Date() },
+    { id: '2', nickname: '李四', phone: '13911111002', level: 'STAR_1', pointsBalance: 3200, createdAt: new Date() },
+    { id: '3', nickname: '王五', phone: '13911111003', level: 'STAR_2', pointsBalance: 8500, createdAt: new Date() },
+    { id: '4', nickname: '赵六', phone: '13911111004', level: 'STAR_3', pointsBalance: 15000, createdAt: new Date() },
+    { id: '5', nickname: '钱七', phone: '13911111005', level: 'NORMAL', pointsBalance: 200, createdAt: new Date() }
+  ];
+
+  res.json({
+    success: true,
+    data: {
+      items: mockUsers,
+      total: 5,
+      page: 1,
+      perPage: 20
+    }
+  });
+});
+
 // API信息
 router.get('/', (req, res) => {
   res.json({

@@ -1011,6 +1011,7 @@ model users {
   nickname                                                String?
   avatarUrl                                               String?
   phone                                                   String?                  @unique
+  email                                                   String?                  @unique
   level                                                   users_level              @default(NORMAL)
   status                                                  users_status             @default(ACTIVE)
   parentId                                                String?
@@ -1692,4 +1693,17 @@ enum securityLogs_type {
   SESSION_TIMEOUT
   SUSPICIOUS_OPERATION
   TOKEN_INVALID
+}
+
+model banners {
+  id          String        @id
+  title       String
+  image       String
+  link        String?
+  alt         String?
+  description String?
+  isActive    Boolean       @default(true) @map("is_active")
+  sortOrder   Int           @default(0) @map("sort_order")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt
 }
